@@ -1,3 +1,8 @@
 import datasets
 
-rogue = datasets.load_metric('rouge')
+
+def get_rogue():
+    return datasets.load_metric('rouge')
+
+
+get_rogue()

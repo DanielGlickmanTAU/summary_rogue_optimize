@@ -7,7 +7,3 @@ def get_bart_model_and_tokenizer():
     # tokenizer = BartTokenizer.from_pretrained('facebook/bart-large')
     tokenizer = BartTokenizer.from_pretrained('sshleifer/distilbart-cnn-12-6')
     return model, tokenizer
-
-
-model, tokenizer = get_bart_model_and_tokenizer()
-print(model)

@@ -12,8 +12,8 @@ def get_bart_model_and_tokenizer():
                                               # return_token_type_ids=True
                                               )
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
     model.resize_token_embeddings(len(tokenizer))
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
     return model, tokenizer

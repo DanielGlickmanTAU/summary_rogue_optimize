@@ -23,12 +23,12 @@ def select_best(dataset, k=0.15, scale_exponent=1., metric='rouge2', ignore_asse
     if k < 1:
         k = int(len(dataset) * k)
     print('taking top ', k)
-    weights = dataset[metric]
+    normalizer = sum(dataset[metric])
+    weights = [x / normalizer for x in dataset[metric]]
     indexes = numpy.random.choice(
         list(range(0, len(dataset))),
         k,
         p=weights,
         replace=False  # cant replace because using datasets.select which may use unique indexs
     )
-
     return dataset.select(indexes)

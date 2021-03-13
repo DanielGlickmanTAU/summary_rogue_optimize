@@ -32,4 +32,4 @@ def select_best(dataset, k=0.15, scale_exponent=1., metric='rouge2', ignore_asse
         p=weights,
         replace=False  # cant replace because using datasets.select which may use unique indexs
     )
-    return dataset.select(indexes)
+    return dataset.select(indexes, keep_in_memory=True)

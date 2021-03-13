@@ -22,6 +22,7 @@ def select_best(dataset, k=0.15, scale_exponent=1., metric='rouge2', ignore_asse
         assert k <= 0.9 or k > 1  # giving a precentile too large makes no sense
     if k < 1:
         k = int(len(dataset) * k)
+    k = max(k, 1)  # just for debugging on tiny datasets
     print('taking top ', k)
     weights = [x ** scale_exponent for x in dataset[metric]]
     normalizer = sum(weights)

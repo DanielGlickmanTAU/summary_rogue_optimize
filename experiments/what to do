@@ -1,0 +1,54 @@
+hyperparams:
+    eval metric: rouge-1, rouge-2 rogue-l
+    decoding algorithms: beam search, nuclos
+    precentile: 0.15
+    selection: by prob(roullte)..top
+
+
+   selecting by rouge:
+        - chooices = []
+        - summaries = generated summaries sorted by rouge score
+        - taken_so_far = 0
+        - while taken_so_far > sum(rouge_scores) * precentile:
+              for x in summaries:
+                if random.random() > 0.5:
+                  taken_so_far += x.rouge
+
+                  IT IS CRITICAL HERE TO CHANGE LABEL FOR NEXT TRAINING..
+                  choices.append(x)
+        or just use
+        random.choices(
+...:     population=[['a','b'], ['b','a'], ['c','b']],
+...:     weights=[0.2, 0.2, 0.6],
+...:     k=10
+...: )
+
+
+
+
+
+
+best_valid = 0
+while rouge on validation set goes up:
+ summaries = generate summaries(put here generated summary in new datasets field)
+ valid = eval_rouge(summaries)
+ print('valid')
+ if valid <= best_valid:
+    break
+ best_valid = valid
+
+ summaries_to_train_on = select_by_rouge(summaries)..(than do dataset['labels'] = datasets['generated']
+ train on summaries_to_train_on
+
+
+ can be written maybe as:
+    summary_dataset = summary_dataset.map(generate_summary, keep_in_memory=True) #uses model and puts generated summary in new datasets field
+                   .map(score_rouge, keep_in_memory=True) #put rouge field in dataset
+
+    valid = eval_rouge(summry_dataset) #sum(summ_dataset['valid']['rouge']) / len
+    summaries_to_train_on = eval_rouge.filter(batch_size = 1024,
+
+
+
+
+

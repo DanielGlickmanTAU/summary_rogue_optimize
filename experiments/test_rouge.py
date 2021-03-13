@@ -45,7 +45,7 @@ while True:
     # comment this out when I want to compare to normal train.. and also set select scale_exp=0
     top = top.map(lambda examples: {'highlights': examples['generated_summaries']})
     print('train')
-    training.train(model, tokenizer, top, batch_size)
+    training.train(model, tokenizer, top, batch_size / 2)
 
     new_valid_score = eval_metric(cnn['validation'])
     if new_valid_score <= current_valid_score:

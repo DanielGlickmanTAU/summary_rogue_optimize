@@ -1,9 +1,10 @@
 from models import model_loading, tokenize, generate
 from data import cnn_dataset, metrics
+from models.candidate_selection import select_best
 
 batch_size = 16
 train_examples = 16 * 2
-validation_examples = 16 * 10
+validation_examples = 16 * 2
 
 model, tokenizer = model_loading.get_bart_model_and_tokenizer()
 cnn = cnn_dataset.get_cnn_dataset(train_subset=train_examples, valid_subset=validation_examples)
@@ -23,8 +24,15 @@ def add_summary_and_rouge(examples):
     return {'generated_summaries': generated_summaries, 'rouge2': rouge2, 'rouge1': rouge1}
 
 
+import numpy
+
 dataset = cnn['validation'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 
+top = select_best(dataset)
+print(top['rouge2'])
 
-print('rouge1', sum(dataset['rouge2']) / len(dataset['rouge2']))
-print('rouge2', sum(dataset['rouge1']) / len(dataset['rouge1']))
+print('rouge2', sum(dataset['rouge2']) / len(dataset['rouge2']))
+print('rouge1', sum(dataset['rouge1']) / len(dataset['rouge1']))
+
+print('rouge2 top', sum(top['rouge2']) / len(top['rouge2']))
+print('rouge1 tםפ', sum(top['rouge1']) / len(top['rouge1']))

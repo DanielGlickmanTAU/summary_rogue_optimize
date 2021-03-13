@@ -1,9 +1,9 @@
-from models import model_loading, tokenize
+from models import model_loading, tokenize, generate
 from data import cnn_dataset, metrics
 import torch
 
 model, tokenizer = model_loading.get_bart_model_and_tokenizer()
-cnn = cnn_dataset.get_cnn_dataset(subset=1)
+cnn = cnn_dataset.get_cnn_dataset(subset=2)
 rouge = metrics.get_rouge()
 
 
@@ -11,15 +11,22 @@ rouge = metrics.get_rouge()
 # highlights = cnn['train']['highlights']
 
 
-def process(examples):
-    articles = cnn['train']['article']
-    highlights = cnn['train']['highlights']
+def add_summary_and_rouge(examples):
+    articles = examples['article']
+    gold = examples['highlights']
+    generated_summaries = generate.summarize(model, tokenizer, articles)
 
-    inputs = tokenize.tokenize(tokenizer, articles)
-    summary_ids = model.generate(inputs['input_ids'], num_beams=4, max_length=1024)
-    decoded_summary_generated = [tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=False) for g
-                                 in
-                                 summary_ids]
+    assert len(gold) == len(generated_summaries)
+    scores = [metrics.calc_score(pred, ref) for pred, ref in zip(generated_summaries, gold)]
+    rouge2 = [x['rouge-2'] for x in scores]
+
+    return {'generated_summaries': generated_summaries, 'rouge2': rouge2}
+
+
+dataset = cnn['train'].map(add_summary_and_rouge)
+
+print(dataset[0])
+
 # print(decoded_summary_generated)
 #
 # fixed = cnn['train'] \

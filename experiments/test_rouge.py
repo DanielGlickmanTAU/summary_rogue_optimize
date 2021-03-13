@@ -3,9 +3,12 @@ from models import model_loading, generate
 from models.candidate_selection import select_best
 from transformers import Trainer, TrainingArguments
 
-batch_size = 2
-train_examples = 2 * 1
-validation_examples = 2 * 1
+batch_size = 16
+train_examples = batch_size * 30
+validation_examples = batch_size * 10
+
+scale_exponent = 1.5
+precentile = 0.4
 
 
 def add_summary_and_rouge(examples):
@@ -102,7 +105,7 @@ rouge = metrics.get_rouge()
 test_summaries = cnn['train'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 current_valid_score = eval_metric(cnn['validation'])
 while True:
-    top = select_best(test_summaries)
+    top = select_best(test_summaries, scale_exponent=scale_exponent)
     # replace gold tags with generated
     # comment this out when I want to compare to normal training.. and also set select scale_exp=0
     top = top.map(lambda examples: {'highlights': examples['generated_summaries']})
@@ -113,6 +116,8 @@ while True:
         break
     current_valid_score = new_valid_score
     test_summaries = cnn['test'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
+
+print('-' * 50)
 
 print('rouge2', sum(test_summaries['rouge2']) / len(test_summaries['rouge2']))
 print('rouge1', sum(test_summaries['rouge1']) / len(test_summaries['rouge1']))

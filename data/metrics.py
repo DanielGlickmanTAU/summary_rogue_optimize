@@ -21,6 +21,8 @@ rouge = get_rouge()
 
 
 def calc_score(prediction, gold):
+    if not isinstance(prediction, list) and not isinstance(gold, list):
+        prediction, gold = [prediction], [gold]
     score = rouge.compute(predictions=[prediction], references=[gold])
     return {'rouge-1': rouge_aggregate_score_to_rouge1_mid(score),
             'rouge-2': rouge_aggregate_score_to_rouge2_mid(score)}

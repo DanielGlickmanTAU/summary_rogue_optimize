@@ -14,7 +14,7 @@ def rouge_aggregate_score_to_rouge2_mid(aggregate_score):
 
 
 def rouge_aggregate_score_to_rougel_mid(aggregate_score):
-    return aggregate_score['rougel'].mid.fmeasure
+    return aggregate_score['rougeL'].mid.fmeasure
 
 
 rouge = get_rouge()

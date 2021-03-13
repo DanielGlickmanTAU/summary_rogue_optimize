@@ -1,3 +1,6 @@
+try:
+    summarize model than one summary per text:, num_return_sequences=
+
 hyperparams:
     eval metric: rouge-1, rouge-2 rogue-l
     decoding algorithms: beam search, nuclos
@@ -30,7 +33,7 @@ hyperparams:
 
 best_valid = 0
 while rouge on validation set goes up:
- summaries = generate summaries(put here generated summary in new datasets field)
+ summaries = summarize summaries(put here generated summary in new datasets field)
  valid = eval_rouge(summaries)
  print('valid')
  if valid <= best_valid:
@@ -50,5 +53,7 @@ while rouge on validation set goes up:
 
 
 
+tried:
+    append to input text "summarize: " | DOESNT WORK
 
-
+    force_bos_token_to_be_generated=False | DOESNT MATTER

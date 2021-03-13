@@ -24,13 +24,25 @@ def add_summary_and_rouge(examples):
     return {'generated_summaries': generated_summaries, 'rouge2': rouge2, 'rouge1': rouge1}
 
 
-dataset = cnn['validation'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
+def eval_metric(dataset_split):
+    ds = dataset_split.map(add_summary_and_rouge, batched=True, batch_size=batch_size, keep_in_memory=True)
+    return sum(ds['rouge2']) / len(ds['rouge2'])
 
-top = select_best(dataset)
-print(top['rouge2'])
 
-print('rouge2', sum(dataset['rouge2']) / len(dataset['rouge2']))
-print('rouge1', sum(dataset['rouge1']) / len(dataset['rouge1']))
+def train(model, tokenizer, data):
+    pass
+
+test_summaries = cnn['test'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
+valid = eval_metric(cnn['validation'])
+while True:
+    top = select_best(test_summaries)
+    # replace gold tags with generated
+    # comment this out when I want to compare to normal training
+    top = top.map(lambda examples: {'highlights': examples['generated_summaries']})
+    train(model, tokenizer, top)
+
+print('rouge2', sum(test_summaries['rouge2']) / len(test_summaries['rouge2']))
+print('rouge1', sum(test_summaries['rouge1']) / len(test_summaries['rouge1']))
 
 print('rouge2 top', sum(top['rouge2']) / len(top['rouge2']))
 print('rouge1 tםפ', sum(top['rouge1']) / len(top['rouge1']))

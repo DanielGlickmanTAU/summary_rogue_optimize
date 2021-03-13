@@ -60,10 +60,11 @@ def prepare_split_for_training(train_data, tokenizer):
     train_data.set_format(
         type="torch", columns=["input_ids", "attention_mask", "decoder_input_ids", "decoder_attention_mask", "labels"],
     )
+    return train_data
 
 
 def train(model, tokenizer, mini_split):
-    prepare_split_for_training(mini_split, tokenizer)
+    mini_split = prepare_split_for_training(mini_split, tokenizer)
 
     training_args = TrainingArguments(
         # output_dir="./",

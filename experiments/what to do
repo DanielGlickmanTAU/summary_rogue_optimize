@@ -53,6 +53,9 @@ while rouge on validation set goes up:
 
 
 
+rouge2 0.15173814031713614
+rouge1 0.3477252749973508
+
 tried:
     append to input text "summarize: " | DOESNT WORK
 

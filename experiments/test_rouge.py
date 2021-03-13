@@ -25,11 +25,6 @@ def add_summary_and_rouge(examples):
 
 dataset = cnn['validation'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 
-print('rouge1 at first 5', sum(dataset['rouge2'][:5]) / 5)
-print('rouge2 at first 5', sum(dataset['rouge1'][:5]) / 5)
-
-print('rouge1 at first 16', sum(dataset['rouge2'][:16]) / 16)
-print('rouge2 at first 16', sum(dataset['rouge1'][:16]) / 16)
 
 print('rouge1', sum(dataset['rouge2']) / len(dataset['rouge2']))
 print('rouge2', sum(dataset['rouge1']) / len(dataset['rouge1']))

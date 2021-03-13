@@ -1,5 +1,5 @@
-from models import model_loading, tokenize, generate
 from data import cnn_dataset, metrics
+from models import model_loading, generate
 from models.candidate_selection import select_best
 
 batch_size = 16
@@ -23,8 +23,6 @@ def add_summary_and_rouge(examples):
 
     return {'generated_summaries': generated_summaries, 'rouge2': rouge2, 'rouge1': rouge1}
 
-
-import numpy
 
 dataset = cnn['validation'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 

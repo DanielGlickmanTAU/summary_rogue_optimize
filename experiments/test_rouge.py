@@ -3,13 +3,9 @@ from models import model_loading, generate
 from models.candidate_selection import select_best
 from transformers import Trainer, TrainingArguments
 
-batch_size = 16
-train_examples = 16 * 5
-validation_examples = 16 * 1
-
-model, tokenizer = model_loading.get_bart_model_and_tokenizer()
-cnn = cnn_dataset.get_cnn_dataset(train_subset=train_examples, valid_subset=validation_examples)
-rouge = metrics.get_rouge()
+batch_size = 2
+train_examples = 2 * 1
+validation_examples = 2 * 1
 
 
 def add_summary_and_rouge(examples):
@@ -33,6 +29,7 @@ def eval_metric(dataset_split):
 
 
 def prepare_examples_for_training(examples, tokenizer):
+    input_tokens = tokenizer(examples["article"], padding="max_length", truncation=True, max_length=512)
     highlight_tokens = tokenizer(examples["highlights"], padding="max_length", truncation=True, max_length=128)
 
     decoder_input_ids = highlight_tokens['input_ids']
@@ -43,10 +40,13 @@ def prepare_examples_for_training(examples, tokenizer):
     # We have to make sure that the PAD token is ignored
     labels = [[-100 if token == tokenizer.pad_token_id else token for token in tokens] for tokens in labels]
 
-    return {'decoder_input_ids': decoder_input_ids,
-            'decoder_attention_mask': decoder_attention_mask,
-            'labels': labels
-            }
+    return {
+        'input_ids': input_tokens['input_ids'],
+        'attention_mask': input_tokens['attention_mask'],
+        'decoder_input_ids': decoder_input_ids,
+        'decoder_attention_mask': decoder_attention_mask,
+        'labels': labels
+    }
 
 
 def prepare_split_for_training(train_data, tokenizer):
@@ -67,7 +67,7 @@ def train(model, tokenizer, mini_split):
     mini_split = prepare_split_for_training(mini_split, tokenizer)
 
     training_args = TrainingArguments(
-        # output_dir="./",
+        output_dir="./",
         num_train_epochs=1,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
@@ -95,7 +95,11 @@ def train(model, tokenizer, mini_split):
     trainer.train()
 
 
-test_summaries = cnn['test'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
+model, tokenizer = model_loading.get_bart_model_and_tokenizer()
+cnn = cnn_dataset.get_cnn_dataset(train_subset=train_examples, valid_subset=validation_examples)
+rouge = metrics.get_rouge()
+
+test_summaries = cnn['train'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 current_valid_score = eval_metric(cnn['validation'])
 while True:
     top = select_best(test_summaries)

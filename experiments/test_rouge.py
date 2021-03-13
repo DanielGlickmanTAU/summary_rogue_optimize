@@ -36,6 +36,8 @@ model, tokenizer = model_loading.get_bart_model_and_tokenizer()
 cnn = cnn_dataset.get_cnn_dataset(train_subset=train_examples, valid_subset=validation_examples)
 rouge = metrics.get_rouge()
 
+strikes = 2
+
 test_summaries = cnn['train'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 current_valid_score = eval_metric(cnn['validation'])
 while True:
@@ -49,7 +51,10 @@ while True:
 
     new_valid_score = eval_metric(cnn['validation'])
     if new_valid_score <= current_valid_score:
-        break
+        strikes = strikes - 1
+        if strikes <= 0:
+            break
+
     current_valid_score = new_valid_score
     test_summaries = cnn['test'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 

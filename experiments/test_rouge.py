@@ -8,7 +8,7 @@ batch_size = 12
 train_examples = batch_size * 50
 validation_examples = batch_size * 10
 
-scale_exponent = 1.5
+scale_exponent = 1.8
 precentile = 0.4
 
 

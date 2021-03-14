@@ -6,21 +6,21 @@ from train import training
 
 batch_size = 12
 train_examples = batch_size * 150
-train_examples = batch_size * 1
+# train_examples = batch_size * 1
 validation_examples = batch_size * 50
-validation_examples = batch_size * 1
+# validation_examples = batch_size * 1
 
 strikes = 2
 temperature = 0.5
 precentile = 0.15
 
 exp = experiment.start_experiment(hyperparams={
-    batch_size: batch_size,
-    train_examples: train_examples,
-    validation_examples: validation_examples,
-    temperature: temperature,
-    precentile: precentile,
-    strikes: strikes
+    'batch_size': batch_size,
+    'train_examples': train_examples,
+    'validation_examples': validation_examples,
+    'temperature': temperature,
+    'precentile': precentile,
+    'strikes': strikes
 })
 
 

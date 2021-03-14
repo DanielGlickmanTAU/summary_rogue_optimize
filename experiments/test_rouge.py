@@ -46,7 +46,10 @@ def eval_metric(dataset_split):
     ds_rouge_2 = sum(ds['rouge2']) / len(ds['rouge2'])
     ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
     print('rouge2 is ', ds_rouge_2, ' evaluate on', len(ds['rouge2']))
-    experiment.log_metrics({'rouge1': ds_rouge_1, 'rouge2': ds_rouge_2})
+    try:
+        exp.log_metrics({'rouge1': ds_rouge_1, 'rouge2': ds_rouge_2})
+    except Exception:
+        pass
     return ds_rouge_2
 
 

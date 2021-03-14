@@ -5,6 +5,6 @@ datasets~=1.2.1
 numpy~=1.19.4
 tokenizers~=0.9.4
 tqdm~=4.49.0
-
+comet_ml
 nltk
  rouge_score

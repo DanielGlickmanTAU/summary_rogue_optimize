@@ -22,7 +22,9 @@ exp = experiment.start_experiment(hyperparams={
     'precentile': precentile,
     'strikes': strikes,
     'top_p': generate.top_p,
-    'top_k': generate.top_k
+    'top_k': generate.top_k,
+    'do_sample': generate.do_sample,
+    'num_beams': generate.num_beams
 })
 
 

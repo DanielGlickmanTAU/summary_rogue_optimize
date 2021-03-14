@@ -1,16 +1,19 @@
 from models import tokenize
 
-
 top_p = 0.92
 top_k = 200
+num_beams = 4
+do_sample = True
+
+
 def summarize(model, tokenizer, texts):
     """input is list of strings batch
         output is list of strings"""
     inputs = tokenize.tokenize(tokenizer, texts)
     print('generating', len(inputs['input_ids']), 'summaries')
     summary_ids = model.generate(**inputs,
-                                 # num_beams=4,
-                                 do_sample=True,
+                                 num_beams=num_beams,
+                                 do_sample=do_sample,
                                  # max_length=50,
                                  top_p=top_p,
                                  top_k=top_k,

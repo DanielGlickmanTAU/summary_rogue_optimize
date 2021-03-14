@@ -1,7 +1,7 @@
 from models import tokenize
 
-top_p = 0.92
-top_k = 200
+top_p = 0.90
+top_k = 100
 num_beams = 4
 do_sample = True
 num_return_sequences = 1

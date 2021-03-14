@@ -37,9 +37,11 @@ def add_summary_and_rouge(examples):
 
 def eval_metric(dataset_split):
     ds = dataset_split.map(add_summary_and_rouge, batched=True, batch_size=batch_size, keep_in_memory=True)
-    ds_rouge_ = sum(ds['rouge2']) / len(ds['rouge2'])
-    print('rouge2 is ', ds_rouge_, ' evaluate on', len(ds['rouge2']))
-    return ds_rouge_
+    ds_rouge_2 = sum(ds['rouge2']) / len(ds['rouge2'])
+    ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
+    print('rouge2 is ', ds_rouge_2, ' evaluate on', len(ds['rouge2']))
+    experiment.log_metrics({'rouge1': ds_rouge_1, 'rouge2': ds_rouge_2})
+    return ds_rouge_2
 
 
 model, tokenizer = model_loading.get_bart_model_and_tokenizer()

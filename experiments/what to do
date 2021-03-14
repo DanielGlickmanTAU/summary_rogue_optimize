@@ -30,9 +30,22 @@ hyperparams:
 
 
 
+test_summaries  = summarize summaries on test set(put here generated summary in new datasets field)
+valid = eval_rouge(summaries['validation']) # here generate too
+while True:
+    summaries_to_train_on = select_by_rouge from test(test_summaries)# (than do dataset['labels'] = datasets['generated']
+    train on summaries_to_train_on for 1 epoch
 
-best_valid = 0
-while rouge on validation set goes up:
+    valid_after_training_on_top = eval_rouge(summaries['validation']) # here generate too
+    if valid_after_training_on_top <= valid:
+        break
+
+    test_summaries  = summarize summaries on test set(put here generated summary in new datasets field)
+    valid = valid_after_training_on_top
+
+
+
+
  summaries = summarize summaries(put here generated summary in new datasets field)
  valid = eval_rouge(summaries)
  print('valid')
@@ -40,7 +53,6 @@ while rouge on validation set goes up:
     break
  best_valid = valid
 
- summaries_to_train_on = select_by_rouge(summaries)..(than do dataset['labels'] = datasets['generated']
  train on summaries_to_train_on
 
 

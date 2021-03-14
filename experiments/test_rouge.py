@@ -20,7 +20,9 @@ exp = experiment.start_experiment(hyperparams={
     'validation_examples': validation_examples,
     'temperature': temperature,
     'precentile': precentile,
-    'strikes': strikes
+    'strikes': strikes,
+    'top_p': generate.top_p,
+    'top_k': generate.top_k
 })
 
 
@@ -49,7 +51,6 @@ def eval_metric(dataset_split):
 model, tokenizer = model_loading.get_bart_model_and_tokenizer()
 cnn = cnn_dataset.get_cnn_dataset(train_subset=train_examples, valid_subset=validation_examples)
 rouge = metrics.get_rouge()
-
 
 test_summaries = cnn['train'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 current_valid_score = eval_metric(cnn['validation'])

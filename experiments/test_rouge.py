@@ -1,15 +1,16 @@
+import experiment
 from data import cnn_dataset, metrics
 from models import model_loading, generate
 from models.candidate_selection import select_best
-import experiment
 from train import training
 
 batch_size = 12
 train_examples = batch_size * 150
-# train_examples = batch_size * 1
+train_examples = batch_size * 1
 validation_examples = batch_size * 50
-# validation_examples = batch_size * 1
+validation_examples = batch_size * 1
 
+strikes = 2
 temperature = 0.5
 precentile = 0.15
 
@@ -18,7 +19,8 @@ exp = experiment.start_experiment(hyperparams={
     train_examples: train_examples,
     validation_examples: validation_examples,
     temperature: temperature,
-    precentile: precentile
+    precentile: precentile,
+    strikes: strikes
 })
 
 
@@ -48,7 +50,6 @@ model, tokenizer = model_loading.get_bart_model_and_tokenizer()
 cnn = cnn_dataset.get_cnn_dataset(train_subset=train_examples, valid_subset=validation_examples)
 rouge = metrics.get_rouge()
 
-strikes = 2
 
 test_summaries = cnn['train'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 current_valid_score = eval_metric(cnn['validation'])

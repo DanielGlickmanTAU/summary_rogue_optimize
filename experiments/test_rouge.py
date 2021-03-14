@@ -24,7 +24,8 @@ exp = experiment.start_experiment(hyperparams={
     'top_p': generate.top_p,
     'top_k': generate.top_k,
     'do_sample': generate.do_sample,
-    'num_beams': generate.num_beams
+    'num_beams': generate.num_beams,
+    'num_return_sequences': generate.num_return_sequences
 })
 
 

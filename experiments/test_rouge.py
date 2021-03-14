@@ -5,11 +5,13 @@ from models.candidate_selection import select_best
 from train import training
 
 batch_size = 12
-train_examples = batch_size * 50
-validation_examples = batch_size * 10
+train_examples = batch_size * 150
+# train_examples = batch_size * 1
+validation_examples = batch_size * 50
+# validation_examples = batch_size * 1
 
-scale_exponent = 1.8
-precentile = 0.4
+temperature = 0.5
+precentile = 0.15
 
 
 def add_summary_and_rouge(examples):
@@ -42,12 +44,12 @@ test_summaries = cnn['train'].map(add_summary_and_rouge, batched=True, batch_siz
 current_valid_score = eval_metric(cnn['validation'])
 while True:
     print('selecting top')
-    top = select_best(test_summaries, scale_exponent=scale_exponent)
+    top = select_best(test_summaries, temp=temperature, k=precentile)
     # replace gold tags with generated
     # comment this out when I want to compare to normal train.. and also set select scale_exp=0
     top = top.map(lambda examples: {'highlights': examples['generated_summaries']})
     print('train')
-    training.train(model, tokenizer, top, batch_size / 2)
+    training.train(model, tokenizer, top, int(batch_size / 2))
 
     new_valid_score = eval_metric(cnn['validation'])
     if new_valid_score <= current_valid_score:
@@ -56,7 +58,7 @@ while True:
             break
 
     current_valid_score = new_valid_score
-    test_summaries = cnn['test'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
+    test_summaries = cnn['train'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)
 
 print('-' * 50)
 

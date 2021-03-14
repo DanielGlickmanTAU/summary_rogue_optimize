@@ -18,7 +18,7 @@ def summarize(model, tokenizer, texts):
                                  # max_length=50,
                                  top_p=top_p,
                                  top_k=top_k,
-                                 max_length=200,
+                                 max_length=1024,
                                  num_return_sequences=num_return_sequences
 
                                  )

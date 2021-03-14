@@ -1,7 +1,7 @@
 from data import cnn_dataset, metrics
 from models import model_loading, generate
 from models.candidate_selection import select_best
-
+import experiment
 from train import training
 
 batch_size = 12
@@ -12,6 +12,14 @@ validation_examples = batch_size * 50
 
 temperature = 0.5
 precentile = 0.15
+
+exp = experiment.start_experiment(hyperparams={
+    batch_size: batch_size,
+    train_examples: train_examples,
+    validation_examples: validation_examples,
+    temperature: temperature,
+    precentile: precentile
+})
 
 
 def add_summary_and_rouge(examples):

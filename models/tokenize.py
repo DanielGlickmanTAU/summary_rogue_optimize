@@ -1,7 +1,7 @@
 import torch
 
 
-def tokenize(tokenizer, texts, max_length=1024):
+def tokenize(tokenizer, texts, max_length=512):
     tokenized = tokenizer(texts,
                           max_length=max_length,
                           return_tensors='pt', padding="max_length", truncation=True)

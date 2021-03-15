@@ -4,15 +4,15 @@ from models import model_loading, generate
 from models.candidate_selection import select_best
 from train import training
 
-batch_size = 12
-train_examples = batch_size * 150
+batch_size = 6
+train_examples = 2500
 # train_examples = batch_size * 1
-validation_examples = batch_size * 50
+validation_examples = 600
 # validation_examples = batch_size * 1
 
-strikes = 2
-temperature = 0.5
-precentile = 0.15
+strikes = 3
+temperature = 0.7
+precentile = 0.1
 
 exp = experiment.start_experiment(hyperparams={
     'batch_size': batch_size,

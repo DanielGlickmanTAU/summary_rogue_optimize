@@ -1,6 +1,8 @@
 try:
-    summarize model than one summary per text:, num_return_sequences=
+    try α = 0.6 length penelty
+    try regular fine tuning
     high temperature
+    summarize model than one summary per text:, num_return_sequences=
 
 hyperparams:
     eval metric: rouge-1, rouge-2 rogue-l

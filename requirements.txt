@@ -7,4 +7,4 @@ tokenizers~=0.9.4
 tqdm~=4.49.0
 comet_ml
 nltk
- rouge_score
+rouge_score

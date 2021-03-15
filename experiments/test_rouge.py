@@ -11,7 +11,7 @@ validation_examples = 600
 # validation_examples = batch_size * 1
 
 strikes = 3
-temperature = 0.7
+temperature = 0.6
 precentile = 0.1
 
 exp = experiment.start_experiment(hyperparams={

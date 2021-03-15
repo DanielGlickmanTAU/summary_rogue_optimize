@@ -19,8 +19,8 @@ def summarize(model, tokenizer, texts):
                                  top_p=top_p,
                                  top_k=top_k,
                                  max_length=128,
-                                 num_return_sequences=num_return_sequences
-
+                                 num_return_sequences=num_return_sequences,
+                                 early_stopping=True
                                  )
     return [tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=False)
             for g in summary_ids]

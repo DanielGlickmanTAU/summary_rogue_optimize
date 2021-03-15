@@ -49,7 +49,8 @@ def train(model, tokenizer, mini_split, batch_size):
         overwrite_output_dir=False,
         warmup_steps=0,
         # fp16=True,
-        prediction_loss_only=True
+        prediction_loss_only=True,
+        learning_rate=4e-05
     )
 
     trainer = Trainer(

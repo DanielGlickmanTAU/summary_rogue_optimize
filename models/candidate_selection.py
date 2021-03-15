@@ -27,13 +27,18 @@ def select_best(dataset, k=0.15, temp=1., metric='rouge2', ignore_assertions=Fal
     k = max(k, 1)  # just for debugging on tiny datasets
     print('taking top ', k)
     # weights = [x ** scale_exponent for x in dataset[metric]]
-    weights = F.softmax(torch.tensor(dataset[metric]) / temp)
+    weights = dataset[metric]
+    avg = sum(weights) / len(weights)
+    weights = [w for w in weights if w >= avg]
+    weights = [x ** temp for x in weights]
     # normalizer = sum(weights)
-    # weights = [x / normalizer for x in weights]
+    weights = [x / sum(weights) for x in weights]
+
+    dataset = dataset.filter(lambda example: example[metric] >= avg)
     indexes = numpy.random.choice(
         list(range(0, len(dataset))),
         k,
-        p=weights.numpy(),
+        p=weights,
         replace=False  # cant replace because using datasets.select which may use unique indexs
     )
     return dataset.select(indexes)

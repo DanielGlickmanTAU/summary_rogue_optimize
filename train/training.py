@@ -1,5 +1,7 @@
 from transformers import TrainingArguments, Trainer
 
+learning_rate = 1e-07
+
 
 def prepare_examples_for_training(examples, tokenizer):
     input_tokens = tokenizer(examples["article"], padding="max_length", truncation=True, max_length=512)
@@ -36,7 +38,7 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
-def train(model, tokenizer, mini_split, batch_size):
+def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate):
     mini_split = prepare_split_for_training(mini_split, tokenizer, batch_size)
 
     training_args = TrainingArguments(
@@ -50,7 +52,7 @@ def train(model, tokenizer, mini_split, batch_size):
         # warmup_steps=0,
         # fp16=True,
         prediction_loss_only=True,
-        learning_rate=4e-05
+        learning_rate=learning_rate
     )
 
     trainer = Trainer(

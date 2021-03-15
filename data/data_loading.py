@@ -22,6 +22,3 @@ def _filter_dataset(dataset, test_subset, train_subset, valid_subset):
         dataset['validation'] = dataset['validation'].select(range(valid_subset))
     if test_subset:
         dataset['test'] = dataset['test'].select(range(test_subset))
-
-
-print(get_xsum_dataset()['train'][0])

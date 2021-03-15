@@ -36,4 +36,4 @@ def select_best(dataset, k=0.15, temp=1., metric='rouge2', ignore_assertions=Fal
         p=weights.numpy(),
         replace=False  # cant replace because using datasets.select which may use unique indexs
     )
-    return dataset.select(indexes, keep_in_memory=True)
+    return dataset.select(indexes)

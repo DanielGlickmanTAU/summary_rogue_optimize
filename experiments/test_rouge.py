@@ -44,7 +44,7 @@ def add_summary_and_rouge(examples):
 
 
 def eval_metric(dataset_split):
-    ds = dataset_split.map(add_summary_and_rouge, batched=True, batch_size=batch_size, keep_in_memory=True)
+    ds = dataset_split.map(add_summary_and_rouge, batched=True, batch_size=batch_size)
     ds_rouge_2 = sum(ds['rouge2']) / len(ds['rouge2'])
     ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
     print('rouge2 is ', ds_rouge_2, ' evaluate on', len(ds['rouge2']))

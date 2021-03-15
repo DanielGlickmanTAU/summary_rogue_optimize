@@ -1,9 +1,10 @@
 import torch
 from transformers import BartTokenizer, BartForConditionalGeneration, BartConfig
 
-#model_name = 'facebook/bart-large'
+# model_name = 'facebook/bart-large'
 # model_name = 'sshleifer/distilbart-6-6-cnn'
-model_name = 'sshleifer/distilbart-cnn-12-6'
+# model_name = 'sshleifer/distilbart-cnn-12-6'
+model_name = 'sshleifer/distilbart-xsum-12-1'
 
 
 def get_bart_model_and_tokenizer():
@@ -20,3 +21,4 @@ def get_bart_model_and_tokenizer():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
     return model, tokenizer
+

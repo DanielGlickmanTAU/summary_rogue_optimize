@@ -1,5 +1,5 @@
 import experiment
-from data import cnn_dataset, metrics
+from data import data_loading, metrics
 from models import model_loading, generate
 from models.candidate_selection import select_best
 from train import training
@@ -56,7 +56,7 @@ def eval_metric(dataset_split):
 
 
 model, tokenizer = model_loading.get_bart_model_and_tokenizer()
-cnn = cnn_dataset.get_cnn_dataset(train_subset=train_examples, valid_subset=validation_examples)
+cnn = data_loading.get_cnn_dataset(train_subset=train_examples, valid_subset=validation_examples)
 rouge = metrics.get_rouge()
 
 test_summaries = cnn['train'].map(add_summary_and_rouge, batched=True, batch_size=batch_size)

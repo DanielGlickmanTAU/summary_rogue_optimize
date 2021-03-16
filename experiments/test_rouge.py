@@ -17,23 +17,29 @@ def add_summary_and_rouge(examples, do_sample, top_p, top_k, num_beams, num_retu
     generated_summaries = generate.summarize(model, tokenizer, articles, do_sample, top_p, top_k, num_beams,
                                              num_return_sequences)
 
-    articles2 = []
-    highlights2 = []
+    if num_return_sequences > 2:
+        raise ValueError()
 
-    for a, b in zip(articles, articles):
-        articles2.append(a)
-        articles2.append(a)
+    if num_return_sequences == 2:
+        articles2 = []
+        highlights2 = []
 
-    for a, b in zip(highlights2, highlights2):
-        highlights2.append(a)
-        highlights2.append(a)
+        for a, b in zip(articles, articles):
+            articles2.append(a)
+            articles2.append(a)
+
+        for a, b in zip(highlights2, highlights2):
+            highlights2.append(a)
+            highlights2.append(a)
+        gold = highlights2
+        articles = articles2
 
     assert len(gold) == len(generated_summaries)
     scores = [metrics.calc_score(pred, ref) for pred, ref in zip(generated_summaries, gold)]
     rouge2 = [x['rouge-2'] for x in scores]
     rouge1 = [x['rouge-1'] for x in scores]
 
-    return {'articles': articles2, 'highlights': highlights2, 'generated_summaries': generated_summaries,
+    return {'articles': articles2, 'highlights': gold, 'generated_summaries': generated_summaries,
             'rouge2': rouge2, 'rouge1': rouge1}
 
 

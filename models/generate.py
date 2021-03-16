@@ -9,7 +9,7 @@ do_sample = False
 num_return_sequences = 1
 
 
-def summarize(model, tokenizer, texts, do_sample=do_sample, top_p=top_p, num_beams=num_beams):
+def summarize(model, tokenizer, texts,do_sample, top_p,top_k, num_beams):
     """input is list of strings batch
         output is list of strings"""
     inputs = tokenize.tokenize(tokenizer, texts)

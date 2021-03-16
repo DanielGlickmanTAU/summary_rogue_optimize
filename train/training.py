@@ -38,7 +38,7 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
-def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate):
+def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate,gradient_accumulation_steps=1):
     mini_split = prepare_split_for_training(mini_split, tokenizer, batch_size)
 
     training_args = TrainingArguments(
@@ -50,9 +50,10 @@ def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate)
         do_eval=False,
         overwrite_output_dir=False,
         # warmup_steps=0,
-        # fp16=True,
+        fp16=True,
         prediction_loss_only=True,
-        learning_rate=learning_rate
+        learning_rate=learning_rate,
+        gradient_accumulation_steps=gradient_accumulation_steps
     )
 
     trainer = Trainer(

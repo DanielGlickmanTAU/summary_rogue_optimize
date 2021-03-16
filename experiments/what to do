@@ -1,8 +1,5 @@
 try:
-    select always above average
-    try α = 0.6 and 2.0 length penelty
     try regular fine tuning
-    high temperature
     summarize model than one summary per text:, num_return_sequences=
 
 hyperparams:
@@ -13,6 +10,8 @@ hyperparams:
 
 
 tried:
+    select always above average
+
     append to input text "summarize: " | DOESNT WORK
 
     force_bos_token_to_be_generated=False | DOESNT MATTER

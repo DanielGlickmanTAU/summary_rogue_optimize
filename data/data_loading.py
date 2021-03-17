@@ -12,6 +12,7 @@ def get_xsum_dataset(train_subset: int = None, valid_subset: int = None, test_su
     _filter_dataset(dataset, test_subset, train_subset, valid_subset)
     dataset.rename_column_('document', 'article')
     dataset.rename_column_('summary', 'highlights')
+    dataset.remove_columns_('id')
     return dataset
 
 

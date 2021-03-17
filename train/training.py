@@ -30,7 +30,7 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
         batched=True,
         batch_size=batch_size,
         # todo consider here removing 'generated_summary' field
-        remove_columns=["article", "highlights", "id"]
+        remove_columns=["article", "highlights", "id"] if 'id' in train_data else ["article", "highlights"]
     )
     train_data.set_format(
         type="torch", columns=["input_ids", "attention_mask", "decoder_input_ids", "decoder_attention_mask", "labels"],
@@ -38,7 +38,7 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
-def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate,gradient_accumulation_steps=1):
+def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1):
     mini_split = prepare_split_for_training(mini_split, tokenizer, batch_size)
 
     training_args = TrainingArguments(

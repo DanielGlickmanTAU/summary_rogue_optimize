@@ -26,3 +26,20 @@ def calc_score(prediction, gold):
     score = rouge.compute(predictions=prediction, references=gold)
     return {'rouge-1': rouge_aggregate_score_to_rouge1_mid(score),
             'rouge-2': rouge_aggregate_score_to_rouge2_mid(score)}
+
+
+def calc_score_avg_and_best_and_first(predictions, gold):
+    """for working with a list of predictions"""
+    if not isinstance(predictions, list):
+        raise Exception
+    if not isinstance(gold, list):
+        gold = [gold]
+
+    scores = [rouge.compute(predictions=[pred], references=gold) for pred in predictions]
+    scores = [rouge_aggregate_score_to_rouge2_mid(score) for score in scores]
+
+    score_first = scores[0]
+    score_best = max(scores)
+    score_avg = sum(scores) / len(scores)
+
+    return {'rouge-2-best': score_best, 'rouge-2-avg': score_avg, 'rouge-2-first': score_first}

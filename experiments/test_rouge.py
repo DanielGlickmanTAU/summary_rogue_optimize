@@ -5,6 +5,8 @@ from models.candidate_selection import select_best
 from train import training
 import random
 
+hack = True
+
 
 def get_random_examples(ds, k):
     indexes = random.sample(range(len(ds)), k)
@@ -12,35 +14,32 @@ def get_random_examples(ds, k):
 
 
 def add_summary_and_rouge(examples, do_sample, top_p, top_k, num_beams, num_return_sequences):
+    def get_by_key(list_of_dicts, key):
+        return [x[key] for x in list_of_dicts]
+
     articles = examples['article']
     gold = examples['highlights']
     generated_summaries = generate.summarize(model, tokenizer, articles, do_sample, top_p, top_k, num_beams,
                                              num_return_sequences)
 
-    if num_return_sequences > 2:
-        raise ValueError()
-
-    if num_return_sequences == 2:
-        articles2 = []
-        highlights2 = []
-
-        for a, b in zip(articles, articles):
-            articles2.append(a)
-            articles2.append(a)
-
-        for a, b in zip(highlights2, highlights2):
-            highlights2.append(a)
-            highlights2.append(a)
-        gold = highlights2
-        articles = articles2
+    if hack and num_return_sequences > 1:
+        generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
+                               range(0, len(generated_summaries), num_return_sequences)]
 
     assert len(gold) == len(generated_summaries)
-    scores = [metrics.calc_score(pred, ref) for pred, ref in zip(generated_summaries, gold)]
-    rouge2 = [x['rouge-2'] for x in scores]
-    rouge1 = [x['rouge-1'] for x in scores]
+    if hack:
+        scores = [metrics.calc_score_avg_and_best_and_first(pred, ref) for pred, ref in zip(generated_summaries, gold)]
+        # return {'rouge-2-best': score_best, 'rouge-2-avg': score_avg, 'rouge-2-first': score_first}
+        return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
+                'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
+                'rouge-2-first': get_by_key(scores, 'rouge-2-first')}
 
-    return {'articles': articles2, 'highlights': gold, 'generated_summaries': generated_summaries,
-            'rouge2': rouge2, 'rouge1': rouge1}
+    else:
+        scores = [metrics.calc_score(pred, ref) for pred, ref in zip(generated_summaries, gold)]
+        rouge2 = [x['rouge-2'] for x in scores]
+        rouge1 = [x['rouge-1'] for x in scores]
+        return {'article': articles, 'highlights': gold, 'generated_summaries': generated_summaries,
+                'rouge2': rouge2, 'rouge1': rouge1}
 
 
 def eval_metric(dataset_split, exp, do_sample, top_p, top_k, num_beams):
@@ -114,22 +113,34 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
     exp.end()
 
 
-validation_split = 'test'
+def search_validation_loss(dataset_split, do_sample, top_p, top_k, num_beams, num_return_sequences):
+    ds = dataset_split.map(lambda x: add_summary_and_rouge(x, do_sample, top_p, top_k, num_beams, num_return_sequences),
+                           batched=True,
+                           batch_size=batch_size)
+
+    def avg(key): return sum(ds[key]) / len(ds[key])
+
+    print('rouge-2 best', avg('rouge-2-best'))
+    print('rouge-2 avg', avg('rouge-2-avg'))
+    print('rouge-2 first', avg('rouge-2-first'))
+
+
+validation_split = 'validation'
 
 batch_size = 16
 train_examples = 50_000
-train_examples = 250
+train_examples = 100
 examples_for_training_epoch = 3_200
-examples_for_training_epoch = 250
+examples_for_training_epoch = 100
 examples_for_training_epoch = train_examples
 # train_examples = batch_size * 1
-validation_examples = 250
 # validation_examples = batch_size * 1
 
 # validation_split = 'train'
 # train_examples = 100
 # examples_for_training_batch = 100
 
+validation_examples = 10
 strikes = 3
 temperature = 2.5
 precentile = 0.06
@@ -139,19 +150,25 @@ precentile = 0.06
 model, tokenizer = model_loading.get_bart_model_and_tokenizer()
 cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=validation_examples)
 
+valid_cnn = search_validation_loss(cnn[validation_split],
+                                   do_sample=True, top_p=0.9, top_k=100, num_beams=10, num_return_sequences=10),
+
+exit();
+1 / 0
+
 do_experiment(model, tokenizer, cnn,
               train_examples=4_000,
-              examples_for_training_epoch=250,
+              examples_for_training_epoch=100,
               learning_rate=1e-05,
-              temperature=8,
-              precentile=0.04,
+              temperature=10,
+              precentile=0.1,
               do_sample=False,
               top_p=None,
-              top_k=None,
-              num_beams=10,
+              top_k=100,
+              num_beams=None,
               strikes=10,
               gradient_accumulation_steps=2,
-              num_return_sequences=2
+              num_return_sequences=4
               )
 
 # do_experiment(model, tokenizer, cnn,

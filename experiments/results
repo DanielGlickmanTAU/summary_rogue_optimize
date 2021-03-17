@@ -1,0 +1,32 @@
+best at  200 with beam size: 5 return seqs: 10 do sample: True top_p 0.9 top_k 100
+rouge-2 best at 0.21049003349300924
+rouge-2 avg 0.1516994964045723
+rouge-2 first 0.1554129454270191
+
+
+best at  200 with beam size: 10 return seqs: 10 do sample: True top_p 0.9 top_k 100
+rouge-2 best at 0.1978474004265726
+rouge-2 avg 0.154410991839136
+rouge-2 first 0.1542009447828762
+
+best at  200 with beam size: 10 return seqs: 20 do sample: True top_p 0.9 top_k 100
+rouge-2 best at 0.20827685005963503
+rouge-2 avg 0.155700304443262
+rouge-2 first 0.15581963849296818
+
+
+best at  200 with beam size: 10 return seqs: 10 do sample: False top_p 0.9 top_k 0
+rouge-2 best at 0.20542855810336216
+rouge-2 avg 0.15194490492797427
+rouge-2 first 0.15854303633170116
+
+best at  200 with beam size: 4 return seqs: 3 do sample: True top_p 0.9 100 100
+rouge-2 best at 0.18430539169870838
+rouge-2 avg 0.1505649130102641
+rouge-2 first 0.1488426361486589
+
+
+best at  200 with beam size: 3 return seqs: 3 do sample: True top_p 0.9 100 100
+rouge-2 best at 0.18298078060283487
+rouge-2 avg 0.14922193443745926
+rouge-2 first 0.15085724761519712

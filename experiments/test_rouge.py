@@ -113,14 +113,20 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
     exp.end()
 
 
-def search_validation_loss(dataset_split, do_sample, top_p, top_k, num_beams, num_return_sequences):
+def search_validation_loss(dataset_split, do_sample, top_p, top_k, num_beams, num_return_sequences, batch_size):
     ds = dataset_split.map(lambda x: add_summary_and_rouge(x, do_sample, top_p, top_k, num_beams, num_return_sequences),
                            batched=True,
                            batch_size=batch_size)
 
     def avg(key): return sum(ds[key]) / len(ds[key])
 
-    print('rouge-2 best', avg('rouge-2-best'))
+    print('best at ', len(ds['rouge-2-best']), 'with beam size:', num_beams,
+          'return seqs:', num_return_sequences,
+          'do sample:', do_sample,
+          'top_p', top_p,
+          top_k, top_k
+          )
+    print('rouge-2 best at', avg('rouge-2-best'))
     print('rouge-2 avg', avg('rouge-2-avg'))
     print('rouge-2 first', avg('rouge-2-first'))
 
@@ -140,7 +146,7 @@ examples_for_training_epoch = train_examples
 # train_examples = 100
 # examples_for_training_batch = 100
 
-validation_examples = 10
+validation_examples = 200
 strikes = 3
 temperature = 2.5
 precentile = 0.06
@@ -150,8 +156,25 @@ precentile = 0.06
 model, tokenizer = model_loading.get_bart_model_and_tokenizer()
 cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=validation_examples)
 
-valid_cnn = search_validation_loss(cnn[validation_split],
-                                   do_sample=True, top_p=0.9, top_k=100, num_beams=10, num_return_sequences=10),
+# search_validation_loss(cnn[validation_split],
+#                        do_sample=True, top_p=0.9, top_k=100, num_beams=5, num_return_sequences=10)
+# search_validation_loss(cnn[validation_split],
+#                        do_sample=True, top_p=0.9, top_k=100, num_beams=10, num_return_sequences=10, batch_size=8)
+import torch
+
+search_validation_loss(cnn[validation_split],
+                       do_sample=True, top_p=0.9, top_k=100, num_beams=3, num_return_sequences=3,batch_size=16)
+search_validation_loss(cnn[validation_split],
+                       do_sample=False, num_beams=3, num_return_sequences=3,batch_size=16)
+
+# torch.cuda.empty_cache()
+search_validation_loss(cnn[validation_split],
+                       do_sample=True, top_p=0.9, top_k=100, num_beams=10, num_return_sequences=20, batch_size=2)
+torch.cuda.empty_cache()
+search_validation_loss(cnn[validation_split],
+                       do_sample=False, top_p=0.9, top_k=0, num_beams=10, num_return_sequences=10, batch_size=4)
+search_validation_loss(cnn[validation_split],
+                       do_sample=False, top_k=0, num_beams=10, num_return_sequences=10, batch_size=4)
 
 exit();
 1 / 0

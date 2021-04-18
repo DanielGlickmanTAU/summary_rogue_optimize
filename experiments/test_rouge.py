@@ -180,7 +180,7 @@ exit();
 1 / 0
 
 do_experiment(model, tokenizer, cnn,
-              train_examples=4_000,
+              train_examples=4000,
               examples_for_training_epoch=100,
               learning_rate=1e-05,
               temperature=10,

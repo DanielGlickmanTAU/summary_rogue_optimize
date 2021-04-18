@@ -1,4 +1,4 @@
-from models import tokenize
+import torch
 
 top_p = 0.90
 top_p = None
@@ -12,7 +12,11 @@ num_return_sequences = 1
 def summarize(model, tokenizer, texts, do_sample, top_p, top_k, num_beams, num_return_sequences=1):
     """input is list of strings batch
         output is list of strings"""
-    inputs = tokenize.tokenize(tokenizer, texts)
+    tokenized = tokenizer(texts,
+                          max_length=512,
+                          return_tensors='pt', padding="max_length", truncation=True)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    inputs = tokenized.to(device)
     print('generating', len(inputs['input_ids']), 'summaries')
     summary_ids = model.generate(**inputs,
                                  num_beams=num_beams,

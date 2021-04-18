@@ -1,6 +1,11 @@
+
+generate for xsum
+generate for cnn/daily
+generate with p sampling
+
 try:
-    try regular fine tuning
-    summarize model than one summary per text:, num_return_sequences=
+    try regular fine tuning..overfit
+
 
 hyperparams:
     eval metric: rouge-1, rouge-2 rogue-l

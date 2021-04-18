@@ -8,7 +8,7 @@ model_name = 'sshleifer/distilbart-xsum-12-1'
 
 
 def get_bart_model_and_tokenizer():
-    # model = BartForConditionalGeneration.from_pretrained(model_name)
+    # model = BartForConditionalGeneration.from_pretrained(sshleifer/distilbart-xsum-6-6)
     model = BartForConditionalGeneration.from_pretrained(model_name)
     # tokenizer = BartTokenizer.from_pretrained('facebook/bart-large')
     tokenizer = BartTokenizer.from_pretrained(model_name,

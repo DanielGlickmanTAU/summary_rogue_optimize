@@ -134,9 +134,9 @@ def search_validation_loss(dataset_split, do_sample, top_p, top_k, num_beams, nu
 validation_split = 'validation'
 
 batch_size = 16
-train_examples = 50_000
+train_examples = 50000
 train_examples = 100
-examples_for_training_epoch = 3_200
+examples_for_training_epoch = 3200
 examples_for_training_epoch = 100
 examples_for_training_epoch = train_examples
 # train_examples = batch_size * 1
@@ -163,9 +163,9 @@ cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=va
 import torch
 
 search_validation_loss(cnn[validation_split],
-                       do_sample=True, top_p=0.9, top_k=100, num_beams=3, num_return_sequences=3,batch_size=16)
+                       do_sample=True, top_p=0.9, top_k=100, num_beams=3, num_return_sequences=3, batch_size=16)
 search_validation_loss(cnn[validation_split],
-                       do_sample=False, num_beams=3, num_return_sequences=3,batch_size=16)
+                       do_sample=False, num_beams=3, num_return_sequences=3, batch_size=16)
 
 # torch.cuda.empty_cache()
 search_validation_loss(cnn[validation_split],

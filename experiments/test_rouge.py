@@ -125,7 +125,7 @@ def search_validation_loss(dataset_split, do_sample, top_p, top_k, num_beams, nu
           'return seqs:', num_return_sequences,
           'do sample:', do_sample,
           'top_p', top_p,
-          top_k, top_k
+          'top_k', top_k
           )
     print('rouge-2 best at', avg('rouge-2-best'))
     print('rouge-2 avg', avg('rouge-2-avg'))

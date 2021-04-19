@@ -1,4 +1,7 @@
 import datasets
+import concurrent.futures
+
+n_threads = 8
 
 
 def get_rouge():
@@ -47,5 +50,6 @@ def calc_score_avg_and_best_and_first(predictions, gold):
 
 def calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold):
     assert len(gold) == len(generated_summaries)
-    scores = [calc_score_avg_and_best_and_first(pred, ref) for pred, ref in zip(generated_summaries, gold)]
-    return scores
+    with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
+        scores = executor.map(lambda x: calc_score_avg_and_best_and_first(*x), zip(generated_summaries, gold))
+    return list(scores)

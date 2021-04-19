@@ -43,3 +43,9 @@ def calc_score_avg_and_best_and_first(predictions, gold):
     score_avg = sum(scores) / len(scores)
 
     return {'rouge-2-best': score_best, 'rouge-2-avg': score_avg, 'rouge-2-first': score_first}
+
+
+def calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold):
+    assert len(gold) == len(generated_summaries)
+    scores = [metrics.calc_score_avg_and_best_and_first(pred, ref) for pred, ref in zip(generated_summaries, gold)]
+    return scores

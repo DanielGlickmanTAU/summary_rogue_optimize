@@ -1,4 +1,4 @@
-from data import metrics
+from data.metrics import calc_score_avg_best_first_for_list_of_summaries
 from models import generate
 
 
@@ -15,9 +15,7 @@ def add_summary_and_rouge(model, tokenizer, examples, top_k, num_beams, num_retu
     generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
                            range(0, len(generated_summaries), num_return_sequences)]
 
-    assert len(gold) == len(generated_summaries)
-    # if hack:
-    scores = [metrics.calc_score_avg_and_best_and_first(pred, ref) for pred, ref in zip(generated_summaries, gold)]
+    scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
     return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
             'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
             'rouge-2-first': get_by_key(scores, 'rouge-2-first')}

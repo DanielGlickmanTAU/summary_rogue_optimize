@@ -1,5 +1,4 @@
 from data import metrics
-from experiments.test_rouge import hack
 from models import generate
 
 
@@ -12,21 +11,20 @@ def add_summary_and_rouge(model, tokenizer, examples, top_k, num_beams, num_retu
     generated_summaries = generate.summarize(model, tokenizer, articles, do_sample, top_p, top_k, num_beams,
                                              num_return_sequences)
 
-    if hack and num_return_sequences > 1:
-        generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
-                               range(0, len(generated_summaries), num_return_sequences)]
+    # if hack and num_return_sequences > 1:
+    generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
+                           range(0, len(generated_summaries), num_return_sequences)]
 
     assert len(gold) == len(generated_summaries)
-    if hack:
-        scores = [metrics.calc_score_avg_and_best_and_first(pred, ref) for pred, ref in zip(generated_summaries, gold)]
-        # return {'rouge-2-best': score_best, 'rouge-2-avg': score_avg, 'rouge-2-first': score_first}
-        return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
-                'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
-                'rouge-2-first': get_by_key(scores, 'rouge-2-first')}
+    # if hack:
+    scores = [metrics.calc_score_avg_and_best_and_first(pred, ref) for pred, ref in zip(generated_summaries, gold)]
+    return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
+            'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
+            'rouge-2-first': get_by_key(scores, 'rouge-2-first')}
 
-    else:
-        scores = [metrics.calc_score(pred, ref) for pred, ref in zip(generated_summaries, gold)]
-        rouge2 = [x['rouge-2'] for x in scores]
-        rouge1 = [x['rouge-1'] for x in scores]
-        return {'article': articles, 'highlights': gold, 'generated_summaries': generated_summaries,
-                'rouge2': rouge2, 'rouge1': rouge1}
+# else:
+#     scores = [metrics.calc_score(pred, ref) for pred, ref in zip(generated_summaries, gold)]
+#     rouge2 = [x['rouge-2'] for x in scores]
+#     rouge1 = [x['rouge-1'] for x in scores]
+#     return {'article': articles, 'highlights': gold, 'generated_summaries': generated_summaries,
+#             'rouge2': rouge2, 'rouge1': rouge1}

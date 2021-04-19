@@ -7,8 +7,6 @@ from train import training
 import random
 import torch
 
-hack = True
-
 
 def get_random_examples(ds, k):
     indexes = random.sample(range(len(ds)), k)

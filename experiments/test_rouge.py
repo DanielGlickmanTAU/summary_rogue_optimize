@@ -4,6 +4,7 @@ from models import model_loading, generate
 from models.candidate_selection import select_best
 from train import training
 import random
+import torch
 
 hack = True
 
@@ -159,8 +160,8 @@ cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=va
 # search_validation_loss(cnn[validation_split],
 #                        do_sample=True, top_p=0.9, top_k=100, num_beams=5, num_return_sequences=10)
 # search_validation_loss(cnn[validation_split],
+
 #                        do_sample=True, top_p=0.9, top_k=100, num_beams=10, num_return_sequences=10, batch_size=8)
-import torch
 
 search_validation_loss(cnn[validation_split],
                        do_sample=True, top_p=0.9, top_k=100, num_beams=3, num_return_sequences=3, batch_size=16)

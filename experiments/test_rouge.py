@@ -14,7 +14,8 @@ def get_random_examples(ds, k):
 
 
 def eval_metric(dataset_split, exp, do_sample, top_p, top_k, num_beams):
-    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, 1, top_p, do_sample), batched=True,
+    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, 1, top_p, do_sample),
+                           batched=True,
                            batch_size=batch_size)
     ds_rouge_2 = sum(ds['rouge2']) / len(ds['rouge2'])
     ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
@@ -24,9 +25,6 @@ def eval_metric(dataset_split, exp, do_sample, top_p, top_k, num_beams):
     except Exception:
         pass
     return ds_rouge_2
-
-
-rouge = metrics.get_rouge()
 
 
 def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_epoch, learning_rate, temperature,
@@ -108,9 +106,9 @@ validation_split = 'validation'
 
 batch_size = 16
 train_examples = 50000
-train_examples = 100
+train_examples = 16
 examples_for_training_epoch = 3200
-examples_for_training_epoch = 100
+examples_for_training_epoch = 16
 examples_for_training_epoch = train_examples
 # train_examples = batch_size * 1
 # validation_examples = batch_size * 1
@@ -119,7 +117,7 @@ examples_for_training_epoch = train_examples
 # train_examples = 100
 # examples_for_training_batch = 100
 
-validation_examples = 100
+validation_examples = 16
 strikes = 3
 temperature = 2.5
 precentile = 0.06

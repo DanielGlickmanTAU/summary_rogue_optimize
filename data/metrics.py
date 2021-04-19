@@ -1,11 +1,16 @@
 import datasets
 import concurrent.futures
+import random
 
 n_threads = 8
 
 
-def get_rouge():
-    return datasets.load_metric('rouge')
+def get_rouge(experiment_id=None):
+    return datasets.load_metric('rouge',
+                                # num_process=8
+                                # , keep_in_memory=True
+                                experiment_id=experiment_id
+                                )
 
 
 def rouge_aggregate_score_to_rouge1_mid(aggregate_score):
@@ -38,6 +43,8 @@ def calc_score_avg_and_best_and_first(predictions, gold):
     if not isinstance(gold, list):
         gold = [gold]
 
+    # todo if this doesnt work, create a fixed list of 8 rouges, each with its own experiment_id.
+    rouge = get_rouge(str(random.random()))
     scores = [rouge.compute(predictions=[pred], references=gold) for pred in predictions]
     scores = [rouge_aggregate_score_to_rouge2_mid(score) for score in scores]
 
@@ -50,6 +57,7 @@ def calc_score_avg_and_best_and_first(predictions, gold):
 
 def calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold):
     assert len(gold) == len(generated_summaries)
+    # return [calc_score_avg_and_best_and_first(pred, ref) for pred, ref in zip(generated_summaries, gold)]
     with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
         scores = executor.map(lambda x: calc_score_avg_and_best_and_first(*x), zip(generated_summaries, gold))
     return list(scores)

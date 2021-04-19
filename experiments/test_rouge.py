@@ -119,7 +119,7 @@ examples_for_training_epoch = train_examples
 # train_examples = 100
 # examples_for_training_batch = 100
 
-validation_examples = 200
+validation_examples = 100
 strikes = 3
 temperature = 2.5
 precentile = 0.06
@@ -129,6 +129,8 @@ precentile = 0.06
 model, tokenizer = model_loading.get_bart_model_and_tokenizer()
 cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=validation_examples)
 
+search_validation_loss(cnn[validation_split],
+                       do_sample=False, top_p=None, top_k=None, num_beams=16, num_return_sequences=16, batch_size=16)
 search_validation_loss(cnn[validation_split],
                        do_sample=True, top_p=0.9, top_k=100, num_beams=3, num_return_sequences=3, batch_size=16)
 search_validation_loss(cnn[validation_split],

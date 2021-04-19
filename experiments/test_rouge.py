@@ -1,6 +1,7 @@
 import experiment
 from data import data_loading, metrics
-from models import model_loading, generate
+from experiments.flows import add_summary_and_rouge
+from models import model_loading
 from models.candidate_selection import select_best
 from train import training
 import random
@@ -14,37 +15,8 @@ def get_random_examples(ds, k):
     return ds.select(indexes)
 
 
-def add_summary_and_rouge(examples, do_sample, top_p, top_k, num_beams, num_return_sequences):
-    def get_by_key(list_of_dicts, key):
-        return [x[key] for x in list_of_dicts]
-
-    articles = examples['article']
-    gold = examples['highlights']
-    generated_summaries = generate.summarize(model, tokenizer, articles, do_sample, top_p, top_k, num_beams,
-                                             num_return_sequences)
-
-    if hack and num_return_sequences > 1:
-        generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
-                               range(0, len(generated_summaries), num_return_sequences)]
-
-    assert len(gold) == len(generated_summaries)
-    if hack:
-        scores = [metrics.calc_score_avg_and_best_and_first(pred, ref) for pred, ref in zip(generated_summaries, gold)]
-        # return {'rouge-2-best': score_best, 'rouge-2-avg': score_avg, 'rouge-2-first': score_first}
-        return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
-                'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
-                'rouge-2-first': get_by_key(scores, 'rouge-2-first')}
-
-    else:
-        scores = [metrics.calc_score(pred, ref) for pred, ref in zip(generated_summaries, gold)]
-        rouge2 = [x['rouge-2'] for x in scores]
-        rouge1 = [x['rouge-1'] for x in scores]
-        return {'article': articles, 'highlights': gold, 'generated_summaries': generated_summaries,
-                'rouge2': rouge2, 'rouge1': rouge1}
-
-
 def eval_metric(dataset_split, exp, do_sample, top_p, top_k, num_beams):
-    ds = dataset_split.map(lambda x: add_summary_and_rouge(x, do_sample, top_p, top_k, num_beams, 1), batched=True,
+    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, 1, top_p, do_sample), batched=True,
                            batch_size=batch_size)
     ds_rouge_2 = sum(ds['rouge2']) / len(ds['rouge2'])
     ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
@@ -84,7 +56,7 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
 
     cnn_train = cnn['train']
     test_summaries = get_random_examples(cnn_train, examples_for_training_epoch).map(
-        lambda x: add_summary_and_rouge(x, do_sample, top_p, top_k, num_beams, num_return_sequences),
+        lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, num_return_sequences, top_p, do_sample),
         batched=True,
         batch_size=batch_size)
     current_valid_score = eval_metric(cnn[validation_split], exp, do_sample, top_p, top_k, num_beams)
@@ -107,7 +79,8 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
 
         current_valid_score = new_valid_score
         test_summaries = get_random_examples(cnn_train, examples_for_training_epoch).map(
-            lambda x: add_summary_and_rouge(x, do_sample, top_p, top_k, num_beams, num_return_sequences),
+            lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, num_return_sequences, top_p,
+                                            do_sample),
             batched=True,
             batch_size=batch_size)
     print('done single expirment')
@@ -115,7 +88,8 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
 
 
 def search_validation_loss(dataset_split, do_sample, top_p, top_k, num_beams, num_return_sequences, batch_size):
-    ds = dataset_split.map(lambda x: add_summary_and_rouge(x, do_sample, top_p, top_k, num_beams, num_return_sequences),
+    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, num_return_sequences,
+                                                           top_p, do_sample),
                            batched=True,
                            batch_size=batch_size)
 

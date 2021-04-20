@@ -3,6 +3,7 @@ from data import data_loading, metrics
 from experiments.flows import add_summary_and_rouge
 from models import model_loading
 from models.candidate_selection import select_best
+from models.generate import SearchParams, BeamSearchParams
 from train import training
 import random
 import torch
@@ -13,8 +14,8 @@ def get_random_examples(ds, k):
     return ds.select(indexes)
 
 
-def eval_metric(dataset_split, exp, do_sample, top_p, top_k, num_beams):
-    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, 1, top_p, do_sample),
+def eval_metric(dataset_split, exp, search_params: SearchParams):
+    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
                            batched=True,
                            batch_size=batch_size)
     ds_rouge_2 = sum(ds['rouge2']) / len(ds['rouge2'])
@@ -27,9 +28,10 @@ def eval_metric(dataset_split, exp, do_sample, top_p, top_k, num_beams):
     return ds_rouge_2
 
 
-def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_epoch, learning_rate, temperature,
-                  precentile,
-                  do_sample, top_p, top_k, num_beams, gradient_accumulation_steps, num_return_sequences, strikes=3):
+def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_epoch, learning_rate,
+                  search_params: SearchParams, temperature,
+                  precentile, gradient_accumulation_steps, strikes=3
+                  ):
     exp = experiment.start_experiment(hyperparams={
         'batch_size': batch_size,
         'train_examples': train_examples,
@@ -37,25 +39,26 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
         'temperature': temperature,
         'precentile': precentile,
         'strikes': strikes,
-        'top_p': top_p,
-        'top_k': top_k,
-        'do_sample': do_sample,
-        'num_beams': num_beams,
-        'num_return_sequences': num_return_sequences,
+        'top_p': search_params.top_p,
+        'top_k': search_params.top_k,
+        'do_sample': search_params.do_sample,
+        'num_beams': search_params.num_beams,
+        'num_return_sequences': search_params.num_return_sequences,
         'model_name': model_loading.xsum_model_name,
         'examples_for_training_batch': examples_for_training_epoch,
         'learning_rate': training.learning_rate,
         'validation_split': validation_split,
         'gradient_accumulation_steps': gradient_accumulation_steps,
-        'num_return_sequences': num_return_sequences
     })
 
     cnn_train = cnn['train']
     test_summaries = get_random_examples(cnn_train, examples_for_training_epoch).map(
-        lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, num_return_sequences, top_p, do_sample),
+        lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
         batched=True,
         batch_size=batch_size)
-    current_valid_score = eval_metric(cnn[validation_split], exp, do_sample, top_p, top_k, num_beams)
+    for i in range(10000):
+        print('change search_params from 1 to one given in param, possible bug, check this.')
+    current_valid_score = eval_metric(cnn[validation_split], exp, search_params)
     while True:
         print('selecting top')
         top = select_best(test_summaries, temp=temperature, k=precentile)
@@ -67,7 +70,7 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
         training.train(model, tokenizer, top, int(batch_size / 2), learning_rate=learning_rate,
                        gradient_accumulation_steps=gradient_accumulation_steps)
 
-        new_valid_score = eval_metric(cnn[validation_split], exp, do_sample, top_p, top_k, num_beams)
+        new_valid_score = eval_metric(cnn[validation_split], exp, search_params)
         if new_valid_score <= current_valid_score:
             strikes = strikes - 1
             if strikes <= 0:
@@ -75,28 +78,33 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
 
         current_valid_score = new_valid_score
         test_summaries = get_random_examples(cnn_train, examples_for_training_epoch).map(
-            lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, num_return_sequences, top_p,
-                                            do_sample),
+            lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
             batched=True,
             batch_size=batch_size)
     print('done single expirment')
     exp.end()
 
 
-def search_validation_loss(dataset_split, do_sample, top_p, top_k, num_beams, num_return_sequences, batch_size):
-    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, top_k, num_beams, num_return_sequences,
-                                                           top_p, do_sample),
+def get_generated_summaries_with_rouge(dataset_split, search_params: SearchParams, batch_size):
+    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
                            batched=True,
                            batch_size=batch_size)
 
+    # todo when implement this, use len(dataset) as part of save location
+    # mapped_search_path = '%s/processed_dataset' % get_save_path(error_prediction_task_name,
+    #                                                             error_prediction_model_params)
+    # if os.path.isdir(save_paterror_save_path):
+    #     return load_from_disk(mapped_search_path)
+    # ds.save_to_disk(mapped_search_path)
+    return ds
+
+
+def search_validation_loss(dataset_split, search_params: SearchParams, batch_size):
+    ds = get_generated_summaries_with_rouge(dataset_split, search_params, batch_size)
+
     def avg(key): return sum(ds[key]) / len(ds[key])
 
-    print('best at ', len(ds['rouge-2-best']), 'with beam size:', num_beams,
-          'return seqs:', num_return_sequences,
-          'do sample:', do_sample,
-          'top_p', top_p,
-          'top_k', top_k
-          )
+    print('best at ', len(ds['rouge-2-best']), 'with params', search_params)
     print('rouge-2 best at', avg('rouge-2-best'))
     print('rouge-2 avg', avg('rouge-2-avg'))
     print('rouge-2 first', avg('rouge-2-first'))
@@ -105,60 +113,47 @@ def search_validation_loss(dataset_split, do_sample, top_p, top_k, num_beams, nu
 validation_split = 'validation'
 
 batch_size = 16
-train_examples = 50000
 train_examples = 16
+validation_examples = 16
 examples_for_training_epoch = 3200
 examples_for_training_epoch = 16
-examples_for_training_epoch = train_examples
-# train_examples = batch_size * 1
-# validation_examples = batch_size * 1
-
-# validation_split = 'train'
-# train_examples = 100
-# examples_for_training_batch = 100
-
-validation_examples = 16
 strikes = 3
 temperature = 2.5
 precentile = 0.06
 
-# examples_for_training_batch = 320
-
 model, tokenizer = model_loading.get_bart_model_and_tokenizer_xsum()
 cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=validation_examples)
 
-search_validation_loss(cnn[validation_split],
-                       do_sample=False, top_p=None, top_k=None, num_beams=16, num_return_sequences=16, batch_size=16)
-search_validation_loss(cnn[validation_split],
-                       do_sample=True, top_p=0.9, top_k=100, num_beams=3, num_return_sequences=3, batch_size=16)
-search_validation_loss(cnn[validation_split],
-                       do_sample=False, num_beams=3, num_return_sequences=3, batch_size=16)
-
+search_params = BeamSearchParams(num_beams=16, num_return_sequences=16)
+batch_size = 16
+search_validation_loss(cnn[validation_split], search_params, batch_size)
+# search_validation_loss(cnn[validation_split],
+#                        do_sample=True, top_p=0.9, top_k=100, num_beams=3, num_return_sequences=3, batch_size=16)
+# search_validation_loss(cnn[validation_split],
+#                        do_sample=False, num_beams=3, num_return_sequences=3, batch_size=16)
+#
+# # torch.cuda.empty_cache()
+# search_validation_loss(cnn[validation_split],
+#                        do_sample=True, top_p=0.9, top_k=100, num_beams=10, num_return_sequences=20, batch_size=2)
 # torch.cuda.empty_cache()
-search_validation_loss(cnn[validation_split],
-                       do_sample=True, top_p=0.9, top_k=100, num_beams=10, num_return_sequences=20, batch_size=2)
-torch.cuda.empty_cache()
-search_validation_loss(cnn[validation_split],
-                       do_sample=False, top_p=0.9, top_k=0, num_beams=10, num_return_sequences=10, batch_size=4)
-search_validation_loss(cnn[validation_split],
-                       do_sample=False, top_k=0, num_beams=10, num_return_sequences=10, batch_size=4)
+# search_validation_loss(cnn[validation_split],
+#                        do_sample=False, top_p=0.9, top_k=0, num_beams=10, num_return_sequences=10, batch_size=4)
+# search_validation_loss(cnn[validation_split],
+#                        do_sample=False, top_k=0, num_beams=10, num_return_sequences=10, batch_size=4)
 
 exit();
 1 / 0
 
+search_params = SearchParams(do_sample=False, top_p=None, top_k=100, num_beams=4, num_return_sequences=4)
 do_experiment(model, tokenizer, cnn,
               train_examples=4000,
               examples_for_training_epoch=100,
               learning_rate=1e-05,
               temperature=10,
               precentile=0.1,
-              do_sample=False,
-              top_p=None,
-              top_k=100,
-              num_beams=None,
+              search_params=search_params,
               strikes=10,
               gradient_accumulation_steps=2,
-              num_return_sequences=4
               )
 
 # do_experiment(model, tokenizer, cnn,

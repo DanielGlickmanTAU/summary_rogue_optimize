@@ -1,4 +1,9 @@
-parallel compute-rouge
+print all params properly
+
+
+fix get_generated_summaries_with_rouge after see what we have now is running
+
+
 have like rouge-2-first, but for multiplications of 2
 
 generate for xsum

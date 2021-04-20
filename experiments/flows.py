@@ -1,16 +1,17 @@
 from data.metrics import calc_score_avg_best_first_for_list_of_summaries
 from models import generate
+from models.generate import SearchParams
 
 
-def add_summary_and_rouge(model, tokenizer, examples, top_k, num_beams, num_return_sequences, top_p, do_sample):
+def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParams):
     def get_by_key(list_of_dicts, key):
         return [x[key] for x in list_of_dicts]
 
     articles = examples['article']
     gold = examples['highlights']
-    generated_summaries = generate.summarize(model, tokenizer, articles, do_sample, top_p, top_k, num_beams,
-                                             num_return_sequences)
+    generated_summaries = generate.summarize(model, tokenizer, articles, search_params)
 
+    num_return_sequences = search_params.num_return_sequences
     # if hack and num_return_sequences > 1:
     generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
                            range(0, len(generated_summaries), num_return_sequences)]

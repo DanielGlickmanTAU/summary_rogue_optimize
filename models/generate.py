@@ -20,7 +20,8 @@ class SearchParams:
     num_return_sequences: int = 1
     no_repeat_ngram_size: int = 3
 
-    def _hash(self):
+    #used for saving results to file
+    def str_descriptor(self):
         return 'do_sample' + str(self.do_sample) + '_' + \
                'top_p' + str(self.top_p) + '_' + \
                'top_k' + str(self.top_k) + '_' + \

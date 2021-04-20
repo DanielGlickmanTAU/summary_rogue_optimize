@@ -14,8 +14,15 @@ def get_xsum_dataset(train_subset: int = None, valid_subset: int = None, test_su
     dataset.rename_column_('document', 'article')
     dataset.rename_column_('summary', 'highlights')
     dataset.remove_columns_('id')
-    dataset.name = 'xsum'
+    set_name(dataset, 'xsum')
     return dataset
+
+
+def set_name(dataset, name):
+    dataset.name = name
+    dataset['train'] = 'train_' + name
+    dataset['validation'] = 'validation_' + name
+    dataset['test'] = 'test_' + name
 
 
 def _filter_dataset(dataset, test_subset, train_subset, valid_subset):
@@ -25,4 +32,3 @@ def _filter_dataset(dataset, test_subset, train_subset, valid_subset):
         dataset['validation'] = dataset['validation'].select(range(valid_subset))
     if test_subset:
         dataset['test'] = dataset['test'].select(range(test_subset))
-

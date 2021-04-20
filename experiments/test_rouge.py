@@ -42,7 +42,7 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
         'do_sample': do_sample,
         'num_beams': num_beams,
         'num_return_sequences': num_return_sequences,
-        'model_name': model_loading.model_name,
+        'model_name': model_loading.xsum_model_name,
         'examples_for_training_batch': examples_for_training_epoch,
         'learning_rate': training.learning_rate,
         'validation_split': validation_split,
@@ -124,7 +124,7 @@ precentile = 0.06
 
 # examples_for_training_batch = 320
 
-model, tokenizer = model_loading.get_bart_model_and_tokenizer()
+model, tokenizer = model_loading.get_bart_model_and_tokenizer_xsum()
 cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=validation_examples)
 
 search_validation_loss(cnn[validation_split],

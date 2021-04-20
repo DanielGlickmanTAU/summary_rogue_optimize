@@ -1,7 +1,11 @@
+parallel compute-rouge
+have like rouge-2-first, but for multiplications of 2
 
 generate for xsum
 generate for cnn/daily
+generate with beam search.. n_repeating_ngrams=3
 generate with p sampling
+
 
 try:
     try regular fine tuning..overfit

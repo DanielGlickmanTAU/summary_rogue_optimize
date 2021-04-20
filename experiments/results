@@ -40,3 +40,8 @@ best at  100 with beam size: 3 return seqs: 3 do sample: True top_p 0.9 top_k 10
 rouge-2 best at 0.18780940371478605
 rouge-2 avg 0.1518786197847021
 rouge-2 first 0.14748291952650738
+
+best at  16 with beam size: 16 return seqs: 16 do sample: False top_p None top_k None
+rouge-2 best at 0.19987751969107526
+rouge-2 avg 0.14330627909191634
+rouge-2 first 0.15474844207583602

@@ -1,7 +1,9 @@
 print all params properly
 
+get_generated_summaries_with_rouge  and search_validation_loss pass model and tokenizer..
 
-fix get_generated_summaries_with_rouge after see what we have now is running
+
+fix get_generated_summaries_with_rouge after see what we have now is running.. dataset len and name and model name should be part of save path...
 
 
 have like rouge-2-first, but for multiplications of 2

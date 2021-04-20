@@ -127,19 +127,6 @@ cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=va
 search_params = BeamSearchParams(num_beams=16, num_return_sequences=16)
 batch_size = 16
 search_validation_loss(cnn[validation_split], search_params, batch_size)
-# search_validation_loss(cnn[validation_split],
-#                        do_sample=True, top_p=0.9, top_k=100, num_beams=3, num_return_sequences=3, batch_size=16)
-# search_validation_loss(cnn[validation_split],
-#                        do_sample=False, num_beams=3, num_return_sequences=3, batch_size=16)
-#
-# # torch.cuda.empty_cache()
-# search_validation_loss(cnn[validation_split],
-#                        do_sample=True, top_p=0.9, top_k=100, num_beams=10, num_return_sequences=20, batch_size=2)
-# torch.cuda.empty_cache()
-# search_validation_loss(cnn[validation_split],
-#                        do_sample=False, top_p=0.9, top_k=0, num_beams=10, num_return_sequences=10, batch_size=4)
-# search_validation_loss(cnn[validation_split],
-#                        do_sample=False, top_k=0, num_beams=10, num_return_sequences=10, batch_size=4)
 
 exit();
 1 / 0
@@ -154,54 +141,4 @@ do_experiment(model, tokenizer, cnn,
               search_params=search_params,
               strikes=10,
               gradient_accumulation_steps=2,
-              )
-
-# do_experiment(model, tokenizer, cnn,
-#               train_examples=1_000,
-#               examples_for_training_epoch=640,
-#               learning_rate=1e-07,
-#               temperature=2.5,
-#               precentile=0.05,
-#               do_sample=False, top_p=None, num_beams=4)
-#
-# do_experiment(model, tokenizer, cnn,
-#               train_examples=1_000,
-#               examples_for_training_epoch=640,
-#               learning_rate=1e-07,
-#               temperature=0.7,
-#               precentile=0.15,
-#               do_sample=False, top_p=None, num_beams=4)
-#
-# do_experiment(model, tokenizer, cnn,
-#               train_examples=10_000,
-#               examples_for_training_epoch=3200,
-#               learning_rate=1e-07,
-#               temperature=2.5,
-#               precentile=0.06,
-#               do_sample=False, top_p=None, num_beams=4)
-#
-# do_experiment(model, tokenizer, cnn,
-#               train_examples=10_000,
-#               examples_for_training_epoch=3200,
-#               learning_rate=1e-07,
-#               temperature=3.2,
-#               precentile=0.04,
-#               do_sample=False, top_p=None, num_beams=4,
-#               strikes=2
-#               )
-#
-# do_experiment(model, tokenizer, cnn,
-#               train_examples=1_000,
-#               examples_for_training_epoch=640,
-#               learning_rate=1e-07,
-#               temperature=2.5,
-#               precentile=0.05,
-#               do_sample=True, top_p=0.9, num_beams=4)
-#
-# do_experiment(model, tokenizer, cnn,
-#               train_examples=1_000,
-#               examples_for_training_epoch=640,
-#               learning_rate=1e-07,
-#               temperature=0.7,
-#               precentile=0.15,
-#               do_sample=True, top_p=0.9, num_beams=4)
+            )

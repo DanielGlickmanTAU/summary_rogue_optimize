@@ -11,7 +11,6 @@ from typing import Dict, List, Optional, Tuple, Union
 # do_sample = False
 # num_return_sequences = 1
 
-
 @dataclass
 class SearchParams:
     do_sample: bool
@@ -20,6 +19,14 @@ class SearchParams:
     num_beams: int = 4
     num_return_sequences: int = 1
     no_repeat_ngram_size: int = 3
+
+    def _hash(self):
+        return 'do_sample' + str(self.do_sample) + '_' + \
+               'top_p' + str(self.top_p) + '_' + \
+               'top_k' + str(self.top_k) + '_' + \
+               'num_beams' + str(self.num_beams) + '_' + \
+               'num_return_sequences' + str(self.num_return_sequences) + '_' + \
+               'no_repeat_ngram_size' + str(self.no_repeat_ngram_size)
 
 
 @dataclass

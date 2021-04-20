@@ -1,3 +1,7 @@
+import os
+
+from datasets import load_from_disk
+
 from data.metrics import calc_score_avg_best_first_for_list_of_summaries
 from models import generate
 from models.generate import SearchParams
@@ -20,6 +24,8 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
     return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
             'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
             'rouge-2-first': get_by_key(scores, 'rouge-2-first')}
+
+
 # else:
 #     scores = [metrics.calc_score(pred, ref) for pred, ref in zip(generated_summaries, gold)]
 #     rouge2 = [x['rouge-2'] for x in scores]
@@ -29,16 +35,21 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
 
 
 def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
+    model_name = model.config.name_or_path.replace('/', '_')
+    dataset_name = dataset_split.name
+    ds_len = len(dataset_split)
+    search_str = search_params.str_descriptor()
+
+    mapped_search_path = '%s/processed_dataset_' % model_name + '_' + dataset_name + str(ds_len) + '_' + search_str
+    if os.path.isdir(mapped_search_path):
+        print('loading saved dataset', mapped_search_path)
+        return load_from_disk(mapped_search_path)
+
     ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
                            batched=True,
                            batch_size=batch_size)
-
-    # todo when implement this, use len(dataset) as part of save location
-    # mapped_search_path = '%s/processed_dataset' % get_save_path(error_prediction_task_name,
-    #                                                             error_prediction_model_params)
-    # if os.path.isdir(save_paterror_save_path):
-    #     return load_from_disk(mapped_search_path)
-    # ds.save_to_disk(mapped_search_path)
+    print('saving dataset to', mapped_search_path)
+    ds.save_to_disk(mapped_search_path)
     return ds
 
 

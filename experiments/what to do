@@ -1,4 +1,3 @@
-print all params properly
 
 get_generated_summaries_with_rouge  and search_validation_loss pass model and tokenizer..
 
@@ -13,6 +12,7 @@ generate for cnn/daily
 generate with beam search.. n_repeating_ngrams=3
 generate with p sampling
 
+saving huggingface dataset: careful when switching from xsum to cnn, need to keep dataset file name in cache file
 
 try:
     try regular fine tuning..overfit

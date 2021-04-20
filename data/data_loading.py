@@ -4,7 +4,7 @@ import datasets
 def get_cnn_dataset(train_subset: int = None, valid_subset: int = None, test_subset: int = None):
     dataset = datasets.load_dataset('cnn_dailymail', '3.0.0')
     _filter_dataset(dataset, test_subset, train_subset, valid_subset)
-    dataset.name = 'cnn'
+    set_name(dataset,'cnn')
     return dataset
 
 

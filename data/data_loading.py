@@ -4,6 +4,7 @@ import datasets
 def get_cnn_dataset(train_subset: int = None, valid_subset: int = None, test_subset: int = None):
     dataset = datasets.load_dataset('cnn_dailymail', '3.0.0')
     _filter_dataset(dataset, test_subset, train_subset, valid_subset)
+    dataset.name = 'cnn'
     return dataset
 
 
@@ -13,6 +14,7 @@ def get_xsum_dataset(train_subset: int = None, valid_subset: int = None, test_su
     dataset.rename_column_('document', 'article')
     dataset.rename_column_('summary', 'highlights')
     dataset.remove_columns_('id')
+    dataset.name = 'xsum'
     return dataset
 
 
@@ -23,3 +25,4 @@ def _filter_dataset(dataset, test_subset, train_subset, valid_subset):
         dataset['validation'] = dataset['validation'].select(range(valid_subset))
     if test_subset:
         dataset['test'] = dataset['test'].select(range(test_subset))
+

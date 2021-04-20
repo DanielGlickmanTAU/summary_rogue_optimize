@@ -1,12 +1,11 @@
 import experiment
-from data import data_loading, metrics
-from experiments.flows import add_summary_and_rouge
+from data import data_loading
+from experiments.flows import add_summary_and_rouge, search_validation_loss
 from models import model_loading
 from models.candidate_selection import select_best
 from models.generate import SearchParams, BeamSearchParams
 from train import training
 import random
-import torch
 
 
 def get_random_examples(ds, k):
@@ -85,31 +84,6 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
     exp.end()
 
 
-def get_generated_summaries_with_rouge(dataset_split, search_params: SearchParams, batch_size):
-    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
-                           batched=True,
-                           batch_size=batch_size)
-
-    # todo when implement this, use len(dataset) as part of save location
-    # mapped_search_path = '%s/processed_dataset' % get_save_path(error_prediction_task_name,
-    #                                                             error_prediction_model_params)
-    # if os.path.isdir(save_paterror_save_path):
-    #     return load_from_disk(mapped_search_path)
-    # ds.save_to_disk(mapped_search_path)
-    return ds
-
-
-def search_validation_loss(dataset_split, search_params: SearchParams, batch_size):
-    ds = get_generated_summaries_with_rouge(dataset_split, search_params, batch_size)
-
-    def avg(key): return sum(ds[key]) / len(ds[key])
-
-    print('best at ', len(ds['rouge-2-best']), 'with params', search_params)
-    print('rouge-2 best at', avg('rouge-2-best'))
-    print('rouge-2 avg', avg('rouge-2-avg'))
-    print('rouge-2 first', avg('rouge-2-first'))
-
-
 validation_split = 'validation'
 
 batch_size = 16
@@ -126,7 +100,7 @@ cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=va
 
 search_params = BeamSearchParams(num_beams=16, num_return_sequences=16)
 batch_size = 16
-search_validation_loss(cnn[validation_split], search_params, batch_size)
+search_validation_loss(cnn[validation_split], model, tokenizer, search_params, batch_size)
 
 exit();
 1 / 0
@@ -141,4 +115,4 @@ do_experiment(model, tokenizer, cnn,
               search_params=search_params,
               strikes=10,
               gradient_accumulation_steps=2,
-            )
+              )

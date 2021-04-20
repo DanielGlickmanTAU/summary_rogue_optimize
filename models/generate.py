@@ -17,16 +17,16 @@ class SearchParams:
     do_sample: bool
     top_p: Optional[int]
     top_k: Optional[int]
-    num_beams: int
+    num_beams: int = 4
     num_return_sequences: int = 1
     no_repeat_ngram_size: int = 3
 
 
-@dataclass(repr=False)
+@dataclass
 class BeamSearchParams(SearchParams):
-    do_sample = False
-    top_p = None
-    top_k = None
+    do_sample: bool = False
+    top_p: Optional[int] = None
+    top_k: Optional[int] = None
 
 
 def summarize(model, tokenizer, texts, search_params: SearchParams):

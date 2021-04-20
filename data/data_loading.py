@@ -20,9 +20,9 @@ def get_xsum_dataset(train_subset: int = None, valid_subset: int = None, test_su
 
 def set_name(dataset, name):
     dataset.name = name
-    dataset['train'] = 'train_' + name
-    dataset['validation'] = 'validation_' + name
-    dataset['test'] = 'test_' + name
+    dataset['train'].name = 'train_' + name
+    dataset['validation'].name = 'validation_' + name
+    dataset['test'].name = 'test_' + name
 
 
 def _filter_dataset(dataset, test_subset, train_subset, valid_subset):

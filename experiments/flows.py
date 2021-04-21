@@ -45,7 +45,7 @@ def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_p
     if os.path.isdir(mapped_search_path):
         print('loading saved dataset', mapped_search_path)
         return load_from_disk(mapped_search_path)
-
+    print(mapped_search_path, 'not found')
     ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
                            batched=True,
                            batch_size=batch_size)

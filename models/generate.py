@@ -1,6 +1,7 @@
-import torch
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional
+
+import torch
 
 
 # top_p = 0.90
@@ -14,13 +15,13 @@ from typing import Dict, List, Optional, Tuple, Union
 @dataclass
 class SearchParams:
     do_sample: bool
-    top_p: Optional[int]
+    top_p: Optional[float]
     top_k: Optional[int]
     num_beams: int = 4
     num_return_sequences: int = 1
     no_repeat_ngram_size: int = 0
 
-    #used for saving results to file
+    # used for saving results to file
     def str_descriptor(self):
         return 'do_sample' + str(self.do_sample) + '_' + \
                'top_p' + str(self.top_p) + '_' + \
@@ -33,7 +34,14 @@ class SearchParams:
 @dataclass
 class BeamSearchParams(SearchParams):
     do_sample: bool = False
-    top_p: Optional[int] = None
+    top_p: Optional[float] = None
+    top_k: Optional[int] = None
+
+
+@dataclass
+class PSearchParams(SearchParams):
+    top_p: Optional[float] = 0.9
+    do_sample: bool = True
     top_k: Optional[int] = None
 
 

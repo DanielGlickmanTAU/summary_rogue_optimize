@@ -19,8 +19,8 @@ def get_cache_dir():
 
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
-
-os.environ['TRANSFORMERS_CACHE'] = get_cache_dir()
+if is_university_server():
+    os.environ['TRANSFORMERS_CACHE'] = get_cache_dir()
 
 
 def write_gpus_to_file(dict):

@@ -1,5 +1,6 @@
 import concurrent.futures
 import datasets
+import numpy
 import random
 
 from utils import compute
@@ -54,8 +55,10 @@ def calc_score_avg_and_best_and_first(predictions, gold):
     score_first = scores[0]
     score_best = max(scores)
     score_avg = sum(scores) / len(scores)
+    std = numpy.std(scores)
 
-    return {'rouge-2-best': score_best, 'rouge-2-avg': score_avg, 'rouge-2-first': score_first}
+    return {'rouge-2-best': score_best, 'rouge-2-avg': score_avg, 'rouge-2-first': score_first, 'rouge-2-all': scores,
+            'rouge-2-std': std}
 
 
 def calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold):

@@ -1,5 +1,4 @@
 import os
-
 from datasets import load_from_disk
 
 from data.metrics import calc_score_avg_best_first_for_list_of_summaries
@@ -16,14 +15,15 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
     generated_summaries = generate.summarize(model, tokenizer, articles, search_params)
 
     num_return_sequences = search_params.num_return_sequences
-    # if hack and num_return_sequences > 1:
     generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
                            range(0, len(generated_summaries), num_return_sequences)]
 
     scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
     return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
             'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
-            'rouge-2-first': get_by_key(scores, 'rouge-2-first')}
+            'rouge-2-first': get_by_key(scores, 'rouge-2-first'),
+            'rouge-2-all': get_by_key(scores, 'rouge-2-all'),  # list[list[float]]
+            'generated_highlights': generated_summaries}
 
 
 # else:
@@ -58,7 +58,14 @@ def search_validation_loss(dataset_split, model, tokenizer, search_params: Searc
 
     def avg(key): return sum(ds[key]) / len(ds[key])
 
+    def mean_until(a, k):
+        return a[:, 0:k + 1].max(axis=1).mean()
+
+    scores = ds['rouge-2-all']  # list[list[float]
+    bests = [mean_until(scores, k) for k in range(len(scores[0]))]
     print('best at ', len(ds['rouge-2-best']), 'with params', search_params)
     print('rouge-2 best at', avg('rouge-2-best'))
     print('rouge-2 avg', avg('rouge-2-avg'))
+    print('rouge-2-std average', avg('rouge-2-std'))
     print('rouge-2 first', avg('rouge-2-first'))
+    print('rouge-2-all', bests)

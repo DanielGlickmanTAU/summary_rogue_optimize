@@ -67,6 +67,6 @@ def search_validation_loss(dataset_split, model, tokenizer, search_params: Searc
     print('best at ', len(ds['rouge-2-best']), 'with params', search_params)
     print('rouge-2 best at', avg('rouge-2-best'))
     print('rouge-2 avg', avg('rouge-2-avg'))
-    print('rouge-2-std average', avg('rouge-2-std'))
     print('rouge-2 first', avg('rouge-2-first'))
     print('rouge-2-all', bests)
+    # print('rouge-2-std average', avg('rouge-2-std'))

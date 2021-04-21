@@ -1,11 +1,12 @@
+import random
+
 import experiment
 from data import data_loading
 from experiments.flows import add_summary_and_rouge, search_validation_loss
 from models import model_loading
 from models.candidate_selection import select_best
-from models.generate import SearchParams, BeamSearchParams
+from models.generate import SearchParams, BeamSearchParams, PSearchParams
 from train import training
-import random
 
 
 def get_random_examples(ds, k):
@@ -86,9 +87,9 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
 
 validation_split = 'validation'
 
-batch_size = 16
-train_examples = 16
-validation_examples = 16
+batch_size = 12
+train_examples = 408
+validation_examples = 408
 examples_for_training_epoch = 3200
 examples_for_training_epoch = 16
 strikes = 3
@@ -98,9 +99,14 @@ precentile = 0.06
 model, tokenizer = model_loading.get_bart_model_and_tokenizer_xsum()
 cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=validation_examples)
 
-search_params = BeamSearchParams(num_beams=16, num_return_sequences=16)
-batch_size = 16
-search_validation_loss(cnn[validation_split], model, tokenizer, search_params, batch_size)
+search_params = BeamSearchParams(num_beams=32, num_return_sequences=32)
+search_validation_loss(cnn['validation'], model, tokenizer, search_params, batch_size)
+
+search_params = PSearchParams(num_beams=32, num_return_sequences=32, top_p=0.9)
+search_validation_loss(cnn['validation'], model, tokenizer, search_params, batch_size)
+
+# search_params = BeamSearchParams(num_beams=16, num_return_sequences=16, no_repeat_ngram_size=2)
+# search_validation_loss(cnn['train'], model, tokenizer, search_params, batch_size)
 
 exit();
 1 / 0

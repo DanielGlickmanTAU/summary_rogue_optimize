@@ -1,3 +1,20 @@
+best at  408 with params BeamSearchParams(do_sample=False, top_p=None, top_k=None, num_beams=32, num_return_sequences=32, no_repeat_ngram_size=0)
+rouge-2 best at 0.3217078150933057
+rouge-2 avg 0.19817172974017044
+rouge-2 first 0.20995886624297788
+
+est at  408 with params PSearchParams(do_sample=True, top_p=0.9, top_k=None, num_beams=8, num_return_sequences=8, no_repeat_ngram_size=0)
+rouge-2 best at 0.2199242019950792
+rouge-2 avg 0.2064199543496904
+rouge-2 first 0.20875433694365308
+rouge-2-all [0.20875433694365295, 0.21249634377361343, 0.21591802085883852, 0.21705865910900307, 0.21799449402831192, 0.21855643294519775, 0.21959629902074723, 0.2199242019950791]
+
+best at  16 with params BeamSearchParams(do_sample=False, top_p=None, top_k=None, num_beams=32, num_return_sequences=32, no_repeat_ngram_size=0)
+rouge-2 best at 0.3032134579413095
+rouge-2 avg 0.16852308946797798
+rouge-2 first 0.1827091187529249
+
+
 best at  100 with beam size: 16 return seqs: 16 do sample: False top_p None top_k None
 rouge-2 best at 0.21995871691866514
 rouge-2 avg 0.1565397842197933

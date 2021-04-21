@@ -1,5 +1,6 @@
-import numpy
 import os
+
+import numpy
 from datasets import load_from_disk
 
 from data.metrics import calc_score_avg_best_first_for_list_of_summaries
@@ -7,10 +8,11 @@ from models import generate
 from models.generate import SearchParams
 
 
-def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParams):
-    def get_by_key(list_of_dicts, key):
-        return [x[key] for x in list_of_dicts]
+def get_by_key(list_of_dicts, key):
+    return [x[key] for x in list_of_dicts]
 
+
+def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParams):
     articles = examples['article']
     gold = examples['highlights']
     generated_summaries = generate.summarize(model, tokenizer, articles, search_params)
@@ -36,7 +38,18 @@ def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_p
     mapped_search_path = '%s/processed_dataset_' % model_name + '_' + dataset_name + str(ds_len) + '_' + search_str
     if os.path.isdir(mapped_search_path):
         print('loading saved dataset', mapped_search_path)
-        return load_from_disk(mapped_search_path)
+        disk = load_from_disk(mapped_search_path)
+        if 'rouge-2-all' not in disk:
+            # for backwards compatibality, the 402, 32 beams on amazon
+            def add_scores(examples):
+                gold = examples['highlights']
+                generated_summaries = examples['generated_highlights']
+                scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
+                return {'rouge-2-all': get_by_key(scores, 'rouge-2-all')}
+
+            disk = disk.map(add_scores, batched=True, batch_size=batch_size)
+
+        return disk
     print(mapped_search_path, 'not found')
     ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
                            batched=True,

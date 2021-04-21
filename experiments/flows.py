@@ -27,14 +27,6 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
             'generated_highlights': generated_summaries}
 
 
-# else:
-#     scores = [metrics.calc_score(pred, ref) for pred, ref in zip(generated_summaries, gold)]
-#     rouge2 = [x['rouge-2'] for x in scores]
-#     rouge1 = [x['rouge-1'] for x in scores]
-#     return {'article': articles, 'highlights': gold, 'generated_summaries': generated_summaries,
-#             'rouge2': rouge2, 'rouge1': rouge1}
-
-
 def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
     model_name = model.config.name_or_path.replace('/', '_')
     dataset_name = dataset_split.name

@@ -1,5 +1,8 @@
-import torch
-from transformers import BartTokenizer, BartForConditionalGeneration, BartConfig
+from utils import compute
+
+torch = compute.get_torch()
+from transformers import BartTokenizer, BartForConditionalGeneration
+
 xsum_model_name = 'sshleifer/distilbart-xsum-12-3'
 
 
@@ -15,4 +18,3 @@ def get_bart_model_and_tokenizer_xsum():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
     return model, tokenizer
-

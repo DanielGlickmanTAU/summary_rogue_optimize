@@ -13,7 +13,6 @@ def is_university_server():
 
 
 def get_cache_dir():
-    print('is uni server?',is_university_server())
     if is_university_server():
         return '/specific/netapp5/joberant/nlp_fall_2021/glickman/cache'
     return None
@@ -109,4 +108,3 @@ def get_device_and_set_as_global():
     d = get_device()
     get_torch().cuda.set_device(d)
     return d
-

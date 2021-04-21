@@ -61,7 +61,7 @@ def search_validation_loss(dataset_split, model, tokenizer, search_params: Searc
     def mean_until(a, k):
         return a[:, 0:k + 1].max(axis=1).mean()
 
-    scores = ds['rouge-2-all']  # list[list[float]
+    scores = numpy.array(ds['rouge-2-all'])  # list[list[float]
     bests = [mean_until(scores, k) for k in range(len(scores[0]))]
     print('best at ', len(ds['rouge-2-best']), 'with params', search_params)
     print('rouge-2 best at', avg('rouge-2-best'))

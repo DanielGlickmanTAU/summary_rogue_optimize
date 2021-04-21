@@ -18,7 +18,7 @@ class SearchParams:
     top_k: Optional[int]
     num_beams: int = 4
     num_return_sequences: int = 1
-    no_repeat_ngram_size: int = 3
+    no_repeat_ngram_size: int = 0
 
     #used for saving results to file
     def str_descriptor(self):

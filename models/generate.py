@@ -30,6 +30,11 @@ class SearchParams:
                'num_return_sequences' + str(self.num_return_sequences) + '_' + \
                'no_repeat_ngram_size' + str(self.no_repeat_ngram_size)
 
+    def clone(self):
+        return SearchParams(do_sample=self.do_sample, top_p=self.top_p, top_k=self.top_k, num_beams=self.num_beams,
+                            num_return_sequences=self.num_return_sequences,
+                            no_repeat_ngram_size=self.no_repeat_ngram_size)
+
 
 @dataclass
 class BeamSearchParams(SearchParams):

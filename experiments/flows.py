@@ -1,3 +1,4 @@
+from experiments import experiment
 import os
 
 import numpy
@@ -15,12 +16,23 @@ def get_by_key(list_of_dicts, key):
 def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParams):
     articles = examples['article']
     gold = examples['highlights']
-    generated_summaries = generate.summarize(model, tokenizer, articles, search_params)
+    if False and search_params.do_sample:
+        sp = search_params.clone()
+        sp.top_p = sp.top_p / 2
+        generated_summaries1 = generate.summarize(model, tokenizer, articles, sp)
+        generated_summaries2 = generate.summarize(model, tokenizer, articles, sp)
+        generated_summaries = []
+        for a, b in zip(generated_summaries1, generated_summaries2):
+            generated_summaries.append(a)
+            generated_summaries.append(b)
+    else:
+        generated_summaries = generate.summarize(model, tokenizer, articles, search_params)
 
     num_return_sequences = search_params.num_return_sequences
     generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
                            range(0, len(generated_summaries), num_return_sequences)]
 
+    return {'generated_highlights': generated_summaries}
     scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
     return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
             'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
@@ -60,6 +72,8 @@ def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_p
 
 
 def search_validation_loss(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
+    exp = experiment.start_experiment(hyperparams={'search': search_params,
+                                                   'batch_size': batch_size, 'model': model.config.name_or_path})
     ds = get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params, batch_size)
 
     def avg(key): return sum(ds[key]) / len(ds[key])

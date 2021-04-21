@@ -17,14 +17,19 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
     articles = examples['article']
     gold = examples['highlights']
     if False and search_params.do_sample:
+        assert search_params.num_beams % 4 == 0
         sp = search_params.clone()
         sp.top_p = sp.top_p / 2
         generated_summaries1 = generate.summarize(model, tokenizer, articles, sp)
         generated_summaries2 = generate.summarize(model, tokenizer, articles, sp)
+        generated_summaries3 = generate.summarize(model, tokenizer, articles, sp)
+        generated_summaries4 = generate.summarize(model, tokenizer, articles, sp)
         generated_summaries = []
-        for a, b in zip(generated_summaries1, generated_summaries2):
+        for a, b, c, d in zip(generated_summaries1, generated_summaries2, generated_summaries3, generated_summaries4):
             generated_summaries.append(a)
             generated_summaries.append(b)
+            generated_summaries.append(c)
+            generated_summaries.append(d)
     else:
         generated_summaries = generate.summarize(model, tokenizer, articles, search_params)
 
@@ -32,7 +37,7 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
     generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
                            range(0, len(generated_summaries), num_return_sequences)]
 
-    return {'generated_highlights': generated_summaries}
+    # return {'generated_highlights': generated_summaries}
     scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
     return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
             'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),

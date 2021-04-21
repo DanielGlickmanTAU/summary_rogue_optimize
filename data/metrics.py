@@ -1,6 +1,8 @@
-import datasets
 import concurrent.futures
+import datasets
 import random
+
+from utils import compute
 
 n_threads = 8
 
@@ -9,7 +11,8 @@ def get_rouge(experiment_id=None):
     return datasets.load_metric('rouge',
                                 # num_process=8
                                 # , keep_in_memory=True
-                                experiment_id=experiment_id
+                                experiment_id=experiment_id,
+                                cache_dir=compute.get_cache_dir()
                                 )
 
 

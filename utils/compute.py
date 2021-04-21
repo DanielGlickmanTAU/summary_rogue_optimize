@@ -7,6 +7,18 @@ max_num_gpus = 3
 last_write = 0
 home = '/specific/netapp5_3/ML_courses/students/DL2020/glickman1'
 
+
+def is_university_server():
+    return 'gamir' in os.environ['HOST'] or 'rack' in os.environ['HOST']
+
+
+def get_cache_dir():
+    print('is uni server?',is_university_server())
+    if is_university_server():
+        return '/specific/netapp5/joberant/nlp_fall_2021/glickman/cache'
+    return None
+
+
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
 os.environ['TRANSFORMERS_CACHE'] = get_cache_dir()
@@ -98,12 +110,3 @@ def get_device_and_set_as_global():
     get_torch().cuda.set_device(d)
     return d
 
-
-def is_university_server():
-    return 'gamir' in os.environ['HOST'] or 'rack' in in os.environ['HOST']
-
-
-def get_cache_dir():
-    if is_university_server():
-        return '/specific/netapp5_3/ML_courses/students/DL2020/glickman1/cache'
-    return None

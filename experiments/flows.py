@@ -1,3 +1,4 @@
+import numpy
 import os
 from datasets import load_from_disk
 

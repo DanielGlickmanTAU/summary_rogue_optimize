@@ -16,20 +16,32 @@ def get_by_key(list_of_dicts, key):
 def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParams):
     articles = examples['article']
     gold = examples['highlights']
-    if False and search_params.do_sample:
-        assert search_params.num_beams % 4 == 0
+    if search_params.do_sample:
+        assert search_params.num_beams % 8 == 0
         sp = search_params.clone()
-        sp.top_p = sp.top_p / 2
+        sp.num_beams = sp.num_beams // 8
+        sp.num_return_sequences = sp.num_return_sequences // 8
         generated_summaries1 = generate.summarize(model, tokenizer, articles, sp)
         generated_summaries2 = generate.summarize(model, tokenizer, articles, sp)
         generated_summaries3 = generate.summarize(model, tokenizer, articles, sp)
         generated_summaries4 = generate.summarize(model, tokenizer, articles, sp)
+        generated_summaries5 = generate.summarize(model, tokenizer, articles, sp)
+        generated_summaries6 = generate.summarize(model, tokenizer, articles, sp)
+        generated_summaries7 = generate.summarize(model, tokenizer, articles, sp)
+        generated_summaries8 = generate.summarize(model, tokenizer, articles, sp)
         generated_summaries = []
-        for a, b, c, d in zip(generated_summaries1, generated_summaries2, generated_summaries3, generated_summaries4):
+        for a, b, c, d, e, f, g, h in zip(generated_summaries1, generated_summaries2, generated_summaries3,
+                                          generated_summaries4,
+                                          generated_summaries5, generated_summaries6, generated_summaries7,
+                                          generated_summaries8):
             generated_summaries.append(a)
             generated_summaries.append(b)
             generated_summaries.append(c)
             generated_summaries.append(d)
+            generated_summaries.append(e)
+            generated_summaries.append(f)
+            generated_summaries.append(g)
+            generated_summaries.append(h)
     else:
         generated_summaries = generate.summarize(model, tokenizer, articles, search_params)
 

@@ -1,18 +1,4 @@
-
-get_generated_summaries_with_rouge  and search_validation_loss pass model and tokenizer..
-
-
-fix get_generated_summaries_with_rouge after see what we have now is running.. dataset len and name and model name should be part of save path...
-
-
-have like rouge-2-first, but for multiplications of 2
-
-generate for xsum
-generate for cnn/daily
-generate with beam search.. n_repeating_ngrams=3
-generate with p sampling
-
-saving huggingface dataset: careful when switching from xsum to cnn, need to keep dataset file name in cache file
+ranker : normalize outputs? per sample?(regression)
 
 try:
     try regular fine tuning..overfit

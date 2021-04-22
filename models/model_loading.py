@@ -1,10 +1,12 @@
 from utils import compute
 
 torch = compute.get_torch()
-from transformers import BartTokenizer, BartForConditionalGeneration
+from transformers import BartTokenizer, BartForConditionalGeneration, DistilBertForSequenceClassification, \
+    RobertaForSequenceClassification, RobertaTokenizer
 
 xsum_model_name = 'sshleifer/distilbart-xsum-12-3'
 cnn_model_name = 'sshleifer/distilbart-cnn-12-3'
+ranker_model_name = 'roberta-large'
 
 
 def get_bart_model_and_tokenizer_xsum():
@@ -23,6 +25,13 @@ def get_bart_model_and_tokenizer_cnn():
                                               use_fast=True,
                                               )
 
+    adjust_model(model, tokenizer)
+    return model, tokenizer
+
+
+def get_ranker_model_and_tokenizer():
+    model = RobertaForSequenceClassification.from_pretrained(ranker_model_name, num_labels=1)
+    tokenizer = RobertaTokenizer.from_pretrained(ranker_model_name, use_fast=True)
     adjust_model(model, tokenizer)
     return model, tokenizer
 

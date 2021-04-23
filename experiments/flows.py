@@ -17,31 +17,7 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
     articles = examples['article']
     gold = examples['highlights']
     if search_params.do_sample:
-        assert search_params.num_beams % 8 == 0
-        sp = search_params.clone()
-        sp.num_beams = sp.num_beams // 8
-        sp.num_return_sequences = sp.num_return_sequences // 8
-        generated_summaries1 = generate.summarize(model, tokenizer, articles, sp)
-        generated_summaries2 = generate.summarize(model, tokenizer, articles, sp)
-        generated_summaries3 = generate.summarize(model, tokenizer, articles, sp)
-        generated_summaries4 = generate.summarize(model, tokenizer, articles, sp)
-        generated_summaries5 = generate.summarize(model, tokenizer, articles, sp)
-        generated_summaries6 = generate.summarize(model, tokenizer, articles, sp)
-        generated_summaries7 = generate.summarize(model, tokenizer, articles, sp)
-        generated_summaries8 = generate.summarize(model, tokenizer, articles, sp)
-        generated_summaries = []
-        for a, b, c, d, e, f, g, h in zip(generated_summaries1, generated_summaries2, generated_summaries3,
-                                          generated_summaries4,
-                                          generated_summaries5, generated_summaries6, generated_summaries7,
-                                          generated_summaries8):
-            generated_summaries.append(a)
-            generated_summaries.append(b)
-            generated_summaries.append(c)
-            generated_summaries.append(d)
-            generated_summaries.append(e)
-            generated_summaries.append(f)
-            generated_summaries.append(g)
-            generated_summaries.append(h)
+        generated_summaries = repeat_p_search(articles, model, search_params, tokenizer)
     else:
         generated_summaries = generate.summarize(model, tokenizer, articles, search_params)
 
@@ -56,6 +32,20 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
             'rouge-2-first': get_by_key(scores, 'rouge-2-first'),
             'rouge-2-all': get_by_key(scores, 'rouge-2-all'),  # list[list[float]]
             'generated_highlights': generated_summaries}
+
+
+def repeat_p_search(articles, model, search_params, tokenizer, repeat=8):
+    assert search_params.num_beams % repeat == 0
+    sp = search_params.clone()
+    sp.num_beams = sp.num_beams // repeat
+    sp.num_return_sequences = sp.num_return_sequences // repeat
+    generated_summaries_lists = [generate.summarize(model, tokenizer, articles, sp) for i in range(repeat)]
+    generated_summaries = []
+    num_generated_summarizes = len(generated_summaries_lists[0])
+    for summary_index in range(num_generated_summarizes):
+        for summaries_list in generated_summaries_lists:
+            generated_summaries.append(summaries_list[summary_index])
+    return generated_summaries
 
 
 def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):

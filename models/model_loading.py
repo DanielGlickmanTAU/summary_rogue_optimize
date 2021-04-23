@@ -1,8 +1,7 @@
 from utils import compute
 
 torch = compute.get_torch()
-from transformers import BartTokenizer, BartForConditionalGeneration, DistilBertForSequenceClassification, \
-    RobertaForSequenceClassification, RobertaTokenizer
+from transformers import BartTokenizer, BartForConditionalGeneration, RobertaForSequenceClassification, RobertaTokenizer
 
 xsum_model_name = 'sshleifer/distilbart-xsum-12-3'
 cnn_model_name = 'sshleifer/distilbart-cnn-12-3'

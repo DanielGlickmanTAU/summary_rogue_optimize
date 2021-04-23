@@ -1,14 +1,12 @@
+make ranker work with <text><summary>
+
+
 ranker : normalize outputs? per sample?(regression)
 
 try:
     try regular fine tuning..overfit
 
 
-hyperparams:
-    eval metric: rouge-1, rouge-2 rogue-l
-    decoding algorithms: beam search, nuclos
-    precentile: 0.15
-    selection: by prob(roullte)..top
 
 
 tried:

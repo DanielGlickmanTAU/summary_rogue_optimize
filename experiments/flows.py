@@ -70,14 +70,7 @@ def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_p
         disk = load_from_disk(mapped_search_path)
         if 'rouge-2-all' not in disk:
             # for backwards compatibality, the 402, 32 beams on amazon
-            def add_scores(examples):
-                gold = examples['highlights']
-                generated_summaries = examples['generated_highlights']
-                scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
-                return {'rouge-2-all': get_by_key(scores, 'rouge-2-all')}
-
             disk = disk.map(add_scores, batched=True, batch_size=batch_size)
-
         return disk
     print(mapped_search_path, 'not found')
     ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
@@ -106,3 +99,10 @@ def search_validation_loss(dataset_split, model, tokenizer, search_params: Searc
     print('rouge-2 first', avg('rouge-2-first'))
     print('rouge-2-all', bests)
     # print('rouge-2-std average', avg('rouge-2-std'))
+
+
+def add_scores(examples):
+    gold = examples['highlights']
+    generated_summaries = examples['generated_highlights']
+    scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
+    return {'rouge-2-all': get_by_key(scores, 'rouge-2-all')}

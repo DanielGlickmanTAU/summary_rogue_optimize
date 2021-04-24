@@ -18,7 +18,10 @@ def load_generated_dataset(mapped_search_path, batch_size):
 
 
 def get_generated_dataset_save_path(dataset_split, model, search_params):
-    model_name = model.config.name_or_path.replace('/', '_')
+    if isinstance(model, str):
+        model_name = model
+    else:
+        model_name = model.config.name_or_path.replace('/', '_')
     dataset_name = dataset_split.name
     ds_len = len(dataset_split)
     search_str = search_params.str_descriptor()

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-
+import tokenize
 import torch
 
 
@@ -11,7 +11,7 @@ class SearchParams:
     top_k: Optional[int]
     num_beams: int = 4
     num_return_sequences: int = 1
-    no_repeat_ngram_size: int = 0
+    no_repeat_ngram_size: int = 0  # change to 3?
 
     # used for saving results to file
     def str_descriptor(self):
@@ -45,12 +45,7 @@ class PSearchParams(SearchParams):
 def summarize(model, tokenizer, texts, search_params: SearchParams):
     """input is list of strings batch
         output is list of strings"""
-    tokenized = tokenizer(texts,
-                          max_length=512,
-                          return_tensors='pt',
-                          # padding="max_length",
-                          padding=True,
-                          truncation=True)
+    tokenized = tokenize.tokenize(tokenizer, texts)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     inputs = tokenized.to(device)
     print('generating', len(inputs['input_ids']), 'summaries')

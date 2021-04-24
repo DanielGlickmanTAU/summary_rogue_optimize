@@ -1,3 +1,7 @@
+probably can remove tokenizer max_length when calling tokenizer
+fix issues with long articles...
+I can pospone full length for now.. but still need to ensure summary is part of the input
+
 make ranker work with <text><summary>:
     3) map get_generated_summaries_with_rouge result:
          ds.map(lambda examples:{'bla':sum([artile + tokenizer.sep + hl for hl in generated_hls]  for (article,generated_hls) in zip(exmaples['artile'],examples['generated_highlights']),[])
@@ -6,6 +10,10 @@ make ranker work with <text><summary>:
     4) carefully debug the input into the network
     5) overfit 100 examples on regression
 
+
+mistake, I was counting chars...
+xsum artiles are long... way longer than 512... cnn bug may be caused by this...
+^ change no_repeat_ngram_size to 3?
 
 ranker : normalize outputs? per sample?(regression)
 

@@ -54,14 +54,10 @@ def repeat_p_search(articles, model, search_params, tokenizer, repeat=8):
 
 def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
     mapped_search_path = processed_data_loading.get_generated_dataset_save_path(dataset_split, model, search_params)
-    if os.path.isdir(mapped_search_path):
-        print('loading saved dataset', mapped_search_path)
-        disk = load_from_disk(mapped_search_path)
-        if 'rouge-2-all' not in disk.features:
-            # for backwards compatibality, the 402, 32 beams on amazon
-            disk = disk.map(add_scores, batched=True, batch_size=batch_size)
-            disk.save_to_disk(mapped_search_path)
+    disk = processed_data_loading.load_generated_dataset(mapped_search_path, batch_size)
+    if disk:
         return disk
+
     print(mapped_search_path, 'not found')
     ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
                            batched=True,

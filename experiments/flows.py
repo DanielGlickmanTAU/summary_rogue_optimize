@@ -1,7 +1,7 @@
+from experiments import experiment
 import numpy
 
 from data import processed_data_loading
-from experiments import experiment
 from models.generate import SearchParams
 from models import generation
 

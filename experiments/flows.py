@@ -1,14 +1,14 @@
 from experiments import experiment
 import numpy
 
-from data import processed_data_loading
+from data import generated_data_loading
 from models.generate import SearchParams
 from models import generation
 
 
 def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
-    mapped_search_path = processed_data_loading.get_generated_dataset_save_path(dataset_split, model, search_params)
-    disk = processed_data_loading.load_generated_dataset(mapped_search_path, batch_size)
+    mapped_search_path = generated_data_loading.get_generated_dataset_save_path(dataset_split, model, search_params)
+    disk = generated_data_loading.load_generated_dataset(mapped_search_path, batch_size)
     if disk:
         return disk
 

@@ -1,5 +1,4 @@
 make ranker work with <text><summary>:
-    2) make util to load pre set configurations ad-hoc so its easier for me not to get mixed
     3) map get_generated_summaries_with_rouge result:
          ds.map(lambda examples:{'bla':sum([artile + tokenizer.sep + hl for hl in generated_hls]  for (article,generated_hls) in zip(exmaples['artile'],examples['generated_highlights']),[])
          .map(normalize scores)

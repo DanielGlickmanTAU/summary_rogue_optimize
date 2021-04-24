@@ -1,7 +1,7 @@
 import os
 import time
 
-minimum_free_giga = 6
+minimum_free_giga = 8
 max_num_gpus = 3
 
 last_write = 0

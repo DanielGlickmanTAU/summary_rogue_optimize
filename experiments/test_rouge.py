@@ -85,10 +85,8 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
     exp.end()
 
 
-validation_split = 'validation'
-
-batch_size = 12
-train_examples = 408
+batch_size = 2
+train_examples = 50_000
 validation_examples = 408
 examples_for_training_epoch = 3200
 examples_for_training_epoch = 16
@@ -99,11 +97,11 @@ precentile = 0.06
 model, tokenizer = model_loading.get_bart_model_and_tokenizer_xsum()
 cnn = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=validation_examples)
 
-search_params = BeamSearchParams(num_beams=32, num_return_sequences=32)
-search_validation_loss(cnn['validation'], model, tokenizer, search_params, batch_size)
+search_params = PSearchParams(num_beams=8, num_return_sequences=8, top_p=0.9)
+search_validation_loss(cnn['train'], model, tokenizer, search_params, batch_size)
 
-search_params = PSearchParams(num_beams=32, num_return_sequences=32, top_p=0.9)
-search_validation_loss(cnn['validation'], model, tokenizer, search_params, batch_size)
+# search_params = PSearchParams(num_beams=32, num_return_sequences=32, top_p=0.9)
+# search_validation_loss(cnn['validation'], model, tokenizer, search_params, batch_size)
 
 # search_params = BeamSearchParams(num_beams=16, num_return_sequences=16, no_repeat_ngram_size=2)
 # search_validation_loss(cnn['train'], model, tokenizer, search_params, batch_size)

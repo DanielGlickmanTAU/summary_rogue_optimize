@@ -1,6 +1,11 @@
+start with  bert-base
+
+
 In Progess:
 tokenize text+summary
-test tokenizion wokrs with 2 inputs
+test tokenizion wokrs with 2 inputs..
+
+generate beams xsum again 1200
 
 
 overwrite roberta and see what I get in forward
@@ -15,6 +20,7 @@ it may be possible to just override forward of RObertaForClassification and retu
 
  if this doesnt work,, overwrite huggingface trainer:compute_loss
 
+class roberaranker(roberaForrSEQClassification): with predict select top method
 
 implement tokenize.decode for list when I need it..
 

@@ -2,7 +2,7 @@ import random
 
 import experiment
 from data import data_loading
-from experiments.flows import add_summary_and_rouge, search_validation_loss
+from flows.flows import add_summary_and_rouge, search_validation_loss
 from models import model_loading
 from models.candidate_selection import select_best
 from models.generate import SearchParams, BeamSearchParams, PSearchParams

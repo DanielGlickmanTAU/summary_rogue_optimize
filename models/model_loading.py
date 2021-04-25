@@ -33,7 +33,8 @@ def get_ranker_model_and_tokenizer():
     model = RobertaForSequenceClassification.from_pretrained(ranker_model_name, num_labels=1)
     tokenizer = RobertaTokenizer.from_pretrained(ranker_model_name, use_fast=True)
     adjust_model(model, tokenizer)
-    return model, tokenizer
+    import RankerModel
+    return RankerModel.RankerModel(model), tokenizer
 
 
 def adjust_model(model, tokenizer):

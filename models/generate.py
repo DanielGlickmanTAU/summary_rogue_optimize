@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-import tokenize
+from models import tokenize
 
 from utils import compute
 

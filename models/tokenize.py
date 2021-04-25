@@ -1,4 +1,6 @@
-import torch
+from utils import compute
+
+torch = compute.get_torch()
 
 
 def tokenize(tokenizer, texts, summaries=None, max_length=None, padding=True):

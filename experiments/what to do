@@ -1,16 +1,5 @@
-start with  bert-base
-
-
 In Progess:
-tokenize text+summary
-test tokenizion wokrs with 2 inputs..
-
-generate beams xsum again 1200
-
-
 overwrite roberta and see what I get in forward
-
-handle also attention_mask
 
 it may be possible to just override forward of RObertaForClassification and return my loss.
  careful with from_pretrained ========= try MyCustomRoberta(RObertaConfig.from_pretrained(..))

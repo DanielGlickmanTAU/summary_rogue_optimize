@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from typing import Optional
 import tokenize
-import torch
+
+from utils import compute
+
+torch = compute.get_torch()
 
 
 @dataclass

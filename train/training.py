@@ -38,6 +38,17 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
+def train_ranker(ranker_model, tokenizer, dataset, training_arguments: TrainingArguments):
+    assert training_arguments.remove_unused_columns == False
+    trainer = Trainer(
+        model=ranker_model,
+        args=training_arguments,
+        train_dataset=dataset,
+    )
+
+    trainer.train()
+
+
 # trains generaiton for single epoch
 def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1):
     mini_split = prepare_split_for_training(mini_split, tokenizer, batch_size)

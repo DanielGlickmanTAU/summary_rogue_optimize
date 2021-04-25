@@ -1,6 +1,6 @@
 In Progess:
 handle all required data to pass to model..
-
+be able to call validation(returns dict).. and add validation set to training ranker
 
 
 run 10k validation beam search

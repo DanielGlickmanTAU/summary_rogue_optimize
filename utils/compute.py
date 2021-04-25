@@ -22,9 +22,35 @@ def get_cache_dir():
     return None
 
 
+def get_index_of_free_gpus(minimum_free_giga=minimum_free_giga):
+    def get_free_gpu():
+        try:
+            lines = os.popen('nvidia-smi -q -d Memory |grep -A4 GPU|grep Free').readlines()
+        except Exception as e:
+            print('error getting free memory', e)
+            return {0: 10000, 1: 10000, 2: 0, 3: 10000, 4: 0, 5: 0, 6: 0, 7: 0}
+
+        memory_available = [int(x.split()[2]) for x in lines]
+        return {index: mb for index, mb in enumerate(memory_available)}
+
+    gpus = get_free_gpu()
+    # write_gpus_to_file(gpus)
+    return {index: mega for index, mega in gpus.items() if mega >= minimum_free_giga * 1000}
+    # return [str(index) for index, mega in gpus.items() if mega > minimum_free_giga * 1000]
+
+
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 if is_university_server():
     os.environ['TRANSFORMERS_CACHE'] = get_cache_dir()
+
+gpus = get_index_of_free_gpus()
+gpus = list(map(str, gpus))[:max_num_gpus]
+join = ','.join(gpus)
+os.environ["CUDA_VISIBLE_DEVICES"] = join
+print('setting CUDA_VISIBLE_DEVICES=' + join)
+if max_num_gpus == 1:
+    print('remember you are working with 1 gpu:(.. probably should fix gpu index indent')
+import torch
 
 
 def write_gpus_to_file(dict):
@@ -44,42 +70,7 @@ def write_gpus_to_file(dict):
             print('fail to save file')
 
 
-def get_index_of_free_gpus(minimum_free_giga=minimum_free_giga):
-    def get_free_gpu():
-        try:
-            lines = os.popen('nvidia-smi -q -d Memory |grep -A4 GPU|grep Free').readlines()
-        except Exception as e:
-            print('error getting free memory', e)
-            return {0: 10000, 1: 10000, 2: 0, 3: 10000, 4: 0, 5: 0, 6: 0, 7: 0}
-
-        memory_available = [int(x.split()[2]) for x in lines]
-        return {index: mb for index, mb in enumerate(memory_available)}
-
-    gpus = get_free_gpu()
-    write_gpus_to_file(gpus)
-    return {index: mega for index, mega in gpus.items() if mega >= minimum_free_giga * 1000}
-    # return [str(index) for index, mega in gpus.items() if mega > minimum_free_giga * 1000]
-
-
-force_cpu = False
-
-
-def get_torch(forcing_cpu=False):
-    if forcing_cpu:
-        print('using cpu')
-        import torch
-        return torch
-
-    global force_cpu
-    force_cpu = force_cpu
-    gpus = get_index_of_free_gpus()
-    gpus = list(map(str, gpus))[:max_num_gpus]
-    join = ','.join(gpus)
-    os.environ["CUDA_VISIBLE_DEVICES"] = join
-    print('setting CUDA_VISIBLE_DEVICES=' + join)
-    if max_num_gpus == 1:
-        print('remember you are working with 1 gpu:(.. probably should fix gpu index indent')
-    import torch
+def get_torch():
     return torch
 
 
@@ -91,8 +82,7 @@ def print_size_of_model(model):
 
 def get_device():
     torch = get_torch()
-    if force_cpu:
-        return torch.device('cpu')
+
     gpus = get_index_of_free_gpus()
     print(gpus)
     return torch.device(compute_gpu_indent(gpus) if torch.cuda.is_available() else 'cpu')

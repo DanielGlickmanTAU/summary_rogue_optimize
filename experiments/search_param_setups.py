@@ -11,7 +11,7 @@ def get_xsum_beam_train_setup():
     return dataset_name, split, train_examples, validation_examples, search_params, batch_size
 
 
-def get_xsum_spread_search_setup():
+def get_xsum_beam_spread_search_setup():
     dataset_name = 'xsum'
     split = 'validation'
     train_examples = 1

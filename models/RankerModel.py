@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 
 
 class RankerModel(nn.Module):
@@ -21,3 +22,7 @@ class RankerModel(nn.Module):
     # ):
     def forward(self, **args):
         self.roberta(**args)
+        # self.roberta(torch.tensor(args['input_ids_s][i]
+        # single example not batch: torch.tensor(args['input_ids_s'][0])
+        # self.roberta(torch.tensor(args['input_ids_s'][0]).to(self.roberta.device))
+        # deal with mask

@@ -1,13 +1,12 @@
 In Progess:
-overwrite roberta and see what I get in forward
-
-it may be possible to just override forward of RObertaForClassification and return my loss.
- careful with from_pretrained ========= try MyCustomRoberta(RObertaConfig.from_pretrained(..))
-
- another option is to implement CustomLoss(nn.module); composition over inheritance
+handle all required data to pass to model..
 
 
- if this doesnt work,, overwrite huggingface trainer:compute_loss
+
+run 10k validation beam search
+
+
+
 
 class roberaranker(roberaForrSEQClassification): with predict select top method
 

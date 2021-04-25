@@ -1,7 +1,8 @@
 from experiments import search_param_setups, execution_path
-from models import model_loading
 
 execution_path.set_working_dir()
+from models import model_loading
+
 from unittest import TestCase
 import processing
 

@@ -10,7 +10,7 @@ home = '/specific/netapp5_3/ML_courses/students/DL2020/glickman1'
 
 def is_university_server():
     try:
-        return 'gamir' in os.environ['HOST'] or 'rack' in os.environ['HOST']
+        return 'glickman1' in os.popen('whoami').read() or 'gamir' in os.environ['HOST'] or 'rack' in os.environ['HOST']
     except:
         return False
 

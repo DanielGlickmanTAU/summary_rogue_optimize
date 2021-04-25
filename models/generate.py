@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from models import tokenize
+from models import tokenization_util
 
 from utils import compute
 
@@ -48,7 +48,7 @@ class PSearchParams(SearchParams):
 def summarize(model, tokenizer, texts, search_params: SearchParams):
     """input is list of strings batch
         output is list of strings"""
-    tokenized = tokenize.tokenize(tokenizer, texts)
+    tokenized = tokenization_util.tokenize(tokenizer, texts)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     inputs = tokenized.to(device)
     print('generating', len(inputs['input_ids']), 'summaries')

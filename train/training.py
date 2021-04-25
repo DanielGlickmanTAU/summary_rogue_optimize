@@ -38,6 +38,7 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
+# trains generaiton for single epoch
 def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1):
     mini_split = prepare_split_for_training(mini_split, tokenizer, batch_size)
 

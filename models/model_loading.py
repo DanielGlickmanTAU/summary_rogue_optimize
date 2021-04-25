@@ -5,7 +5,8 @@ from transformers import BartTokenizer, BartForConditionalGeneration, RobertaFor
 
 xsum_model_name = 'sshleifer/distilbart-xsum-12-3'
 cnn_model_name = 'sshleifer/distilbart-cnn-12-3'
-ranker_model_name = 'roberta-large'
+# ranker_model_name = 'roberta-large'
+ranker_model_name = 'roberta-base'
 
 
 def get_bart_model_and_tokenizer_xsum():

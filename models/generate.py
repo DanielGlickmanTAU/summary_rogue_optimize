@@ -1,10 +1,10 @@
-from dataclasses import dataclass
-from typing import Optional
-from models import tokenization_util
-
 from utils import compute
 
 torch = compute.get_torch()
+
+from dataclasses import dataclass
+from typing import Optional
+from models import tokenization_util
 
 
 @dataclass

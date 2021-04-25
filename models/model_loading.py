@@ -2,6 +2,7 @@ from utils import compute
 
 torch = compute.get_torch()
 from transformers import BartTokenizer, BartForConditionalGeneration, RobertaForSequenceClassification, RobertaTokenizer
+from models import RankerModel
 
 xsum_model_name = 'sshleifer/distilbart-xsum-12-3'
 cnn_model_name = 'sshleifer/distilbart-cnn-12-3'
@@ -33,7 +34,7 @@ def get_ranker_model_and_tokenizer():
     model = RobertaForSequenceClassification.from_pretrained(ranker_model_name, num_labels=1)
     tokenizer = RobertaTokenizer.from_pretrained(ranker_model_name, use_fast=True)
     adjust_model(model, tokenizer)
-    import RankerModel
+
     return RankerModel.RankerModel(model), tokenizer
 
 

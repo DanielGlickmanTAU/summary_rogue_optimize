@@ -1,6 +1,6 @@
 from transformers import TrainingArguments, Trainer
 
-learning_rate = 1e-07
+learning_rate = 1e-05
 
 
 def prepare_examples_for_training(examples, tokenizer):

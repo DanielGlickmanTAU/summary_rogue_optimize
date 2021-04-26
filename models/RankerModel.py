@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch
+from torch.nn import CrossEntropyLoss, MSELoss
 
 
 class RankerModel(nn.Module):
@@ -23,8 +24,12 @@ class RankerModel(nn.Module):
     def forward(self, **args):
         # print(args['input_ids_s'])
         # can already change name...
+        print(args)
+        print('XXX')
         res = self.roberta(args['input_ids_s'], args['attention_mask_s'])
-        # print(res)
+        print(res)
+
         logits = res.logits
-        
+        # loss should be an nn module
+
         return res

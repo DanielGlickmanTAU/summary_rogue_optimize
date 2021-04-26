@@ -45,7 +45,7 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
     # features is a list of size #batch_size
     # each item in it is a dict with  keys attention_mask_s,input_ids_s,labels. each key value is a list with size #num_beams.
     # length of labels is also num_beams. length of attention_mask_s and input_ids_s is tokenizor length
-    print(features)
+    # print(features)
     # lets assume batch_size is 1 for now
     batch_size = len(features)
     assert batch_size == 1
@@ -54,7 +54,8 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
     attention_mask_s = torch.stack(features_0['attention_mask_s'])
     return {
         'input_ids_s': input_ids_s,
-        'attention_mask_s': attention_mask_s
+        'attention_mask_s': attention_mask_s,
+        'labels': features_0['labels']
     }
     # return features
 

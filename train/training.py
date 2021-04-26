@@ -63,6 +63,9 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
     # return features
 
 
+done_oracle = False
+
+
 def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments, dataset,
                  eval_dataset=None):
     def compute_metrics(eval_pred):
@@ -73,7 +76,10 @@ def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments,
         max_selected = labels[torch.arange(labels.shape[0]), mx]
         total = max_selected.mean()
 
-        print('oracle is', best_at_k(labels, labels))
+        if not done_oracle:
+            global done_oracle
+            done_oracle = True
+            print('oracle is', best_at_k(labels, labels))
         # print('compute_metrics predictions', predictions)
         # print('compute_metrics labels', labels)
         # print('best indexes per sample', mx)

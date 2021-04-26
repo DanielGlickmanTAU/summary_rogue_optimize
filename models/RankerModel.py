@@ -31,5 +31,8 @@ class RankerModel(nn.Module):
 
         logits = res.logits
         # loss should be an nn module
-
+        loss = None
+        if self.training:
+            pass
+        
         return res

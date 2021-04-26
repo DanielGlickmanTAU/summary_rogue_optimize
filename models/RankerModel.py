@@ -27,7 +27,7 @@ class RankerModel(nn.Module):
         # loss should be an nn module
         if self.training:
             logits = res.logits
-            loss = MSELoss()(input=logits, target=args['labels'])
+            loss = MSELoss()(input=logits.view(-1), target=args['labels'].view(-1))
             res['loss'] = loss
 
         return res

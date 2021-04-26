@@ -23,29 +23,24 @@ class Test(TestCase):
         ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer()
         processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
             generated_xsum, tokenizer)
-        # model(**processed_generated_xsum[0:3])
 
         training_args = TrainingArguments(
-            output_dir="./",
+            output_dir="./ranker_output_dir",
             num_train_epochs=40,
             per_device_train_batch_size=1,
             per_device_eval_batch_size=1,
             do_train=True,
-            do_eval=False,
+            # do_eval=False,
             overwrite_output_dir=False,
             # warmup_steps=0,
             fp16=True,
-            prediction_loss_only=True,
             learning_rate=1e-5,
             gradient_accumulation_steps=1,
             remove_unused_columns=False,
+            evaluation_strategy='epoch'
             # load_best_model_at_end=True
             # dataloader_num_workers=2,
         )
 
         training.train_ranker(ranker_model, tokenizer, training_args, processed_generated_xsum,
                               eval_dataset=processed_generated_xsum)
-
-        # print(encoded_input)
-        # output = model(**encoded_input)
-        # print(output)

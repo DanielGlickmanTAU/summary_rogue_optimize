@@ -63,13 +63,21 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
 
 def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments, dataset,
                  eval_dataset=None):
+    def compute_metrics(eval_pred):
+        for i in range(1000):
+            print('waitttt')
+        predictions, labels = eval_pred
+        return {'bla': 2.}
+
     assert training_arguments.remove_unused_columns == False
+
     trainer = Trainer(
         model=ranker_model,
         args=training_arguments,
         train_dataset=dataset,
         eval_dataset=eval_dataset,
-        data_collator=ranker_data_collator
+        data_collator=ranker_data_collator,
+        compute_metrics=compute_metrics,
     )
 
     trainer.train()
@@ -93,10 +101,17 @@ def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments,
             gradient_accumulation_steps=gradient_accumulation_steps
         )
 
-        trainer = Trainer(
+        trainer = MyTrainer(
             model=model,
             args=training_args,
             train_dataset=mini_split,
         )
 
         trainer.train()
+
+
+class MyTrainer(Trainer):
+    def prediction_step(self, **kwargs):
+        loss, logits, labels = super.prediction_step(**kwargs)
+        print(loss, logits, labels)
+        return loss, logits, labels

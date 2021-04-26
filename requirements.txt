@@ -1,5 +1,5 @@
 torch~=1.8.0
-transformers~=4.1.1
+transformers~=4.5.1
 pandas~=1.2.1
 datasets~=1.2.1
 numpy~=1.19.4

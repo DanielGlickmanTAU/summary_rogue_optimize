@@ -1,6 +1,13 @@
+from dataclasses import dataclass
+
 import torch.nn as nn
 import torch
 from torch.nn import CrossEntropyLoss, MSELoss
+
+
+@dataclass
+class Holder:
+    data: object
 
 
 class RankerModel(nn.Module):
@@ -22,12 +29,23 @@ class RankerModel(nn.Module):
     #         return_dict=None,
     # ):
     def forward(self, **args):
-        input_ids_s_ = args['input_ids_s']
+        input_ids_s_ = args['input_ids_s']  # shape(n_beam, tokenz_length)
+        # print('input to robera shape' , input_ids_s_.shape)
         res = self.roberta(input_ids_s_, args['attention_mask_s'])
         # loss should be an nn module
-        if self.training:
-            logits = res.logits
-            loss = MSELoss()(input=logits.view(-1), target=args['labels'].view(-1))
+        # print('original logits shape', res.logits.shape)
+        logits = res.logits.view(-1)
+        res['logits'] = logits
+        if 'labels' in args:
+            target = args['labels']
+            # print('logits shape', logits.shape)
+            # print('target shape', target.shape)
+            assert target.shape == logits.shape
+            loss = MSELoss()(input=logits, target=target)
             res['loss'] = loss
-
+        # RE SHAPE EVAL INTO WHAT I NEED
+        # if eval reshape labels into
+        # print('shape', logits.shape)
+        # print('shape labels', args['labels'].shape)
+        # print('shape target and view', target.shape)
         return res

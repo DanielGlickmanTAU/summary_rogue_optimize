@@ -8,7 +8,7 @@ from models import generation
 
 def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
     mapped_search_path = generated_data_loading.get_generated_dataset_save_path(dataset_split, model, search_params)
-    disk = generated_data_loading.load_generated_dataset(mapped_search_path, batch_size)
+    disk = generated_data_loading.load_generated_dataset(mapped_search_path, batch_size, generation.add_rouge)
     if disk:
         return disk
 
@@ -18,7 +18,7 @@ def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_p
                            batch_size=batch_size)
     print('saving only summaries: saving dataset to', mapped_search_path)
     ds.save_to_disk(mapped_search_path)
-    ds = dataset_split.map(lambda x: generation.add_rouge, batched=True, batch_size=batch_size)
+    ds = dataset_split.map(generation.add_rouge, batched=True, batch_size=batch_size)
     print('saving full: saving dataset to', mapped_search_path)
     ds.save_to_disk(mapped_search_path)
     return ds

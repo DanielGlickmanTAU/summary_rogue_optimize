@@ -6,6 +6,9 @@ replace list[num_beams][input_ids_tensor] into tensor of shape(num_beams,input_i
 restore more than one gpu
 
 
+can use bert-large
+can tokenize full text+summary
+
 
 
 class roberaranker(roberaForrSEQClassification): with predict select top method

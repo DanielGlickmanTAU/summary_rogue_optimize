@@ -36,6 +36,7 @@ class RankerModel(nn.Module):
         # print('original logits shape', res.logits.shape)
         logits = res.logits.view(-1)
         res['logits'] = logits
+        res['logits'] = torch.tensor([1., 2., 3., 4., 5., 6., 7., 8.])
         if 'labels' in args:
             target = args['labels']
             # print('logits shape', logits.shape)

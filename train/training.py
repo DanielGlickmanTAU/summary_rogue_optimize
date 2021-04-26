@@ -76,15 +76,17 @@ def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments,
         max_selected = labels[torch.arange(labels.shape[0]), mx]
         total = max_selected.mean()
 
+        global done_oracle
         if not done_oracle:
-            global done_oracle
             done_oracle = True
-            print('oracle is', best_at_k(labels, labels))
+            for k in range(labels.shape[0]):
+                print('oracle rouge at k', best_at_k(labels, labels, k))
         # print('compute_metrics predictions', predictions)
         # print('compute_metrics labels', labels)
         # print('best indexes per sample', mx)
         # print('corrspond to real rouge', max_selected)
-        print('that some to total of', best_at_k(labels, predictions))
+        for k in range(labels.shape[0]):
+            print('eval rouge at k', best_at_k(labels, predictions, k))
         print('\n' * 5)
 
         return {'eval_loss': total}

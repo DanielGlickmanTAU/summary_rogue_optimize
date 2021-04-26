@@ -7,6 +7,10 @@ from models.generate import SearchParams
 
 def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParams):
     examples = add_summary(model, tokenizer, examples, search_params)
+    return add_rouge(examples)
+
+
+def add_rouge(examples):
     generated_summaries = examples['generated_highlights']
     gold = examples['highlights']
     scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)

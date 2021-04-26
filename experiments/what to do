@@ -1,21 +1,9 @@
-try in compute_metric do label[argmax[predict]]
-
-
-overwrite Trainer.predicition step and do logits = logits.repeat(batch_size)
-
-evaluate.. could not broadcast from (80,1) to (10,1)
-
+normalize the labels per sample!
 In Progess:
 replace list[num_beams][input_ids_tensor] into tensor of shape(num_beams,input_ids_tensor) // use torch.stack.. in collator i think
 
-convert labels to tensor for computing loss. but its require_grad=False
-
-another option is to batch regularly and then in RankerModel to for loop
 
 restore more than one gpu
-
-Improvement:
-
 
 
 

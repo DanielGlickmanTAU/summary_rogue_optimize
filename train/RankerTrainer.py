@@ -193,20 +193,3 @@ class RankerTrainer(Trainer):
                 metrics[f"{metric_key_prefix}_{key}"] = metrics.pop(key)
 
         return PredictionOutput(predictions=preds, label_ids=label_ids, metrics=metrics)
-
-    # def compute_loss(self, model, inputs):
-    #     print('yoyo')
-    #     """
-    #     How the loss is computed by Trainer. By default, all models return the loss in the first element.
-    #
-    #     Subclass and override for custom behavior.
-    #     """
-    #     print('first thing first', inputs)
-    #     outputs = model(**inputs)
-    #     # Save past state if it exists
-    #     # TODO: this needs to be fixed and made cleaner later.
-    #     if self.args.past_index >= 0:
-    #         self._past = outputs[self.args.past_index]
-    #     # We don't use .loss here since the model may return tuples instead of ModelOutput.
-    #     print('this how we do', outputs)
-    #     return outputs["loss"] if isinstance(outputs, dict) else outputs[0]

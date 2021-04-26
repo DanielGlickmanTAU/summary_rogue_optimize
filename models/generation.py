@@ -6,9 +6,8 @@ from models.generate import SearchParams
 
 
 def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParams):
-    generated_summaries = add_rouge(model, tokenizer, examples, search_params)['generated_highlights']
-    # return {'generated_highlights': generated_summaries}
-
+    examples = add_summary(model, tokenizer, examples, search_params)
+    generated_summaries = examples['generated_highlights']
     gold = examples['highlights']
     scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
     return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
@@ -18,7 +17,7 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
             'generated_highlights': generated_summaries}
 
 
-def add_rouge(model, tokenizer, examples, search_params: SearchParams):
+def add_summary(model, tokenizer, examples, search_params: SearchParams):
     articles = examples['article']
     if search_params.do_sample:
         # can fit like 8 beams in a time
@@ -30,8 +29,9 @@ def add_rouge(model, tokenizer, examples, search_params: SearchParams):
     num_return_sequences = search_params.num_return_sequences
     generated_summaries = [generated_summaries[i:i + num_return_sequences] for i in
                            range(0, len(generated_summaries), num_return_sequences)]
-
-    return {'generated_highlights': generated_summaries}
+    examples['generated_highlights'] = generated_summaries
+    # return {'generated_highlights': generated_summaries}
+    return examples
 
 
 def repeat_p_search(articles, model, search_params, tokenizer, repeat=8):

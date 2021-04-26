@@ -7,14 +7,8 @@ another option is to batch regularly and then in RankerModel to for loop
 
 restore more than one gpu
 
-positional_encoding ???
+Improvement:
 
-handle all required data to pass to model..
-be able to call validation(returns dict).. and add validation set to training ranker
-can probably remove my padding if using DataCollatorForTokenClassification
-
-
-run 10k validation beam search
 
 
 

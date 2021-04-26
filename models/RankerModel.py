@@ -30,5 +30,4 @@ class RankerModel(nn.Module):
             loss = MSELoss()(input=logits, target=args['labels'])
             res['loss'] = loss
 
-        print(res)
         return res

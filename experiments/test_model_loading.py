@@ -18,7 +18,7 @@ class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
         mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum408_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
         generated_xsum = generated_data_loading.load_generated_dataset(mapped_saved_path, 4)
-        generated_xsum = generated_xsum.select(range(20))
+        generated_xsum = generated_xsum.select(range(10))
 
         ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer()
         processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
@@ -27,7 +27,7 @@ class Test(TestCase):
 
         training_args = TrainingArguments(
             output_dir="./",
-            num_train_epochs=1,
+            num_train_epochs=40,
             per_device_train_batch_size=1,
             per_device_eval_batch_size=1,
             do_train=True,
@@ -43,7 +43,7 @@ class Test(TestCase):
             # dataloader_num_workers=2,
         )
 
-        training.train_ranker(ranker_model, tokenizer, processed_generated_xsum, training_args)
+        training.train_ranker(ranker_model, tokenizer, training_args, processed_generated_xsum)
 
         # print(encoded_input)
         # output = model(**encoded_input)

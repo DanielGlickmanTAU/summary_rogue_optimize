@@ -1,6 +1,13 @@
 In Progess:
+replace list[num_beams][input_ids_tensor] into tensor of shape(num_beams,input_ids_tensor) // use torch.stack.. in collator i think
+
+restore more than one gpu
+
+positional_encoding ???
+
 handle all required data to pass to model..
 be able to call validation(returns dict).. and add validation set to training ranker
+can probably remove my padding if using DataCollatorForTokenClassification
 
 
 run 10k validation beam search

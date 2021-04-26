@@ -21,8 +21,10 @@ class RankerModel(nn.Module):
     #         return_dict=None,
     # ):
     def forward(self, **args):
-        self.roberta(**args)
-        # self.roberta(torch.tensor(args['input_ids_s][i]
-        # single example not batch: torch.tensor(args['input_ids_s'][0])
-        # self.roberta(torch.tensor(args['input_ids_s'][0]).to(self.roberta.device))
-        # deal with mask
+        # print(args['input_ids_s'])
+        # can already change name...
+        res = self.roberta(args['input_ids_s'], args['attention_mask_s'])
+        # print(res)
+        logits = res.logits
+        
+        return res

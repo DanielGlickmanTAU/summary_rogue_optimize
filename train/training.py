@@ -1,4 +1,7 @@
+from typing import Dict
+
 from transformers import TrainingArguments, Trainer
+import torch
 
 learning_rate = 1e-05
 
@@ -38,12 +41,31 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
+def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
+    # features is a list of size #batch_size
+    # each item in it is a dict with  keys attention_mask_s,input_ids_s,labels. each key value is a list with size #num_beams.
+    # length of labels is also num_beams. length of attention_mask_s and input_ids_s is tokenizor length
+    print(features)
+    # lets assume batch_size is 1 for now
+    batch_size = len(features)
+    assert batch_size == 1
+    features_0 = features[0]
+    input_ids_s = torch.stack(features_0['input_ids_s'])
+    attention_mask_s = torch.stack(features_0['attention_mask_s'])
+    return {
+        'input_ids_s': input_ids_s,
+        'attention_mask_s': attention_mask_s
+    }
+    # return features
+
+
 def train_ranker(ranker_model, tokenizer, dataset, training_arguments: TrainingArguments):
     assert training_arguments.remove_unused_columns == False
     trainer = Trainer(
         model=ranker_model,
         args=training_arguments,
         train_dataset=dataset,
+        data_collator=ranker_data_collator,
     )
 
     trainer.train()

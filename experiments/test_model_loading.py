@@ -28,8 +28,8 @@ class Test(TestCase):
         training_args = TrainingArguments(
             output_dir="./",
             num_train_epochs=1,
-            per_device_train_batch_size=2,
-            per_device_eval_batch_size=2,
+            per_device_train_batch_size=1,
+            per_device_eval_batch_size=1,
             do_train=True,
             do_eval=False,
             overwrite_output_dir=False,
@@ -38,7 +38,9 @@ class Test(TestCase):
             prediction_loss_only=True,
             learning_rate=1e-5,
             gradient_accumulation_steps=1,
-            remove_unused_columns=False
+            remove_unused_columns=False,
+            # load_best_model_at_end=True
+            # dataloader_num_workers=2,
         )
 
         training.train_ranker(ranker_model, tokenizer, processed_generated_xsum, training_args)

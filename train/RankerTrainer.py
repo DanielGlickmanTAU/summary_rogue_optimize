@@ -2,6 +2,7 @@ import torch
 from torch.cuda.amp import autocast
 from transformers import Trainer, EvalPrediction
 from transformers.trainer_pt_utils import nested_detach, DistributedTensorGatherer, nested_concat
+from transformers.trainer_utils import PredictionOutput
 
 
 class RankerTrainer(Trainer):

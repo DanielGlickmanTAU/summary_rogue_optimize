@@ -66,8 +66,7 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
 def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments, dataset,
                  eval_dataset=None):
     def compute_metrics(eval_pred):
-        for i in range(1000):
-            print('waitttt')
+        print(eval_pred)
         predictions, labels = eval_pred
         return {'bla': 2.}
 

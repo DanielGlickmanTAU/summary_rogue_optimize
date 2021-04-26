@@ -9,16 +9,6 @@ class RankerTrainer(Trainer):
     def __init__(self, **kwargs):
         super(RankerTrainer, self).__init__(**kwargs)
 
-    # def prediction_step(self, model, inputs, prediction_loss_only, ignore_keys, ):
-    #     loss, logits, labels = super(MyTrainer, self).prediction_step(model, inputs, prediction_loss_only, ignore_keys)
-    #     print('loss', 'logits', 'labels')
-    #     print(loss, logits, labels)
-    #     # if eval return best? label[argmax(logits)]
-    #     print('would choose', labels[logits.argmax()])
-    #     if not model.training:
-    #         return loss, labels[logits.argmax()], labels
-    #     return loss, logits, labels
-
     def prediction_step(
             self,
             model,

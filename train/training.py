@@ -66,9 +66,22 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
 def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments, dataset,
                  eval_dataset=None):
     def compute_metrics(eval_pred):
-        print(eval_pred)
         predictions, labels = eval_pred
-        return {'bla': 2.}
+        predictions, labels = torch.tensor(predictions), torch.tensor(labels)
+
+        mx = predictions.argmax(dim=1)
+        max_selected = labels[torch.arange(labels.shape[0]), mx]
+        total = max_selected.mean()
+        
+        # print('oracle best is', labels[torch.arange(labels.shape[0]), labels.argmax(dim=1)].mean())
+        # print('compute_metrics predictions', predictions)
+        # print('compute_metrics labels', labels)
+        # print('best indexes per sample', mx)
+        # print('corrspond to real rouge', max_selected)
+        print('that some to total of', total)
+        print('\n' * 5)
+
+        return {'eval_loss': total}
 
     assert training_arguments.remove_unused_columns == False
 

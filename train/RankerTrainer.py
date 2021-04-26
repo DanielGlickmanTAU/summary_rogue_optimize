@@ -156,10 +156,9 @@ class RankerTrainer(Trainer):
                 losses_host = losses if losses_host is None else torch.cat((losses_host, losses), dim=0)
 
             if logits is not None:
-                if preds_host is not None:
-                    print(preds_host, ' is not none something is wrong')
+                # if preds_host is not None:
+                #     print(preds_host, ' is not none something is wrong')
                 logits = logits.unsqueeze(0)
-                print('logits is ', logits.shape)
                 preds_host = logits if preds_host is None else nested_concat(preds_host, logits, padding_index=-100)
             if labels is not None:
                 labels = labels.unsqueeze(0)

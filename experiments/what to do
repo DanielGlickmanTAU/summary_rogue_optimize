@@ -1,5 +1,5 @@
-try torch.concatenate not torch.stack
-WHAT IF I RETURN 1 OBJECT INSTEAD OF LOGITS TENSOR
+try in compute_metric do label[argmax[predict]]
+
 
 overwrite Trainer.predicition step and do logits = logits.repeat(batch_size)
 

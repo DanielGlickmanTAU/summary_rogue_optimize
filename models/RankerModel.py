@@ -22,17 +22,13 @@ class RankerModel(nn.Module):
     #         return_dict=None,
     # ):
     def forward(self, **args):
-        # print(args['input_ids_s'])
-        # can already change name...
-        print(args)
-        print('XXX')
-        res = self.roberta(args['input_ids_s'], args['attention_mask_s'])
-        print(res)
-
-        logits = res.logits
+        input_ids_s_ = args['input_ids_s']
+        res = self.roberta(input_ids_s_, args['attention_mask_s'])
         # loss should be an nn module
-        loss = None
         if self.training:
-            pass
-        
+            logits = res.logits
+            loss = MSELoss()(input=logits, target=args['labels'])
+            res['loss'] = loss
+
+        print(res)
         return res

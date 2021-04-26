@@ -55,7 +55,7 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
     return {
         'input_ids_s': input_ids_s,
         'attention_mask_s': attention_mask_s,
-        'labels': features_0['labels']
+        'labels': torch.tensor(features_0['labels'], dtype=torch.float)
     }
     # return features
 

@@ -38,7 +38,7 @@ class RankerModel(nn.Module):
         if 'labels' in args:
             target = args['labels']
             assert target.shape == logits.shape
-            loss = MSELoss()(input=logits, target=target)
+            loss = MSELoss(reduction='sum')(input=logits, target=target)
             res['loss'] = loss
 
         return res

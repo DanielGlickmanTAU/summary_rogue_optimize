@@ -72,16 +72,21 @@ def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments,
         mx = predictions.argmax(dim=1)
         max_selected = labels[torch.arange(labels.shape[0]), mx]
         total = max_selected.mean()
-        
-        # print('oracle best is', labels[torch.arange(labels.shape[0]), labels.argmax(dim=1)].mean())
+
+        print('oracle is', best_at_k(labels, labels))
         # print('compute_metrics predictions', predictions)
         # print('compute_metrics labels', labels)
         # print('best indexes per sample', mx)
         # print('corrspond to real rouge', max_selected)
-        print('that some to total of', total)
+        print('that some to total of', best_at_k(labels, predictions))
         print('\n' * 5)
 
         return {'eval_loss': total}
+
+    def best_at_k(labels_tensor, index_tensor, k=None):
+        if not k:
+            k = labels_tensor.shape[0]
+        return labels_tensor[torch.arange(k), index_tensor.argmax(dim=1)].mean().item()
 
     assert training_arguments.remove_unused_columns == False
 

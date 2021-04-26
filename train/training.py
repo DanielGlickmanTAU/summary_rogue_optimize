@@ -80,13 +80,13 @@ def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments,
         if not done_oracle:
             done_oracle = True
             for k in range(1, labels.shape[-1] + 1):
-                print(f'oracle rouge at {k}:', best_at_k(labels, labels, k))
+                print(f'oracle rouge best and average at {k}:', best_at_k(labels, labels, k))
         # print('compute_metrics predictions', predictions)
         # print('compute_metrics labels', labels)
         # print('best indexes per sample', mx)
         # print('corrspond to real rouge', max_selected)
         for k in range(1, labels.shape[-1] + 1):
-            print(f'eval rouge at {k}:', best_at_k(labels, predictions, k))
+            print(f'eval rouge best and average at {k}:', best_at_k(labels, predictions, k))
         print('\n' * 5)
 
         return {'eval_loss': total}
@@ -96,11 +96,12 @@ def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments,
             k = labels_tensor.shape[0]
         best_indexes = index_tensor[:, 0:k].argmax(dim=1)
         labels_value_at_index = labels_tensor[torch.arange(labels_tensor.shape[0]), best_indexes]
+        average_at_k = labels_tensor[torch.arange(labels_tensor.shape[0]), 0:k].mean().item()
         # print(index_tensor)
         # print(labels_tensor)
         # print('best indexes', best_indexes)
         # print('values choosen:', labels_value_at_index)
-        return labels_value_at_index.mean().item()
+        return labels_value_at_index.mean().item(), average_at_k
 
     assert training_arguments.remove_unused_columns == False
 

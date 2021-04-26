@@ -30,23 +30,14 @@ class RankerModel(nn.Module):
     # ):
     def forward(self, **args):
         input_ids_s_ = args['input_ids_s']  # shape(n_beam, tokenz_length)
-        # print('input to robera shape' , input_ids_s_.shape)
         res = self.roberta(input_ids_s_, args['attention_mask_s'])
-        # loss should be an nn module
-        # print('original logits shape', res.logits.shape)
+
         logits = res.logits.view(-1)
         res['logits'] = logits
-        res['logits'] = torch.tensor([1., 2., 3., 4., 5., 6., 7., 8.])
         if 'labels' in args:
             target = args['labels']
-            # print('logits shape', logits.shape)
-            # print('target shape', target.shape)
             assert target.shape == logits.shape
             loss = MSELoss()(input=logits, target=target)
             res['loss'] = loss
-        # RE SHAPE EVAL INTO WHAT I NEED
-        # if eval reshape labels into
-        # print('shape', logits.shape)
-        # print('shape labels', args['labels'].shape)
-        # print('shape target and view', target.shape)
+
         return res

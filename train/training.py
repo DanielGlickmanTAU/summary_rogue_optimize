@@ -96,10 +96,10 @@ def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments,
             k = labels_tensor.shape[0]
         best_indexes = index_tensor[:, 0:k].argmax(dim=1)
         labels_value_at_index = labels_tensor[torch.arange(labels_tensor.shape[0]), best_indexes]
-        print(index_tensor)
-        print(labels_tensor)
-        print('best indexes', best_indexes)
-        print('values choosen:', labels_value_at_index)
+        # print(index_tensor)
+        # print(labels_tensor)
+        # print('best indexes', best_indexes)
+        # print('values choosen:', labels_value_at_index)
         return labels_value_at_index.mean().item()
 
     assert training_arguments.remove_unused_columns == False

@@ -60,13 +60,15 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
     # return features
 
 
-def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments, dataset):
+def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments, dataset,
+                 eval_dataset=None):
     assert training_arguments.remove_unused_columns == False
     trainer = Trainer(
         model=ranker_model,
         args=training_arguments,
         train_dataset=dataset,
-        data_collator=ranker_data_collator,
+        eval_dataset=eval_dataset,
+        data_collator=ranker_data_collator
     )
 
     trainer.train()

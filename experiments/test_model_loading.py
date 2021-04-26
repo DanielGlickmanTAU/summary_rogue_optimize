@@ -43,7 +43,8 @@ class Test(TestCase):
             # dataloader_num_workers=2,
         )
 
-        training.train_ranker(ranker_model, tokenizer, training_args, processed_generated_xsum)
+        training.train_ranker(ranker_model, tokenizer, training_args, processed_generated_xsum,
+                              eval_dataset=processed_generated_xsum)
 
         # print(encoded_input)
         # output = model(**encoded_input)

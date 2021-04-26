@@ -55,8 +55,9 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
     return {
         'input_ids_s': input_ids_s,
         'attention_mask_s': attention_mask_s,
-        'labels': torch.tensor(features_0['labels'], dtype=torch.float)
+        'labels': features_0['labels'].float()
     }
+
     # return features
 
 
@@ -73,30 +74,29 @@ def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments,
 
     trainer.train()
 
+    # trains generaiton for single epoch
+    def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1):
+        mini_split = prepare_split_for_training(mini_split, tokenizer, batch_size)
 
-# trains generaiton for single epoch
-def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1):
-    mini_split = prepare_split_for_training(mini_split, tokenizer, batch_size)
+        training_args = TrainingArguments(
+            output_dir="./",
+            num_train_epochs=1,
+            per_device_train_batch_size=batch_size,
+            per_device_eval_batch_size=batch_size,
+            do_train=True,
+            do_eval=False,
+            overwrite_output_dir=False,
+            # warmup_steps=0,
+            fp16=True,
+            prediction_loss_only=True,
+            learning_rate=learning_rate,
+            gradient_accumulation_steps=gradient_accumulation_steps
+        )
 
-    training_args = TrainingArguments(
-        output_dir="./",
-        num_train_epochs=1,
-        per_device_train_batch_size=batch_size,
-        per_device_eval_batch_size=batch_size,
-        do_train=True,
-        do_eval=False,
-        overwrite_output_dir=False,
-        # warmup_steps=0,
-        fp16=True,
-        prediction_loss_only=True,
-        learning_rate=learning_rate,
-        gradient_accumulation_steps=gradient_accumulation_steps
-    )
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=mini_split,
+        )
 
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=mini_split,
-    )
-
-    trainer.train()
+        trainer.train()

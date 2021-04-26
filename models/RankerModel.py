@@ -33,6 +33,7 @@ class RankerModel(nn.Module):
         res = self.roberta(input_ids_s_, args['attention_mask_s'])
 
         logits = res.logits.view(-1)
+        logits = (logits - logits.mean()) / (logits.std() + 0.01)
         res['logits'] = logits
         if 'labels' in args:
             target = args['labels']

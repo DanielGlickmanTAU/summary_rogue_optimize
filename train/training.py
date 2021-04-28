@@ -5,7 +5,7 @@ import torch
 
 from train.RankerTrainer import RankerTrainer
 
-learning_rate = 1e-05
+learning_rate = 3e-06
 
 
 def prepare_examples_for_training(examples, tokenizer):
@@ -34,7 +34,6 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
         lambda examples: prepare_examples_for_training(examples, tokenizer),
         batched=True,
         batch_size=batch_size,
-        # todo consider here removing 'generated_summary' field
         remove_columns=["article", "highlights", "id"] if 'id' in train_data else ["article", "highlights"]
     )
     train_data.set_format(
@@ -60,14 +59,11 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
         'labels': features_0['labels'].float()
     }
 
-    # return features
-
 
 done_oracle = False
 
 
-def train_ranker(ranker_model, tokenizer, training_arguments: TrainingArguments, dataset,
-                 eval_dataset=None):
+def train_ranker(ranker_model, training_arguments: TrainingArguments, dataset, eval_dataset=None):
     def compute_metrics(eval_pred):
         predictions, labels = eval_pred
         predictions, labels = torch.tensor(predictions), torch.tensor(labels)

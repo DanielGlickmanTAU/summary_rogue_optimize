@@ -17,13 +17,18 @@ import models.model_loading as model_loading
 class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
         ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer()
-        # mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum408_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
-        mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+        # mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+        mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum1200_do_sampleFalse_top_pNone_top_kNone_num_beams32_num_return_sequences32_no_repeat_ngram_size0'
         validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum1200_do_sampleFalse_top_pNone_top_kNone_num_beams32_num_return_sequences32_no_repeat_ngram_size0'
 
-        generated_xsum = generated_data_loading.load_generated_dataset(mapped_saved_path, 4)
-        processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            generated_xsum, tokenizer, limit=5)
+        mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum408_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+
+        train_generated_xsum = generated_data_loading.load_generated_dataset(mapped_saved_path, 4)
+        validation_generated_xsum = generated_data_loading.load_generated_dataset(validation_mapped_saved_path, 4)
+        train_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+            train_generated_xsum, tokenizer, limit=5)
+        validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+            validation_generated_xsum, tokenizer, limit=5)
 
         training_args = TrainingArguments(
             output_dir="./ranker_output_dir",
@@ -38,10 +43,10 @@ class Test(TestCase):
             learning_rate=1e-5,
             gradient_accumulation_steps=1,
             remove_unused_columns=False,
-            evaluation_strategy='epoch'
+            evaluation_strategy='epoch',
             # load_best_model_at_end=True
-            # dataloader_num_workers=2,
+            dataloader_num_workers=2,
         )
 
-        training.train_ranker(ranker_model, tokenizer, training_args, processed_generated_xsum,
-                              eval_dataset=processed_generated_xsum)
+        training.train_ranker(ranker_model, training_args, train_processed_generated_xsum,
+                              eval_dataset=validation_processed_generated_xsum)

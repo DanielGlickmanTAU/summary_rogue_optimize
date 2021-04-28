@@ -83,7 +83,7 @@ class RankerTrainer(Trainer):
         else:
             labels = None
 
-        print('in prediction step', logits, labels)
+        # print('in prediction step', logits, labels)
         return (loss, logits, labels)
 
     def prediction_loop(

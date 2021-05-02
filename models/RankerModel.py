@@ -22,8 +22,9 @@ class RankerModel(nn.Module):
         if labels is not None:
             logits = res.logits.view(-1)
             assert labels.shape == logits.shape
-            labels = (labels - labels.mean()) / (labels.std() + 0.01)
+            # labels = (labels - labels.mean()) / (labels.std() + 0.01)
             loss = MSELoss()(input=logits, target=labels)
+            print('loss', loss)
             res['loss'] = loss
 
         return res

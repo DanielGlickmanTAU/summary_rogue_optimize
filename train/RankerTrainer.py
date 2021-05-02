@@ -140,9 +140,7 @@ class RankerTrainer(Trainer):
         for step, inputs in enumerate(dataloader):
             loss, logits, labels = self.prediction_step(model, inputs, prediction_loss_only, ignore_keys=ignore_keys)
             if loss is not None:
-                print('loss before repeat', loss.shape)
                 losses = loss.repeat(batch_size)
-                print('loss after repeat', loss.shape)
                 losses_host = losses if losses_host is None else torch.cat((losses_host, losses), dim=0)
 
             if logits is not None:

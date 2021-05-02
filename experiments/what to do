@@ -1,12 +1,10 @@
-beats average...
-problem with length..
+fix length: roberta max length is 512
+
+in prediciton_loop, loss is empty
+
+
+
 different loss
-
-
-
-
-fix length
-
 In Progess:
 replace list[num_beams][input_ids_tensor] into tensor of shape(num_beams,input_ids_tensor) // use torch.stack.. in collator i think
 

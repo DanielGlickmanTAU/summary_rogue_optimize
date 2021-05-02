@@ -31,22 +31,25 @@ class Test(TestCase):
         #     train_generated_xsum, tokenizer, limit=8)
         # validation_processed_generated_xsum = train_processed_generated_xsum
 
-        validation_generated_xsum = generated_data_loading.load_generated_dataset(validation_mapped_saved_path, 5)
-        validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            validation_generated_xsum, tokenizer, limit=8)
+        num_examples = 1
+        num_beams = 1
+        learning_rate = 1e-5
+        num_train_epochs = 100
 
-        train = validation_processed_generated_xsum \
-            .select(range(100))
-        # valid = validation_processed_generated_xsum \
-        #     .select(range(7000, 8000))
-        valid = train
+        validation_generated_xsum = generated_data_loading.load_generated_dataset(validation_mapped_saved_path, 5)
+        validation_generated_xsum = validation_generated_xsum.select(range(num_examples))
+        validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+            validation_generated_xsum, tokenizer, limit=num_beams, max_seq_len=512)
+
+        print(f'filtered from {len(validation_generated_xsum)} seqs to {len(validation_processed_generated_xsum)}')
 
         del validation_generated_xsum
-        del validation_processed_generated_xsum
+        # del validation_processed_generated_xsum
+        valid = train = validation_processed_generated_xsum
 
         training_args = TrainingArguments(
             output_dir="./ranker_output_dir",
-            num_train_epochs=10,
+            num_train_epochs=num_train_epochs,
             per_device_train_batch_size=1,
             per_device_eval_batch_size=1,
             do_train=True,
@@ -54,8 +57,8 @@ class Test(TestCase):
             overwrite_output_dir=False,
             # warmup_steps=0,
             fp16=compute.get_torch().cuda.is_available(),
-            learning_rate=1e-5,
-            gradient_accumulation_steps=4,
+            learning_rate=learning_rate,
+            gradient_accumulation_steps=1,
             remove_unused_columns=False,
             evaluation_strategy='epoch',
             # load_best_model_at_end=True

@@ -1,7 +1,8 @@
 from models import tokenization_util
+import nltk
 
 
-def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, tokenizer, limit=None):
+def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, tokenizer, limit=None, max_seq_len=None):
     def convert_to_input_ids(example):
         generated_highlights = example['generated_highlights'][:limit]
         article_list = [example['article'] for i in range(len(generated_highlights))]
@@ -14,8 +15,15 @@ def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, to
     dataset_map = dataset.map(convert_to_input_ids,
                               remove_columns=["article", "highlights", "generated_highlights", 'rouge-2-all',
                                               'rouge-2-avg', 'rouge-2-best', 'rouge-2-first'])
+    if max_seq_len:
+        len_before = len(dataset_map)
+        print('WARNING! filtering sequences for only max len', max_seq_len)
+        dataset_map = dataset_map.filter(lambda example: len(example['input_ids_s'][0]) < max_seq_len)
+        print(f'len before filtering {len_before} , len after filtering {len(dataset_map)}')
+
     dataset_map.set_format(
         type="torch", columns=["input_ids_s", "attention_mask_s", "labels"])
     # )
     # )
+
     return dataset_map

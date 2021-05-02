@@ -1,0 +1,36 @@
+disabling normalizion
+
+
+
+
+
+
+to check:
+check if I overfit If i only use a single beam per sample...
+try a tiny learning rate
+
+
+self.optimizer.step() not updating parameters... and why in first evaluate, when RankerModel.forward is called again, I am getting
+different logits
+
+
+state:
+input_ids[0]: tensor [ 0 ,133 ,247,18,2267,.....
+labels: tensor([0.2286, 0.1143, 0.0606, 0.0571, 0.0667, 0.1143], dtype=torch.float64)
+logits -0.237,-0.213, -0.1993
+last loss tensor(0.1755, grad_fn=<MseLossBackward>)
+
+list(model.parameters())[-2][0][:3] tensor([ 0.0050,  0.0297, -0.0212], grad_fn=<SliceBackward>)
+
+
+predictions :-0.2504, -0.2506
+
+
+looks ok:
+RankerModel: input output
+Trainer: compute_loss
+
+-----
+
+ranker_data_collator:
+    called every epoch but its ok

@@ -81,12 +81,14 @@ def train_ranker(ranker_model, training_arguments: TrainingArguments, dataset, e
         # print('compute_metrics labels', labels)
         # print('best indexes per sample', mx)
         # print('corrspond to real rouge', max_selected)
+        d = {}
         for k in range(1, labels.shape[-1] + 1):
             selected_at_k, average_at_k = best_at_k(labels, predictions, k)
             print(f'eval rouge best and average at {k}:', selected_at_k, average_at_k)
-        print('\n' * 5)
+            d[f'selected_at_{k}'] = selected_at_k
+            print('\n' * 5)
 
-        return {'dont_know': total, 'selected_at_k': selected_at_k}
+        return d
 
     def best_at_k(labels_tensor, index_tensor, k=None):
         if not k:

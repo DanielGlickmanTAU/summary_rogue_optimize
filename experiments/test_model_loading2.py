@@ -17,7 +17,7 @@ import models.model_loading as model_loading
 
 class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
-        experiment.start_experiment(['score 6k train; 2k valis'])
+        # experiment.start_experiment(['score 6k train; 2k valis'])
         ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer()
         # mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum408_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
         mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
@@ -31,13 +31,18 @@ class Test(TestCase):
         #     train_generated_xsum, tokenizer, limit=8)
         # validation_processed_generated_xsum = train_processed_generated_xsum
 
-        num_examples = 1
-        num_beams = 1
-        learning_rate = 1e-5
-        num_train_epochs = 100
+        num_examples = 5
+        num_skip = 0
+        num_beams = 6
+        learning_rate = 3e-6
+        gradient_accumulation_steps = 1
+        num_train_epochs = 2500
+        # half_percision = compute.get_torch().cuda.is_available()
+        half_percision = True
+        do_evaluation = True
 
         validation_generated_xsum = generated_data_loading.load_generated_dataset(validation_mapped_saved_path, 5)
-        validation_generated_xsum = validation_generated_xsum.select(range(num_examples))
+        validation_generated_xsum = validation_generated_xsum.select(range(num_skip, num_skip + num_examples))
         validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
             validation_generated_xsum, tokenizer, limit=num_beams, max_seq_len=512)
 
@@ -53,14 +58,13 @@ class Test(TestCase):
             per_device_train_batch_size=1,
             per_device_eval_batch_size=1,
             do_train=True,
-            # do_eval=False,
             overwrite_output_dir=False,
             # warmup_steps=0,
-            fp16=compute.get_torch().cuda.is_available(),
+            fp16=half_percision,
             learning_rate=learning_rate,
-            gradient_accumulation_steps=1,
+            gradient_accumulation_steps=gradient_accumulation_steps,
             remove_unused_columns=False,
-            evaluation_strategy='epoch',
+            evaluation_strategy='epoch' if do_evaluation else "no",
             # load_best_model_at_end=True
             dataloader_num_workers=2,
         )

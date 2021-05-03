@@ -1,6 +1,18 @@
-fix length: roberta max length is 512
+turning off classifier(last layer) dropout
 
-in prediciton_loop, loss is empty
+ensure that also base model(roberta) weights are changing
+overfit on a single example with 6 beams..
+try log sigmoid loss of 2 samples?
+
+
+algorithm limitations:
+max length is 512
+validation=train
+n_beams = 1
+
+implementation limitations:
+more than 1 batch
+more than 1 gpu
 
 
 
@@ -8,21 +20,12 @@ different loss
 In Progess:
 replace list[num_beams][input_ids_tensor] into tensor of shape(num_beams,input_ids_tensor) // use torch.stack.. in collator i think
 
-
-restore more than one gpu
-
-
+if labels are equal, skip loss
 
 
 class roberaranker(roberaForrSEQClassification): with predict select top method
 
-implement tokenize.decode for list when I need it..
 
-make ranker work with <text><summary>:
-    3) map get_generated_summaries_with_rouge result:
-         ds.map(lambda examples:{'bla':sum([artile + tokenizer.sep + hl for hl in generated_hls]  for (article,generated_hls) in zip(exmaples['artile'],examples['generated_highlights']),[])
-         .map(normalize scores)
-         .map(tokenize...)
     4) carefully debug the input into the network
     5) overfit 100 examples on regression
 

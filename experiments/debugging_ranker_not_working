@@ -8,6 +8,9 @@ disabling normalizion
 to check:
 check if I overfit If i only use a single beam per sample...
 try a tiny learning rate
+shut down evaluatation.. maybe there is a difference between training and eval loss?
+grad clipping
+try no half percision
 
 
 self.optimizer.step() not updating parameters... and why in first evaluate, when RankerModel.forward is called again, I am getting

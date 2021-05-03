@@ -29,7 +29,46 @@ class TestRankingLoss(TestCase):
         real_loss = loss(logits, labels)
         self.assertAlmostEqual(real_loss.item(), excepted_loss.item(), delta=0.001)
 
+    def test_forward(self):
+        loss = RankingLoss(tolerance=0., reduction='sum')
+        labels = torch.tensor([3., 2., 1.])
+
+        logits = torch.tensor([0.1, 0.2, 0.3])
+        excepted_loss = torch.tensor([0.1 - 0.2, 0.1 - 0.3, 0.2 - 0.3]).sigmoid().log().sum()
+        real_loss = loss(logits, labels)
+        self.assertAlmostEqual(real_loss.item(), excepted_loss.item(), delta=0.001)
+        print(f'loss for logits {logits} ordered is {excepted_loss}')
+
+        logits = torch.tensor([0.2, 0.1, 0.3])
+        excepted_loss = torch.tensor([0.2 - 0.1, 0.2 - 0.3, 0.1 - 0.3]).sigmoid().log().sum()
+        real_loss = loss(logits, labels)
+        self.assertAlmostEqual(real_loss.item(), excepted_loss.item(), delta=0.001)
+        print(f'loss for logits {logits} ordered is {excepted_loss}')
+
+        logits = torch.tensor([0.3, 0.2, 0.1])
+        excepted_loss = torch.tensor([0.3 - 0.2, 0.3 - 0.1, 0.2 - 0.1]).sigmoid().log().sum()
+        real_loss = loss(logits, labels)
+        self.assertAlmostEqual(real_loss.item(), excepted_loss.item(), delta=0.001)
+        print(f'loss for logits {logits} ordered is {excepted_loss}')
+
+    def test_forward_reordering(self):
+        loss = RankingLoss(tolerance=0.1, reduction='sum')
+        labels = torch.tensor([2., 1., 3.])
+        logits = torch.tensor([0.1, 0.2, 0.3])
+        excepted_loss = torch.tensor([0.3 - 0.1, 0.3 - 0.2, 0.1 - 0.2]).sigmoid().log().sum()
+        real_loss = loss(logits, labels)
+        self.assertAlmostEqual(real_loss.item(), excepted_loss.item(), delta=0.001)
+
+        labels = torch.tensor([2.001, 2., 3.])
+        logits = torch.tensor([0.1, 0.2, 0.3])
+        # third zeros out, because the diff in labels is < tolerance
+        excepted_loss = torch.tensor([0.3 - 0.1, 0.3 - 0.2]).sigmoid().log().sum()
+        real_loss = loss(logits, labels)
+        self.assertAlmostEqual(real_loss.item(), excepted_loss.item(), delta=0.001)
+
 
 if __name__ == '__main__':
     TestRankingLoss().test_forward_simple()
     TestRankingLoss().test_forward_below_tolerance()
+    TestRankingLoss().test_forward()
+    TestRankingLoss().test_forward_reordering()

@@ -26,7 +26,7 @@ class RankingLoss(nn.Module):
                 logit_diff = logit_high - logit_low
                 label_diff = label_high - label_low
                 if abs(label_diff) > self.tolerance:
-                    differences = torch.cat((differences, torch.tensor([logit_diff])))
+                    differences = torch.cat((differences, torch.tensor([logit_diff], device=differences.device)))
 
         sigmoid_log_diffs = differences.sigmoid().log()
         if self.reduction == 'sum':

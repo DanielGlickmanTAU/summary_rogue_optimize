@@ -14,7 +14,7 @@ class RankingLoss(nn.Module):
 
         indices = labels.sort(descending=True).indices
         # sorted_logits = logits[indices]
-        differences = nn.Parameter(torch.tensor([]))
+        differences = nn.Parameter(torch.tensor([])).to(logits.device)
 
         for i, high_index in enumerate(indices[:-1]):
             for _, low_index in enumerate(indices[i + 1:]):

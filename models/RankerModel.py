@@ -7,12 +7,13 @@ from models.RankingLoss import RankingLoss
 
 
 class RankerModel(nn.Module):
-    def __init__(self, roberta, ):
+    def __init__(self, roberta, loss_fn: nn.Module = None, print_logits=True):
         super(RankerModel, self).__init__()
         self.roberta = roberta
         print('warning, turning off dropout for linear layer')
         self.roberta.classifier.dropout.p = 0.
-        self.loss = RankingLoss(tolerance=0.05, reduction='sum')
+        self.loss = loss_fn if loss_fn else RankingLoss(tolerance=0.05, reduction='sum')
+        self.should_print_logits = print_logits
 
     def forward(
             self,
@@ -33,11 +34,15 @@ class RankerModel(nn.Module):
             # loss = RankNetLoss()(logits, labels)
             # labels = labels * 20
             # loss = -BCEWithLogitsLoss()(logits, labels)
+            self.print_logits(labels, logits, loss)
+            res['loss'] = loss
+
+        return res
+
+    def print_logits(self, labels, logits, loss):
+        if self.should_print_logits:
             print('__' * 10)
             print('logits', logits)
             print('labels', labels)
             print('loss', loss)
             print('__' * 10)
-            res['loss'] = loss
-
-        return res

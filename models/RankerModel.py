@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch
 from torch.nn import CrossEntropyLoss, MSELoss, BCEWithLogitsLoss
 
+from models.RankNetLoss import RankNetLoss
 from models.RankingLoss import RankingLoss
 
 
@@ -11,6 +12,7 @@ class RankerModel(nn.Module):
         self.roberta = roberta
         print('warning, turning off dropout for linear layer')
         self.roberta.classifier.dropout.p = 0.
+        self.loss = RankingLoss(tolerance=0.05, reduction='sum')
 
     def forward(
             self,
@@ -27,8 +29,10 @@ class RankerModel(nn.Module):
             # labels = (labels - labels.mean()) / (labels.std() + 0.01)
             # loss = MSELoss(reduction='sum')(input=logits, target=labels)
             # print('wanring doing miinus loss')
-            # loss = -RankingLoss(tolerance=0.05, reduction='sum')(logits, labels)
-            loss = BCEWithLogitsLoss()(logits, labels)
+            loss = self.loss(logits, labels)
+            # loss = RankNetLoss()(logits, labels)
+            # labels = labels * 20
+            # loss = -BCEWithLogitsLoss()(logits, labels)
             print('__' * 10)
             print('logits', logits)
             print('labels', labels)

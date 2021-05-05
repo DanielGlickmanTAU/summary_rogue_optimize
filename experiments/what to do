@@ -8,7 +8,7 @@ try log sigmoid loss of 2 samples?
 algorithm limitations:
 max length is 512
 validation=train
-n_beams = 1
+n_beams = 2
 
 implementation limitations:
 more than 1 batch

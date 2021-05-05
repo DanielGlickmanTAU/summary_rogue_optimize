@@ -1,4 +1,6 @@
 import collections
+import dataclasses
+
 from comet_ml import Experiment
 
 
@@ -18,6 +20,8 @@ def start_experiment(tags=None, hyperparams=None):
     if hyperparams is None:
         hyperparams = {}
 
+    if not isinstance(hyperparams, dict):
+        hyperparams = dataclasses.asdict(hyperparams)
     if tags is None:
         tags = []
 

@@ -1,3 +1,4 @@
+from config.config import RankerConfig
 from experiments import execution_path, experiment
 
 execution_path.set_working_dir()
@@ -17,24 +18,27 @@ import models.model_loading as model_loading
 
 class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
-        validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+        config = RankerConfig(
+            num_examples=2,
+            num_skip=2,
+            num_beams=2,
+            learning_rate=5e-3,
+            gradient_accumulation_steps=4,
+            num_train_epochs=25000,
+            half_percision=False,
+            # half_percision = compute.get_torch().cuda.is_available()
+            do_evaluation=True)
+        exp = experiment.start_experiment(hyperparams=config)
 
-        num_examples = 20
-        num_skip = 2
-        num_beams = 2
-        learning_rate = 5e-3
-        gradient_accumulation_steps = 4
-        num_train_epochs = 25000
-        # half_percision = compute.get_torch().cuda.is_available()
-        half_percision = False
-        do_evaluation = True
+        validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
 
         ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer()
 
         validation_generated_xsum = generated_data_loading.load_generated_dataset(validation_mapped_saved_path, 5)
-        validation_generated_xsum = validation_generated_xsum.select(range(num_skip, num_skip + num_examples))
+        validation_generated_xsum = validation_generated_xsum.select(
+            range(config.num_skip, config.num_skip + config.num_examples))
         validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            validation_generated_xsum, tokenizer, limit=num_beams, max_seq_len=512)
+            validation_generated_xsum, tokenizer, limit=config.num_beams, max_seq_len=512)
 
         print(f'filtered from {len(validation_generated_xsum)} seqs to {len(validation_processed_generated_xsum)}')
 
@@ -44,17 +48,17 @@ class Test(TestCase):
 
         training_args = TrainingArguments(
             output_dir="./ranker_output_dir",
-            num_train_epochs=num_train_epochs,
+            num_train_epochs=config.num_train_epochs,
             per_device_train_batch_size=1,
             per_device_eval_batch_size=1,
             do_train=True,
             overwrite_output_dir=False,
             # warmup_steps=0,
-            fp16=half_percision,
-            learning_rate=learning_rate,
-            gradient_accumulation_steps=gradient_accumulation_steps,
+            fp16=config.half_percision,
+            learning_rate=config.learning_rate,
+            gradient_accumulation_steps=config.gradient_accumulation_steps,
             remove_unused_columns=False,
-            evaluation_strategy='epoch' if do_evaluation else "no",
+            evaluation_strategy='epoch' if config.do_evaluation else "no",
             # load_best_model_at_end=True
             dataloader_num_workers=2,
         )

@@ -31,7 +31,13 @@ def get_bart_model_and_tokenizer_cnn():
 
 
 def get_ranker_model_and_tokenizer(config):
-    model = RobertaForSequenceClassification.from_pretrained(ranker_model_name, num_labels=1)
+    if config.use_dropout:
+        model = RobertaForSequenceClassification.from_pretrained(ranker_model_name, num_labels=1)
+    else:
+        print('disabling dropout')
+        model = RobertaForSequenceClassification.from_pretrained(ranker_model_name, num_labels=1,
+                                                                 attention_probs_dropout_prob=0.,
+                                                                 hidden_dropout_prob=0.)
     tokenizer = RobertaTokenizer.from_pretrained(ranker_model_name, use_fast=True)
     adjust_model(model, tokenizer)
 

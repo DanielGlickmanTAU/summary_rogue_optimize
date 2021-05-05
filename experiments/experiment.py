@@ -21,7 +21,7 @@ def start_experiment(tags=None, hyperparams=None):
     if tags is None:
         tags = []
 
-    experiment = Experiment('FvAd5fm5rJLIj6TtmfGHUJm4b', project_name='summary-sampling', workspace="danielglickmantau")
+    experiment = Experiment(project_name='summary-sampling', workspace="danielglickmantau")
     if len(tags):
         experiment.add_tags(tags)
     if len(hyperparams):

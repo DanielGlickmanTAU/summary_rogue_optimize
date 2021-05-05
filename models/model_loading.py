@@ -30,12 +30,12 @@ def get_bart_model_and_tokenizer_cnn():
     return model, tokenizer
 
 
-def get_ranker_model_and_tokenizer():
+def get_ranker_model_and_tokenizer(config):
     model = RobertaForSequenceClassification.from_pretrained(ranker_model_name, num_labels=1)
     tokenizer = RobertaTokenizer.from_pretrained(ranker_model_name, use_fast=True)
     adjust_model(model, tokenizer)
 
-    return RankerModel.RankerModel(model), tokenizer
+    return RankerModel.RankerModel(model, config), tokenizer
 
 
 def adjust_model(model, tokenizer):

@@ -27,12 +27,13 @@ class Test(TestCase):
             num_train_epochs=25000,
             half_percision=False,
             # half_percision = compute.get_torch().cuda.is_available()
-            do_evaluation=True)
+            do_evaluation=True,
+            use_dropout=False)
         exp = experiment.start_experiment(hyperparams=config)
 
         validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
 
-        ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer()
+        ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
 
         validation_generated_xsum = generated_data_loading.load_generated_dataset(validation_mapped_saved_path, 5)
         validation_generated_xsum = validation_generated_xsum.select(

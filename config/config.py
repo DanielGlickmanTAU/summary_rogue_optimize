@@ -12,3 +12,5 @@ class RankerConfig:
     # half_percision = compute.get_torch().cuda.is_available()
     half_percision: bool = False
     do_evaluation: bool = True
+    use_dropout: bool = True  # use dropout in training
+    print_logits: bool = True

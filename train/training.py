@@ -75,7 +75,7 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
 done_oracle = False
 
 
-def train_ranker(ranker_model, training_arguments: TrainingArguments, dataset, eval_dataset=None):
+def train_ranker(ranker_model, config, training_arguments: TrainingArguments, dataset, eval_dataset=None):
     def compute_metrics(eval_pred):
         predictions, labels = eval_pred
         predictions, labels = torch.tensor(predictions), torch.tensor(labels)
@@ -103,6 +103,7 @@ def train_ranker(ranker_model, training_arguments: TrainingArguments, dataset, e
         eval_dataset=eval_dataset,
         data_collator=ranker_data_collator,
         compute_metrics=compute_metrics,
+        config=config
     )
 
     trainer.train()

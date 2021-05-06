@@ -1,3 +1,5 @@
+disable dropout made it clear that the model does not learn?
+
 too small learning rate caused it not to converge in reasonable time.
 
 non deterministic logits in training because of dropout

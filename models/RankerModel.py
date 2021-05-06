@@ -12,10 +12,10 @@ class RankerModel(nn.Module):
         self._config = config
         self.roberta = roberta
         self.loss = loss_fn if loss_fn else \
-            RankNetLoss()
-        # RankingLoss(tolerance=0.05, reduction='sum')
+            RankingLoss(tolerance=0.05, reduction='sum')
+        # RankNetLoss()
         # MSELoss(reduction='sum')
-        print('loss fn', loss_fn)
+        print('loss fn', self.loss)
 
 
 def forward(

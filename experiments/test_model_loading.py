@@ -30,14 +30,14 @@ class Test(TestCase):
             num_summaries_per_text=4,
             learning_rate=1e-5,
             gradient_accumulation_steps=8,
-            num_train_epochs=40,
+            num_train_epochs=100,
             # half_percision=False,
             half_percision=compute.get_torch().cuda.is_available(),
             do_evaluation=True,
             # evaluate_every_steps=10,
             use_dropout=True,
             print_logits=False)
-        main = [f'{k}${v}' for (k, v) in dataclasses.asdict(config).items()]
+        main = [f'{k}={v}' for (k, v) in dataclasses.asdict(config).items()]
         if is_main:
             main.insert(0, 'MAIN')
         exp = experiment.start_experiment(hyperparams=config, tags=main)

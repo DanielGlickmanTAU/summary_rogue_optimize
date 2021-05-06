@@ -12,37 +12,41 @@ class RankerModel(nn.Module):
         self._config = config
         self.roberta = roberta
         self.loss = loss_fn if loss_fn else \
-            MSELoss(reduction='sum')
+            RankNetLoss()
         # RankingLoss(tolerance=0.05, reduction='sum')
+        # MSELoss(reduction='sum')
+        print('loss fn', loss_fn)
 
-    def forward(
-            self,
-            input_ids_s,
-            attention_mask_s,
-            labels=None,
 
-    ):
-        res = self.roberta(input_ids_s, attention_mask_s)
+def forward(
+        self,
+        input_ids_s,
+        attention_mask_s,
+        labels=None,
 
-        if labels is not None:
-            logits = res.logits.view(-1)
-            assert labels.shape == logits.shape
-            # labels = (labels - labels.mean()) / (labels.std() + 0.01)
-            # loss = MSELoss(reduction='sum')(input=logits, target=labels)
-            # print('wanring doing miinus loss')
-            loss = self.loss(logits, labels)
-            # loss = RankNetLoss()(logits, labels)
-            # labels = labels * 20
-            # loss = -BCEWithLogitsLoss()(logits, labels)
-            self.print_logits(labels, logits, loss)
-            res['loss'] = loss
+):
+    res = self.roberta(input_ids_s, attention_mask_s)
 
-        return res
+    if labels is not None:
+        logits = res.logits.view(-1)
+        assert labels.shape == logits.shape
+        # labels = (labels - labels.mean()) / (labels.std() + 0.01)
+        # loss = MSELoss(reduction='sum')(input=logits, target=labels)
+        # print('wanring doing miinus loss')
+        loss = self.loss(logits, labels)
+        # loss = RankNetLoss()(logits, labels)
+        # labels = labels * 20
+        # loss = -BCEWithLogitsLoss()(logits, labels)
+        self.print_logits(labels, logits, loss)
+        res['loss'] = loss
 
-    def print_logits(self, labels, logits, loss):
-        if self._config.print_logits:
-            print('__' * 10)
-            print('logits', logits)
-            print('labels', labels)
-            print('loss', loss)
-            print('__' * 10)
+    return res
+
+
+def print_logits(self, labels, logits, loss):
+    if self._config.print_logits:
+        print('__' * 10)
+        print('logits', logits)
+        print('labels', labels)
+        print('loss', loss)
+        print('__' * 10)

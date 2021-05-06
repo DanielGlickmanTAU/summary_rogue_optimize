@@ -42,6 +42,17 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
+def best_at_k(labels_tensor, index_tensor, k=None):
+    if not k:
+        k = labels_tensor.shape[0]
+    best_indexes = index_tensor[:, 0:k].argmax(dim=1)
+    labels_value_at_index = labels_tensor[torch.arange(labels_tensor.shape[0]), best_indexes]
+    average_at_k = labels_tensor[torch.arange(labels_tensor.shape[0]), 0:k].mean().item()
+    print(
+        f'results: labels_tensor: {labels_tensor} index_tensor {index_tensor} best indexes {best_indexes} label at best index {labels_value_at_index}')
+    return labels_value_at_index.mean().item(), average_at_k
+
+
 def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
     # features is a list of size #batch_size
     # each item in it is a dict with  keys attention_mask_s,input_ids_s,labels. each key value is a list with size #num_beams.
@@ -81,18 +92,6 @@ def train_ranker(ranker_model, training_arguments: TrainingArguments, dataset, e
             print('\n' * 5)
 
         return d
-
-    def best_at_k(labels_tensor, index_tensor, k=None):
-        if not k:
-            k = labels_tensor.shape[0]
-        best_indexes = index_tensor[:, 0:k].argmax(dim=1)
-        labels_value_at_index = labels_tensor[torch.arange(labels_tensor.shape[0]), best_indexes]
-        average_at_k = labels_tensor[torch.arange(labels_tensor.shape[0]), 0:k].mean().item()
-        # print(index_tensor)
-        # print(labels_tensor)
-        # print('best indexes', best_indexes)
-        # print('values choosen:', labels_value_at_index)
-        return labels_value_at_index.mean().item(), average_at_k
 
     assert training_arguments.remove_unused_columns == False
 

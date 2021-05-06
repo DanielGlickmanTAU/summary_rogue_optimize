@@ -35,17 +35,9 @@ class Test(TestCase):
 
         ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
 
-        validation_generated_xsum = generated_data_loading.load_generated_dataset(validation_mapped_saved_path, 5)
-        validation_generated_xsum = validation_generated_xsum.select(
-            range(config.num_skip, config.num_skip + config.num_examples))
-        validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
-            max_seq_len=512)
+        validation_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
+            validation_mapped_saved_path, config, tokenizer)
 
-        print(f'filtered from {len(validation_generated_xsum)} seqs to {len(validation_processed_generated_xsum)}')
-
-        del validation_generated_xsum
-        # del validation_processed_generated_xsum
         valid = train = validation_processed_generated_xsum
 
         training_args = TrainingArguments(

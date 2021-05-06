@@ -33,20 +33,8 @@ validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset
 ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
 loss_fn = F.cross_entropy
 
-validation_generated_xsum = generated_data_loading.load_generated_dataset(validation_mapped_saved_path, 5)
-validation_generated_xsum = validation_generated_xsum.select(
-    range(config.num_skip, config.num_skip + config.num_examples))
-validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-    validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_summaries_per_text, max_seq_len=512)
-
-# do they change after a training step?
-#  let's run a train step and see
-# inputs = Variable(torch.randn(20, 20))
-# targets = Variable(torch.randint(0, 2, (20,))).long()
-# batch = [validation_processed_generated_xsum[0]['input_ids_s'], validation_processed_generated_xsum[0]['labels']]
-# batch[0] = torch.stack(batch[0])
-# attention = torch.stack(validation_processed_generated_xsum[0]['attention_mask_s'])
-
+validation_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
+    validation_mapped_saved_path, config, tokenizer)
 
 params = [np for np in ranker_model.named_parameters() if np[1].requires_grad]
 # take a copy

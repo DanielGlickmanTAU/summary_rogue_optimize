@@ -9,10 +9,10 @@ from transformers.trainer_utils import PredictionOutput
 
 
 class RankerTrainer(Trainer):
-    def __init__(self, **kwargs):
+    def __init__(self, config, **kwargs):
         super(RankerTrainer, self).__init__(**kwargs)
         self.pop_callback(transformers.integrations.CometCallback)
-        self.callback_handler.add_callback(FixedCometCallback())
+        self.callback_handler.add_callback(FixedCometCallback(config))
 
     def prediction_step(
             self,

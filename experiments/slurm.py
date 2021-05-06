@@ -7,10 +7,12 @@ python = os.sys.executable
 # path =
 # 1 / 0
 slurm_file = 'my_slurm.slurm'
-partition = 'studentkillable'
-# partition = 'studentbatch'
-# partition = 'studentrun'
 job_name = '''test_model_loading'''
+# job_name = '''slurm_test'''
+
+# partition = 'studentrun'
+# partition, time_limit = 'studentbatch', '3-00:00:00'
+partition, time_limit = 'studentkillable', 'infinite'
 
 python_file = job_name
 python_file = python_file.replace('.py', '')
@@ -18,10 +20,10 @@ job_name = job_name + str(time.time())
 with open(slurm_file, 'w') as f:
     f.write(f'''#! /bin/sh
 #SBATCH --job-name={job_name}
-#SBATCH --output=/output/{job_name}.out
-#SBATCH --error=/output/{job_name}.err
-#SBATCH --partition={partition}
-#SBATCH --time=3-00:00:00
+#SBATCH --output={job_name}.out
+#SBATCH --error={job_name}.err
+#SBATCH -p {partition}
+## SBATCH --time={time_limit}
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --gpus=1

@@ -1,35 +1,11 @@
-from experiments import experiment as exp
+from train.FixedCometCallback import FixedCometCallback
 import torch
 import transformers
 from torch.cuda.amp import autocast
 from transformers import Trainer, EvalPrediction
-from transformers.integrations import CometCallback
 from transformers.trainer_pt_utils import nested_detach, DistributedTensorGatherer, nested_concat
+
 from transformers.trainer_utils import PredictionOutput
-import comet_ml
-import os
-
-
-class FixedCometCallback(CometCallback):
-    def setup(self, args, state, model):
-
-        self._initialized = True
-        if state.is_world_process_zero:
-            comet_mode = os.getenv("COMET_MODE", "ONLINE").upper()
-
-            experiment = comet_ml.config.get_global_experiment()
-            if experiment is None:
-                experiment = exp.start_experiment()
-            # if comet_mode == "ONLINE":
-            #     experiment = comet_ml.Experiment(**args)
-            # elif comet_mode == "OFFLINE":
-            #     args["offline_directory"] = os.getenv("COMET_OFFLINE_DIRECTORY", "./")
-            #     experiment = comet_ml.OfflineExperiment(**args)
-
-            experiment._set_model_graph(model, framework="transformers")
-            experiment._log_parameters(args, prefix="args/", framework="transformers")
-            if hasattr(model, "config"):
-                experiment._log_parameters(model.config, prefix="config/", framework="transformers")
 
 
 class RankerTrainer(Trainer):

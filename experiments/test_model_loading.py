@@ -20,7 +20,7 @@ class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
         config = RankerConfig(
             num_examples=4,
-            num_skip=2,
+            num_skip=0,
             num_summaries_per_text=2,
             learning_rate=1e-5,
             gradient_accumulation_steps=1,
@@ -29,7 +29,8 @@ class Test(TestCase):
             # half_percision = compute.get_torch().cuda.is_available()
             do_evaluation=False,
             evaluate_every_steps=10,
-            use_dropout=False)
+            use_dropout=False,
+            print_logits=True)
         exp = experiment.start_experiment(hyperparams=config)
 
         validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'

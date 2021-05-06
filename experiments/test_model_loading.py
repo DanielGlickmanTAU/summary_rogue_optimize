@@ -19,15 +19,15 @@ import models.model_loading as model_loading
 class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
         config = RankerConfig(
-            num_examples=2,
+            num_examples=4,
             num_skip=2,
             num_beams=2,
             learning_rate=1e-5,
             gradient_accumulation_steps=1,
-            num_train_epochs=25000,
+            num_train_epochs=100,
             half_percision=False,
             # half_percision = compute.get_torch().cuda.is_available()
-            do_evaluation=True,
+            do_evaluation=False,
             use_dropout=False)
         exp = experiment.start_experiment(hyperparams=config)
 
@@ -39,7 +39,7 @@ class Test(TestCase):
         validation_generated_xsum = validation_generated_xsum.select(
             range(config.num_skip, config.num_skip + config.num_examples))
         validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            validation_generated_xsum, tokenizer, limit=config.num_beams, max_seq_len=512)
+            validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_beams, max_seq_len=512)
 
         print(f'filtered from {len(validation_generated_xsum)} seqs to {len(validation_processed_generated_xsum)}')
 
@@ -64,8 +64,6 @@ class Test(TestCase):
             dataloader_num_workers=2,
         )
 
-        # training.train_ranker(ranker_model, tokenizer, training_args, train_processed_generated_xsum,
-        #                       eval_dataset=validation_processed_generated_xsum)
         training.train_ranker(ranker_model, training_args, train,
                               eval_dataset=valid)
 

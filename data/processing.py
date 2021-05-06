@@ -2,11 +2,12 @@ from models import tokenization_util
 import nltk
 
 
-def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, tokenizer, limit=None, max_seq_len=None):
+def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, tokenizer,
+                                                                     max_num_summaries_per_text=None, max_seq_len=None):
     def convert_to_input_ids(example):
-        generated_highlights = example['generated_highlights'][:limit]
+        generated_highlights = example['generated_highlights'][:max_num_summaries_per_text]
         article_list = [example['article'] for i in range(len(generated_highlights))]
-        labels = example['rouge-2-all'][:limit]
+        labels = example['rouge-2-all'][:max_num_summaries_per_text]
 
         network_input = tokenization_util.tokenize(tokenizer, texts=article_list, summaries=generated_highlights)
         return {'input_ids_s': network_input['input_ids'], 'attention_mask_s': network_input['attention_mask'],

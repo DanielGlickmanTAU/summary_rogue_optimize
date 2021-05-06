@@ -37,7 +37,7 @@ validation_generated_xsum = generated_data_loading.load_generated_dataset(valida
 validation_generated_xsum = validation_generated_xsum.select(
     range(config.num_skip, config.num_skip + config.num_examples))
 validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-    validation_generated_xsum, tokenizer, limit=config.num_beams, max_seq_len=512)
+    validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_beams, max_seq_len=512)
 
 # do they change after a training step?
 #  let's run a train step and see

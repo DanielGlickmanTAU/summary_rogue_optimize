@@ -36,8 +36,7 @@ def load_processed_generated_dataset(validation_mapped_saved_path, config: Ranki
 def _limit_after_processing(config, validation_generated_xsum, validation_processed_generated_xsum):
     if config.num_examples:
         if len(validation_generated_xsum) < config.num_examples:
-            for i in range(100):
-                print(f'WARNING not enough examples, only {len(validation_generated_xsum)}')
+            print(f'WARNING not enough examples, only {len(validation_generated_xsum)}')
         validation_processed_generated_xsum = validation_processed_generated_xsum.select(range(config.num_examples))
     return validation_processed_generated_xsum
 

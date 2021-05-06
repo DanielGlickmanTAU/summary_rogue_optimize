@@ -70,7 +70,6 @@ def train_ranker(ranker_model, training_arguments: TrainingArguments, dataset, e
 
         mx = predictions.argmax(dim=1)
         max_selected = labels[torch.arange(labels.shape[0]), mx]
-        total = max_selected.mean()
 
         global done_oracle
         if not done_oracle:

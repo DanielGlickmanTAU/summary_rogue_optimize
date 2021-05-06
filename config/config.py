@@ -13,7 +13,7 @@ class RankingDatasetConfig:
 class RankerConfig(RankingDatasetConfig):
     learning_rate: float = 5e-3
     gradient_accumulation_steps: int = 4
-    num_train_epochs: int = 25000
+    num_train_epochs: int = 100
     # half_percision = compute.get_torch().cuda.is_available()
     half_percision: bool = False
     do_evaluation: bool = True

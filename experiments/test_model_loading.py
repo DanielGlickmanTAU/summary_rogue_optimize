@@ -15,6 +15,8 @@ from data import generated_data_loading, processing
 from unittest import TestCase
 import models.model_loading as model_loading
 
+is_main = False
+
 
 class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
@@ -23,15 +25,16 @@ class Test(TestCase):
             num_skip=0,
             num_summaries_per_text=4,
             learning_rate=1e-5,
-            gradient_accumulation_steps=1,
+            gradient_accumulation_steps=4,
             num_train_epochs=100,
             half_percision=False,
             # half_percision = compute.get_torch().cuda.is_available()
             do_evaluation=True,
             # evaluate_every_steps=10,
-            use_dropout=False,
+            use_dropout=True,
             print_logits=True)
-        exp = experiment.start_experiment(hyperparams=config)
+        exp = experiment.start_experiment(hyperparams=config, tags=['MAIN'] if is_main else None)
+        print(config)
 
         validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
 
@@ -63,4 +66,7 @@ class Test(TestCase):
         training.train_ranker(ranker_model, training_args, train,
                               eval_dataset=valid)
 
-# Test().test_get_ranker_model_and_tokenizer()
+
+if __name__ == '__main__':
+    is_main = True
+    Test().test_get_ranker_model_and_tokenizer()

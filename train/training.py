@@ -68,18 +68,11 @@ def train_ranker(ranker_model, training_arguments: TrainingArguments, dataset, e
         predictions, labels = eval_pred
         predictions, labels = torch.tensor(predictions), torch.tensor(labels)
 
-        mx = predictions.argmax(dim=1)
-        max_selected = labels[torch.arange(labels.shape[0]), mx]
-
         global done_oracle
         if not done_oracle:
             done_oracle = True
             for k in range(1, labels.shape[-1] + 1):
                 print(f'oracle rouge best and average at {k}:', best_at_k(labels, labels, k))
-        # print('compute_metrics predictions', predictions)
-        # print('compute_metrics labels', labels)
-        # print('best indexes per sample', mx)
-        # print('corrspond to real rouge', max_selected)
         d = {}
         for k in range(1, labels.shape[-1] + 1):
             selected_at_k, average_at_k = best_at_k(labels, predictions, k)

@@ -19,16 +19,16 @@ import models.model_loading as model_loading
 class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
         config = RankerConfig(
-            num_examples=4,
+            num_examples=120,
             num_skip=0,
-            num_summaries_per_text=2,
+            num_summaries_per_text=4,
             learning_rate=1e-5,
             gradient_accumulation_steps=1,
             num_train_epochs=100,
             half_percision=False,
             # half_percision = compute.get_torch().cuda.is_available()
-            do_evaluation=False,
-            evaluate_every_steps=10,
+            do_evaluation=True,
+            # evaluate_every_steps=10,
             use_dropout=False,
             print_logits=True)
         exp = experiment.start_experiment(hyperparams=config)

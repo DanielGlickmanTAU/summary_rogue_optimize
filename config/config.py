@@ -18,4 +18,13 @@ class RankerConfig(RankingDatasetConfig):
     half_percision: bool = False
     do_evaluation: bool = True
     use_dropout: bool = True  # use dropout in training
-    print_logits: bool = True
+    print_logits: bool = False
+    evaluate_every_steps: int = None
+
+    def get_evaluation_strategy(self):
+        if self.evaluate_every_steps is None and self.do_evaluation is None:
+            return 'no'
+
+        if self.evaluate_every_steps is not None:
+            return 'steps'
+        return 'epoch'

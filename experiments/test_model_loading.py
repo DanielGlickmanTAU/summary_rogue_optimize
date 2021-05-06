@@ -28,6 +28,7 @@ class Test(TestCase):
             half_percision=False,
             # half_percision = compute.get_torch().cuda.is_available()
             do_evaluation=False,
+            evaluate_every_steps=10,
             use_dropout=False)
         exp = experiment.start_experiment(hyperparams=config)
 
@@ -52,9 +53,10 @@ class Test(TestCase):
             learning_rate=config.learning_rate,
             gradient_accumulation_steps=config.gradient_accumulation_steps,
             remove_unused_columns=False,
-            evaluation_strategy='epoch' if config.do_evaluation else "no",
+            evaluation_strategy=config.get_evaluation_strategy(),
             # load_best_model_at_end=True
             dataloader_num_workers=2,
+            eval_steps=config.evaluate_every_steps
         )
 
         training.train_ranker(ranker_model, training_args, train,

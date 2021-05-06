@@ -1,3 +1,5 @@
+import dataclasses
+
 from config.config import RankerConfig
 from experiments import execution_path, experiment
 
@@ -14,39 +16,45 @@ from data import generated_data_loading, processing
 
 from unittest import TestCase
 import models.model_loading as model_loading
+import time
 
 is_main = False
 
 
 class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
+        global is_main
         config = RankerConfig(
-            num_examples=120,
+            num_examples=50_000,
             num_skip=0,
             num_summaries_per_text=4,
             learning_rate=1e-5,
-            gradient_accumulation_steps=4,
-            num_train_epochs=100,
-            half_percision=False,
-            # half_percision = compute.get_torch().cuda.is_available()
+            gradient_accumulation_steps=8,
+            num_train_epochs=40,
+            # half_percision=False,
+            half_percision=compute.get_torch().cuda.is_available(),
             do_evaluation=True,
             # evaluate_every_steps=10,
             use_dropout=True,
-            print_logits=True)
-        exp = experiment.start_experiment(hyperparams=config, tags=['MAIN'] if is_main else None)
+            print_logits=False)
+        main = [f'{k}${v}' for (k, v) in dataclasses.asdict(config).items()]
+        if is_main:
+            main.insert(0, 'MAIN')
+        exp = experiment.start_experiment(hyperparams=config, tags=main)
         print(config)
 
         validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+        train_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
 
         ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
 
         validation_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
             validation_mapped_saved_path, config, tokenizer)
-
-        valid = train = validation_processed_generated_xsum
+        train_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
+            train_mapped_saved_path, config, tokenizer)
 
         training_args = TrainingArguments(
-            output_dir="./ranker_output_dir",
+            output_dir="./ranker_output_dir_" + str(time.time()).replace('.', '_'),
             num_train_epochs=config.num_train_epochs,
             per_device_train_batch_size=1,
             per_device_eval_batch_size=1,
@@ -60,13 +68,13 @@ class Test(TestCase):
             evaluation_strategy=config.get_evaluation_strategy(),
             # load_best_model_at_end=True
             dataloader_num_workers=2,
-            eval_steps=config.evaluate_every_steps
+            eval_steps=config.evaluate_every_steps,
+            report_to=["comet_ml", "tensorboard"]
         )
 
-        training.train_ranker(ranker_model, training_args, train,
-                              eval_dataset=valid)
+        training.train_ranker(ranker_model, config,
+                              training_args, train_processed_generated_xsum,
+                              eval_dataset=validation_processed_generated_xsum)
 
 
-if __name__ == '__main__':
-    is_main = True
-    Test().test_get_ranker_model_and_tokenizer()
+Test().test_get_ranker_model_and_tokenizer()

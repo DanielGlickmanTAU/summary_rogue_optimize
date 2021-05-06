@@ -3,7 +3,7 @@ from flows.flows import search_validation_loss
 from flows import loading
 
 dataset_name, split, train_examples, validation_examples, search_params, batch_size = \
-    search_param_setups.get_xsum_beam_validation_setup()
+    search_param_setups.get_xsum_beam_train_FULL_setup()
 
 
 def _generate():

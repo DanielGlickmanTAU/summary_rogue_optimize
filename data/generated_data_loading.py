@@ -16,6 +16,14 @@ def load_generated_dataset(mapped_search_path, batch_size, process_function=None
     return None
 
 
+def load_processed_generated_dataset(validation_mapped_saved_path):
+    validation_generated_xsum = load_generated_dataset(validation_mapped_saved_path, 5)
+    validation_generated_xsum = validation_generated_xsum.select(
+        range(config.num_skip, config.num_skip + config.num_examples))
+    validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+        validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_beams, max_seq_len=512)
+
+
 def get_generated_dataset_save_path(dataset_split, model, search_params):
     if isinstance(model, str):
         model_name = model

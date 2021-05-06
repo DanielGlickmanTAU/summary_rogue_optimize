@@ -2,10 +2,14 @@ from dataclasses import dataclass
 
 
 @dataclass
-class RankerConfig:
+class RankingDatasetConfig:
     num_examples: int = 1
     num_skip: int = 2
-    num_beams: int = 2
+    num_summaries_per_text: int = 2
+
+
+@dataclass
+class RankerConfig(RankingDatasetConfig):
     learning_rate: float = 5e-3
     gradient_accumulation_steps: int = 4
     num_train_epochs: int = 25000

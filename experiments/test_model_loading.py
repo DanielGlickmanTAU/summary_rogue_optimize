@@ -21,7 +21,7 @@ class Test(TestCase):
         config = RankerConfig(
             num_examples=4,
             num_skip=2,
-            num_beams=2,
+            num_summaries_per_text=2,
             learning_rate=1e-5,
             gradient_accumulation_steps=1,
             num_train_epochs=100,
@@ -39,7 +39,8 @@ class Test(TestCase):
         validation_generated_xsum = validation_generated_xsum.select(
             range(config.num_skip, config.num_skip + config.num_examples))
         validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_beams, max_seq_len=512)
+            validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
+            max_seq_len=512)
 
         print(f'filtered from {len(validation_generated_xsum)} seqs to {len(validation_processed_generated_xsum)}')
 

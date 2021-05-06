@@ -2,6 +2,10 @@ turning off classifier(last layer) dropout
 
 what is the 3ed layer parameter with size 1 and all zeros??
 
+what is the loss initalliy on average
+
+maybe unflow...double/float
+
 ensure that also base model(roberta) weights are changing
 overfit on a single example with 6 beams..
 try log sigmoid loss of 2 samples?

@@ -22,8 +22,8 @@ class Test(TestCase):
             num_examples=2,
             num_skip=2,
             num_beams=2,
-            learning_rate=5e-3,
-            gradient_accumulation_steps=4,
+            learning_rate=1e-5,
+            gradient_accumulation_steps=1,
             num_train_epochs=25000,
             half_percision=False,
             # half_percision = compute.get_torch().cuda.is_available()

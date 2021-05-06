@@ -13,7 +13,9 @@ class RankerModel(nn.Module):
         self.roberta = roberta
         print('warning, turning off dropout for linear layer')
         self.roberta.classifier.dropout.p = 0.
-        self.loss = loss_fn if loss_fn else RankingLoss(tolerance=0.05, reduction='sum')
+        self.loss = loss_fn if loss_fn else \
+            MSELoss(reduction='sum')
+        # RankingLoss(tolerance=0.05, reduction='sum')
 
     def forward(
             self,

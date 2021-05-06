@@ -79,13 +79,16 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
     def compute_metrics(eval_pred):
         predictions, labels = eval_pred
         predictions, labels = torch.tensor(predictions), torch.tensor(labels)
+        d = {}
 
         global done_oracle
         if not done_oracle:
             done_oracle = True
             for k in range(1, labels.shape[-1] + 1):
-                print(f'oracle rouge best and average at {k}:', best_at_k(labels, labels, k))
-        d = {}
+                oracle_at_k, average_at_k = best_at_k(labels, labels, k)
+                print(f'oracle rouge best and average at {k}:', oracle_at_k, average_at_k)
+                d[f'oracle_at_{k}'] = oracle_at_k
+                d[f'average_at_{k}'] = average_at_k
         for k in range(1, labels.shape[-1] + 1):
             selected_at_k, average_at_k = best_at_k(labels, predictions, k)
             print(f'eval rouge best and average at {k}:', selected_at_k, average_at_k)

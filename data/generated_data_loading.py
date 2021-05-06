@@ -33,7 +33,6 @@ def load_processed_generated_dataset(validation_mapped_saved_path, config: Ranki
     return validation_processed_generated_xsum
 
 
-# unused
 def _limit_after_processing(config, validation_generated_xsum, validation_processed_generated_xsum):
     if config.num_examples:
         if len(validation_generated_xsum) >= config.num_examples:
@@ -43,6 +42,7 @@ def _limit_after_processing(config, validation_generated_xsum, validation_proces
     return validation_processed_generated_xsum
 
 
+# unused
 def _limit_before_processing(config, validation_generated_xsum):
     if config.num_examples:
         num_examples_to_process = int(2.5 * (config.num_skip + config.num_examples))

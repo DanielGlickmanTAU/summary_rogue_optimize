@@ -37,6 +37,7 @@ def _limit_after_processing(config, validation_generated_xsum, validation_proces
     if config.num_examples:
         if len(validation_generated_xsum) < config.num_examples:
             print(f'WARNING not enough examples, only {len(validation_generated_xsum)}')
+            return validation_processed_generated_xsum
         validation_processed_generated_xsum = validation_processed_generated_xsum.select(range(config.num_examples))
     return validation_processed_generated_xsum
 

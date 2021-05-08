@@ -20,7 +20,7 @@ def start_experiment(tags=None, hyperparams=None):
     if hyperparams is None:
         hyperparams = {}
 
-    if not isinstance(dataclasses, dict):
+    if isinstance(hyperparams, dataclasses.dataclass.__class__):
         hyperparams = dataclasses.asdict(hyperparams)
     if tags is None:
         tags = []

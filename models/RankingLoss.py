@@ -1,12 +1,18 @@
+from dataclasses import dataclass
+
 import torch.nn as nn
 import torch
 
 
+@dataclass
 class RankingLoss(nn.Module):
-    def __init__(self, tolerance=0.01, reduction='sum'):
-        super(RankingLoss, self).__init__()
-        self.reduction = reduction
-        self.tolerance = tolerance
+    reduction: str = 'sum'
+    tolerance: float = 0.01
+
+    # def __init__(self, tolerance=0.01, reduction='sum'):
+    #     super(RankingLoss, self).__init__()
+    #     self.reduction = reduction
+    #     self.tolerance = tolerance
 
     def forward(self, logits, labels):
         assert logits.shape == labels.shape

@@ -19,22 +19,23 @@ import time
 
 class Test(TestCase):
     def test_get_ranker_model_and_tokenizer(self):
-        config = RankerConfig(
-            num_examples=50_000,
-            num_skip=0,
-            num_summaries_per_text=4,
-            learning_rate=1e-5,
-            gradient_accumulation_steps=16,
-            num_train_epochs=20,
-            half_percision=False,
-            do_evaluation=True,
-            validation_mapped_saved_path='sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum12_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
-            train_mapped_saved_path='sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum12_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
-            # evaluate_every_steps=10,
-            # validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
-            # train_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
-        )
-        # config = argument_parsing.get_args()
+        # config = RankerConfig(
+        #     num_examples=50_000,
+        #     num_skip=0,
+        #     num_summaries_per_text=4,
+        #     learning_rate=1e-5,
+        #     gradient_accumulation_steps=16,
+        #     num_train_epochs=20,
+        #     half_percision=False,
+        #     do_evaluation=True,
+        #     validation_mapped_saved_path='sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum12_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
+        #     train_mapped_saved_path='sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum12_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+        #     # evaluate_every_steps=10,
+        #     # validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+        #     # train_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+        # )
+        config = argument_parsing.get_args()
+
         tags = [f'num train examples{config.num_examples}', f'summaries per text{config.num_summaries_per_text}',
                 config.train_mapped_saved_path,
                 config.validation_mapped_saved_path]
@@ -71,4 +72,5 @@ class Test(TestCase):
                               training_args, train_processed_generated_xsum,
                               eval_dataset=validation_processed_generated_xsum)
 
-        Test().test_get_ranker_model_and_tokenizer()
+
+Test().test_get_ranker_model_and_tokenizer()

@@ -38,7 +38,8 @@ class Test(TestCase):
 
         tags = [f'num train examples{config.num_examples}', f'summaries per text{config.num_summaries_per_text}',
                 config.train_mapped_saved_path,
-                config.validation_mapped_saved_path]
+                config.validation_mapped_saved_path,
+                config.loss_fn]
         exp = experiment.start_experiment(hyperparams=vars(config), tags=tags)
         print(config)
 
@@ -61,7 +62,7 @@ class Test(TestCase):
             learning_rate=config.learning_rate,
             gradient_accumulation_steps=config.gradient_accumulation_steps,
             remove_unused_columns=False,
-            evaluation_strategy=config.get_evaluation_strategy(),
+            evaluation_strategy='steps' if config.evaluate_every_steps else 'epoch' if config.do_evaluation else 'no',
             # load_best_model_at_end=True
             dataloader_num_workers=2,
             eval_steps=config.evaluate_every_steps,

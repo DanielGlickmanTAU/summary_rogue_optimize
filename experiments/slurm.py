@@ -44,7 +44,7 @@ job_name = '''test_model_loading'''
 params = {
     'num_examples': 50_000,
     'num_summaries_per_text': 4,
-    'learning_rate': 3e-5,
+    'learning_rate': 1e-5,
     'gradient_accumulation_steps': 16,
     'num_train_epochs': 20,
     'half_percision': False,

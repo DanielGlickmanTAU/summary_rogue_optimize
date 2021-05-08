@@ -1,3 +1,4 @@
+from models.loss import loss_factory
 from utils import compute
 
 torch = compute.get_torch()
@@ -41,8 +42,8 @@ def get_ranker_model_and_tokenizer(config):
     print('using model', ranker_model_name)
     tokenizer = RobertaTokenizer.from_pretrained(ranker_model_name, use_fast=True)
     adjust_model(model, tokenizer)
-
-    return RankerModel.RankerModel(model, config), tokenizer
+    loss = loss_factory.get_loss(config)
+    return RankerModel.RankerModel(model, config, loss_fn=loss), tokenizer
 
 
 def adjust_model(model, tokenizer):

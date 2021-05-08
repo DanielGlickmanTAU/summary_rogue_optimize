@@ -1,19 +1,12 @@
 import torch.nn as nn
 
-from models.loss.MeanCenteredMSELoss import MeanCenteredMSELoss
-
 
 class RankerModel(nn.Module):
-    def __init__(self, roberta, config, loss_fn: nn.Module = None):
+    def __init__(self, roberta, config, loss_fn: nn.Module):
         super(RankerModel, self).__init__()
         self._config = config
         self.roberta = roberta
-        self.loss = loss_fn if loss_fn else \
-            MeanCenteredMSELoss(reduction='sum')
-        # RankNetLoss()
-        # NormalizedMSELoss(reduction='sum')
-        # MSELoss(reduction='sum')
-        # RankingLoss(tolerance=0.1, reduction='sum')
+        self.loss = loss_fn
         print('loss fn', self.loss)
 
     def forward(

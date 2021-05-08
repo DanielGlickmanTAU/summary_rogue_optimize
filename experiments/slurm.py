@@ -7,8 +7,8 @@ python = os.sys.executable
 # path =
 # 1 / 0
 slurm_file = 'my_slurm.slurm'
-# job_name = '''test_model_loading'''
-job_name = '''tmptmp'''
+job_name = '''test_model_loading'''
+# job_name = '''argument_parsing'''
 # job_name = '''slurm_test'''
 
 # partition = 'studentrun'
@@ -16,8 +16,15 @@ partition, time_limit = 'studentbatch', '3-00:00:00'
 # partition, time_limit = 'studentkillable', 'infinite'
 
 params = {
-    'do_evaluation': False,
-    'gradient_accumulation_steps': 4123
+    # 'num_examples': 50_000,
+    # 'num_skip': 0,
+    # 'num_summaries_per_text': 4,
+    # 'learning_rate': 1e-5,
+    # 'gradient_accumulation_steps': 16,
+    # 'num_train_epochs': 20,
+    # 'half_percision': False,
+    # 'do_evaluation': True,
+
 }
 
 python_file = job_name

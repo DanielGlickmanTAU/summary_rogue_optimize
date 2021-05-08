@@ -3,17 +3,19 @@ from dataclasses import dataclass
 
 @dataclass
 class RankingDatasetConfig:
-    num_examples: int = 1
-    num_skip: int = 2
-    num_summaries_per_text: int = 2
-    max_seq_len = 512
+    validation_mapped_saved_path: str = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+    train_mapped_saved_path: str = 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+    num_examples: int = 50_000
+    num_skip: int = 0
+    num_summaries_per_text: int = 4
+    max_seq_len: int = 512
 
 
 @dataclass
 class RankerConfig(RankingDatasetConfig):
     learning_rate: float = 5e-3
     gradient_accumulation_steps: int = 4
-    num_train_epochs: int = 100
+    num_train_epochs: int = 10
     # half_percision = compute.get_torch().cuda.is_available()
     half_percision: bool = False
     do_evaluation: bool = True

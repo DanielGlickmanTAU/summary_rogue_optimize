@@ -1,14 +1,13 @@
-from dataclasses import dataclass
-
 import torch.nn as nn
-import torch
 from torch.nn import MSELoss
 
 
-@dataclass
 class NormalizedMSELoss(nn.Module):
-    reduction: str
-    smoothing: float = 0.0001
+
+    def __init__(self, smoothing=0.0001, reduction='sum'):
+        super(NormalizedMSELoss, self).__init__()
+        self.reduction = reduction
+        self.smoothing = smoothing
 
     def forward(self, logits, labels):
         labels = (labels - labels.mean()) / (labels.std() + self.tolerance)

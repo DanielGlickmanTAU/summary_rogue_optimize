@@ -1,11 +1,6 @@
 import torch.nn as nn
-import torch
-from torch.nn import CrossEntropyLoss, MSELoss, BCEWithLogitsLoss
 
-from models.MeanCenteredMSELoss import MeanCenteredMSELoss
-from models.NormalizedMSELoss import NormalizedMSELoss
-from models.RankNetLoss import RankNetLoss
-from models.RankingLoss import RankingLoss
+from models.loss.MeanCenteredMSELoss import MeanCenteredMSELoss
 
 
 class RankerModel(nn.Module):

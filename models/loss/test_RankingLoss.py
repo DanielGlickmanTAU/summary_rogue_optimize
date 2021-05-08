@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from models.RankingLoss import RankingLoss
+from models.loss.RankingLoss import RankingLoss
 import torch
 
 

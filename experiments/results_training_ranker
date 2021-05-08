@@ -1,3 +1,14 @@
+RankerNetLoss: moving some what
+https://www.comet.ml/danielglickmantau/summary-sampling/c984aeaafaa64f29860811f5c7601dc4?experiment-tab=graph
+
+ranking loss; strange; not moving
+https://www.comet.ml/danielglickmantau/summary-sampling/18d36ee07dd54fe2bb71160495168e3b?experiment-tab=chart&showOutliers=true&smoothing=0&transformY=smoothing&xAxis=step
+https://www.comet.ml/danielglickmantau/summary-sampling/aff1bb3f79c64371918ef685b89464cb?experiment-tab=graph
+
+
+10k train;10k valid; possibly to high learing rate
+https://www.comet.ml/danielglickmantau/summary-sampling/ebad2d0dc49640e09fd230885ca778d7?experiment-tab=chart&showOutliers=true&smoothing=0&transformY=smoothing&xAxis=step
+
 
 with dropout:
 https://www.comet.ml/danielglickmantau/summary-sampling/9ccc373a58544ce29074420cc455efde?experiment-tab=chart&showOutliers=true&smoothing=0&transformY=smoothing&xAxis=step

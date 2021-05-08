@@ -1,6 +1,6 @@
 import transformers.hf_argparser as argparser
 
-from config.config import RankingDatasetConfig, RankerConfig
+from config.config import RankerConfig
 
 
 def get_args():

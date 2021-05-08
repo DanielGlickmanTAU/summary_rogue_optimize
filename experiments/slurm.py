@@ -7,12 +7,18 @@ python = os.sys.executable
 # path =
 # 1 / 0
 slurm_file = 'my_slurm.slurm'
-job_name = '''test_model_loading'''
+# job_name = '''test_model_loading'''
+job_name = '''tmptmp'''
 # job_name = '''slurm_test'''
 
 # partition = 'studentrun'
-# partition, time_limit = 'studentbatch', '3-00:00:00'
-partition, time_limit = 'studentkillable', 'infinite'
+partition, time_limit = 'studentbatch', '3-00:00:00'
+# partition, time_limit = 'studentkillable', 'infinite'
+
+params = {
+    'do_evaluation': False,
+    'gradient_accumulation_steps': 4123
+}
 
 python_file = job_name
 python_file = python_file.replace('.py', '')
@@ -27,12 +33,8 @@ with open(slurm_file, 'w') as f:
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
-{python} {python_file}.py''')
+{python} {python_file}.py ''' + ' '.join([f'--{key} {value}' for key, value in params.items()]))
 ## SBATCH --time=infinite
-
-# os.system("nohup sh -c '" +
-#           sys.executable + " slu > res.txt " +
-#           "' &")
 
 print(f'executing {job_name} ')
 os.system(f'sbatch {slurm_file}')

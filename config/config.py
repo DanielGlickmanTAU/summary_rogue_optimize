@@ -6,7 +6,7 @@ class RankingDatasetConfig:
     num_examples: int = 1
     num_skip: int = 2
     num_summaries_per_text: int = 2
-    max_seq_len = None
+    max_seq_len = 512
 
 
 @dataclass

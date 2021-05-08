@@ -27,16 +27,15 @@ def load_processed_generated_dataset(validation_mapped_saved_path, config: Ranki
         validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
         max_seq_len=config.max_seq_len)
 
-    validation_processed_generated_xsum = _limit_after_processing(config, validation_generated_xsum,
-                                                                  validation_processed_generated_xsum)
+    validation_processed_generated_xsum = _limit_after_processing(config, validation_processed_generated_xsum)
 
     return validation_processed_generated_xsum
 
 
-def _limit_after_processing(config, validation_generated_xsum, validation_processed_generated_xsum):
+def _limit_after_processing(config, validation_processed_generated_xsum):
     if config.num_examples:
-        if len(validation_generated_xsum) < config.num_examples:
-            print(f'WARNING not enough examples, only {len(validation_generated_xsum)}')
+        if len(validation_processed_generated_xsum) < config.num_examples:
+            print(f'WARNING not enough examples, only {len(validation_processed_generated_xsum)}')
             return validation_processed_generated_xsum
         validation_processed_generated_xsum = validation_processed_generated_xsum.select(range(config.num_examples))
     return validation_processed_generated_xsum

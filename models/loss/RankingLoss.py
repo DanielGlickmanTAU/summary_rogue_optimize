@@ -26,7 +26,8 @@ class RankingLoss(nn.Module):
         assert len(logits.shape) == 1  # assuming 2 vectors
         indices = labels.sort(descending=True).indices
         # sorted_logits = logits[indices]
-        differences = nn.Parameter(torch.tensor([])).to(logits.device)
+        # differences = nn.Parameter(torch.tensor([])).to(logits.device)
+        differences = []
         for i, high_index in enumerate(indices[:-1]):
             for _, low_index in enumerate(indices[i + 1:]):
                 logit_high = logits[high_index]
@@ -37,7 +38,12 @@ class RankingLoss(nn.Module):
                 logit_diff = logit_high - logit_low
                 label_diff = label_high - label_low
                 if abs(label_diff) > self.tolerance:
-                    differences = torch.cat((differences, torch.tensor([logit_diff], device=differences.device)))
+                    differences.append(logit_diff)
+
+        if len(differences) == 0:
+            return torch.tensor(0., requires_grad=True)
+
+        differences = torch.stack(differences)
         sigmoid_log_diffs = differences.sigmoid().log()
         if self.reduction == 'sum':
             return sigmoid_log_diffs.sum()

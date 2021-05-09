@@ -17,24 +17,30 @@ class TrainingTester(TestCase):
         loss_fn = RankingLoss()
         # loss_fn = MSELoss()
         ff = self.get_ff().to(device)
-        X, Y = self.get_dataset(num_samples=1, candidates_per_sample=4)
+        X, Y = self.get_dataset(num_samples=1000, candidates_per_sample=2)
         X, Y = X.to(device), Y.to(device)
 
         optimizer = optim.SGD(ff.parameters(), lr=2e-3)
         epochs = 100
-        X = X.view((-1, 4, 3))
-        Y = labels_tensor = Y.view((-1, 4))
-        print('oracle', best_at_k(labels_tensor, labels_tensor, k=4))
+        # X = X.view((-1, 4, 3))
+        # Y = labels_tensor = Y.view((-1, 4))
+        print('oracle', best_at_k(Y, Y, k=4))
         for i in range(epochs):
             optimizer.zero_grad()
             output = ff(X)
             loss = loss_fn(output.view(Y.shape), Y)
+            assert loss.grad is None
+            assert output.grad is None
+            loss.retain_grad()
+            output.retain_grad()
             loss.backward()
             optimizer.step()
+            assert loss.grad is not None
+            assert output.grad is not None
             if i % 10 == 0:
                 # print(X, output)
                 print('step', i, 'loss', loss)
-                print(best_at_k(labels_tensor, output, k=4))
+                print(best_at_k(Y, output, k=4))
 
     def test_get_dataset(self):
         x, y, = self.get_dataset(2, 10, 3)

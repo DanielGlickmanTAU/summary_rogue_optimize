@@ -18,8 +18,8 @@ class RankingLoss(nn.Module):
             return self._forward_single(labels, logits)
         element_wise_loss = [self._forward_single(label, logit) for label, logit in
                              zip(labels.unbind(), logits.unbind())]
-        return torch.tensor(element_wise_loss, device=logits.device) \
-            .mean()
+        loss = torch.stack(element_wise_loss).mean()
+        return loss
 
     def _forward_single(self, labels, logits):
         assert logits.shape == labels.shape

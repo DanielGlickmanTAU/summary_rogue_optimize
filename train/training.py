@@ -129,7 +129,7 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
             learning_rate=learning_rate,
             gradient_accumulation_steps=gradient_accumulation_steps
         )
-
+        
         trainer = Trainer(
             model=model,
             args=training_args,

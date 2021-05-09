@@ -63,6 +63,7 @@ def calc_score_avg_and_best_and_first(predictions, gold):
 
 def calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold):
     assert len(gold) == len(generated_summaries)
+    assert len(gold)
     # return [calc_score_avg_and_best_and_first(pred, ref) for pred, ref in zip(generated_summaries, gold)]
     with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
         scores = executor.map(lambda x: calc_score_avg_and_best_and_first(*x), zip(generated_summaries, gold))

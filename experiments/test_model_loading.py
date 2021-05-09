@@ -68,7 +68,10 @@ def run_exp(config):
         # load_best_model_at_end=True
         dataloader_num_workers=2,
         eval_steps=config.evaluate_every_steps,
-        report_to=["comet_ml"]
+        report_to=["comet_ml"],
+        # load_best_model_at_end=load_best_model_at_end,
+        # metric_for_best_model=metric_name,
+        save_total_limit=1
     )
     training.train_ranker(ranker_model, config,
                           training_args, train_processed_generated_xsum,
@@ -76,4 +79,4 @@ def run_exp(config):
 
 
 config = argument_parsing.get_args()
-Test().test_get_ranker_model_and_tokenizer()
+run_exp(config)

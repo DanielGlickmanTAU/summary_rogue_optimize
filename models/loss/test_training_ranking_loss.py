@@ -17,11 +17,11 @@ class TrainingTester(TestCase):
         loss_fn = RankingLoss()
         # loss_fn = MSELoss()
         ff = self.get_ff().to(device)
-        X, Y = self.get_dataset(num_samples=1000, candidates_per_sample=2)
+        X, Y = self.get_dataset(num_samples=1000, candidates_per_sample=4)
         X, Y = X.to(device), Y.to(device)
 
         optimizer = optim.SGD(ff.parameters(), lr=2e-3)
-        epochs = 100
+        epochs = 1000
         # X = X.view((-1, 4, 3))
         # Y = labels_tensor = Y.view((-1, 4))
         print('oracle', best_at_k(Y, Y, k=4))

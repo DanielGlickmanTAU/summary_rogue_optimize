@@ -6,7 +6,7 @@ import torch
 
 class RankingLoss(nn.Module):
 
-    def __init__(self, tolerance=0.01, reduction='sum'):
+    def __init__(self, tolerance=0.01, reduction='mean'):
         super(RankingLoss, self).__init__()
         self.reduction = reduction
         assert tolerance is not None

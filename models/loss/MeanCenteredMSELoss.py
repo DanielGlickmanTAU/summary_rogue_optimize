@@ -4,7 +4,7 @@ from torch.nn import MSELoss
 
 class MeanCenteredMSELoss(nn.Module):
 
-    def __init__(self, reduction='sum'):
+    def __init__(self, reduction='mean'):
         super(MeanCenteredMSELoss, self).__init__()
         self.reduction = reduction
 

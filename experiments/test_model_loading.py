@@ -1,3 +1,7 @@
+import os
+
+for key in list(os.environ.keys()):
+    os.environ[key] = os.environ[key].replace('chaimc', 'glickman1')
 import utils.compute as compute
 from config.config import RankerConfig
 from experiments import execution_path, experiment

@@ -9,14 +9,14 @@ from models.loss.RankingLoss import RankingLoss
 def get_loss(config):
     loss_fn = config['loss_fn'] if isinstance(config, dict) else config.loss_fn
     if loss_fn == 'centered-mse':
-        return MeanCenteredMSELoss(reduction='sum')
+        return MeanCenteredMSELoss(reduction='mean')
     if loss_fn == 'normalized-mse':
-        return NormalizedMSELoss(reduction='sum')
+        return NormalizedMSELoss(reduction='mean')
     if loss_fn == 'mse':
-        return MSELoss(reduction='sum')
+        return MSELoss(reduction='mean')
     if loss_fn == 'ranking':
         tolerance = config.tolerance
-        return RankingLoss(tolerance=tolerance, reduction='sum')
+        return RankingLoss(tolerance=tolerance, reduction='mean')
     if loss_fn == 'rank-net':
         return RankNetLoss()
     raise Exception(f'unknown {loss_fn} ')

@@ -7,16 +7,10 @@ python = os.sys.executable
 # path =
 # 1 / 0
 slurm_file = 'my_slurm.slurm'
+
+
 # job_name = '''argument_parsing'''
 # job_name = '''slurm_test'''
-
-
-partition, time_limit = 'studentbatch', '3-00:00:00'
-
-
-# partition, time_limit = 'studentkillable', 'infinite'
-
-# partition, time_limit = 'studentrun', '33:00:00'
 
 
 def run_on_slurm(job_name, params, slurm=True):
@@ -44,11 +38,19 @@ def run_on_slurm(job_name, params, slurm=True):
 
 
 job_name = '''test_model_loading'''
+
+# partition, time_limit = 'studentbatch', '3-00:00:00'
+
+
+partition, time_limit = 'studentkillable', 'infinite'
+
+# partition, time_limit = 'studentrun', '33:00:00'
+
 params = {
     'num_examples': 50_000,
     'num_summaries_per_text': 4,
     'learning_rate': 1e-5,
-    'gradient_accumulation_steps': 16,
+    'gradient_accumulation_steps': 8,
     'num_train_epochs': 10,
     'half_percision': False,
     'do_evaluation': True,
@@ -56,4 +58,4 @@ params = {
     'validation_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
     'train_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
 }
-run_on_slurm(job_name, params, slurm=False)
+run_on_slurm(job_name, params, slurm=True)

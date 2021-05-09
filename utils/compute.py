@@ -2,11 +2,10 @@ import comet_ml
 import os
 import time
 
-minimum_free_giga = 9
+minimum_free_giga = 8
 max_num_gpus = 1
 
 last_write = 0
-home = '/specific/netapp5_3/ML_courses/students/DL2020/glickman1'
 
 
 def is_university_server():
@@ -52,24 +51,11 @@ os.environ["CUDA_VISIBLE_DEVICES"] = join
 print('setting CUDA_VISIBLE_DEVICES=' + join)
 if max_num_gpus == 1:
     print('working with 1 gpu:(')
+
 import torch
 
-
-def write_gpus_to_file(dict):
-    if len(dict) == 0:
-        return
-    global last_write
-    t = time.time()
-    if t - last_write > 20:
-        last_write = t
-        try:
-            server_name = os.environ['HOST']
-            filename = home + '/gpu_usage/' + str(t) + '__' + server_name + '__' + '_gpu'
-            with open(filename, 'w+') as f:
-                f.write(str(dict))
-            print('print to gpu usage to ' + filename, dict)
-        except:
-            print('fail to save file')
+old_rpr = torch.Tensor.__repr__
+torch.Tensor.__repr__ = lambda self: f'{self.shape} {old_rpr(self)}'
 
 
 def get_torch():

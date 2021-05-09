@@ -35,7 +35,8 @@ class Test(TestCase):
             validation_mapped_saved_path='sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum12_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
             train_mapped_saved_path='sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum12_do_sampleTrue_top_p0.9_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
             # max_seq_len=400
-
+            loss_fn='ranking',
+            tolerance=0.05
             # evaluate_every_steps=10,
             # validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
             # train_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
@@ -81,6 +82,5 @@ def run_exp(config):
                           training_args, train_processed_generated_xsum,
                           eval_dataset=validation_processed_generated_xsum)
 
-
-config = argument_parsing.get_args()
-run_exp(config)
+# config = argument_parsing.get_args()
+# run_exp(config)

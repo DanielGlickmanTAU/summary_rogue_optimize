@@ -12,6 +12,9 @@ class RankingLoss(nn.Module):
         assert tolerance is not None
         self.tolerance = tolerance
 
+    def __str__(self):
+        return f'RankingLoss(tolerance :{self.tolerance} reduction: {self.reduction})'
+
     def forward(self, logits, labels):
         assert logits.shape == labels.shape
         if len(logits.shape) == 1:
@@ -41,7 +44,7 @@ class RankingLoss(nn.Module):
                     differences.append(logit_diff)
 
         if len(differences) == 0:
-            return torch.tensor(0., requires_grad=True)
+            return torch.tensor(0., requires_grad=True, device=logits.device)
 
         differences = torch.stack(differences)
         sigmoid_log_diffs = differences.sigmoid().log()

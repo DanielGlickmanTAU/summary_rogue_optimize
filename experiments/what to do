@@ -1,14 +1,4 @@
-understand the bug..
-
-I am only using 4184gb gpu memory
-
-turning off classifier(last layer) dropout
-
-what is the 3ed layer parameter with size 1 and all zeros??
-
-what is the loss initalliy on average
-
-maybe unflow...double/float
+loss.backwards with RankerLoss takes 40x times more?
 
 ensure that also base model(roberta) weights are changing
 overfit on a single example with 6 beams..

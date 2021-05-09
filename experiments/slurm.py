@@ -48,13 +48,13 @@ partition, time_limit = 'studentkillable', 'infinite'
 
 params = {
     'num_examples': 50_000,
-    'num_summaries_per_text': 4,
+    'num_summaries_per_text': 6,
     'learning_rate': 1e-5,
-    'gradient_accumulation_steps': 8,
+    'gradient_accumulation_steps': 32,
     'num_train_epochs': 10,
     'half_percision': False,
     'do_evaluation': True,
-    'loss_fn': 'centered-mse',
+    'loss_fn': 'normalized-mse',
     'validation_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
     'train_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
 }

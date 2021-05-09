@@ -18,3 +18,24 @@ https://www.comet.ml/danielglickmantau/summary-sampling/016cd52d19814daa88c5cf90
 
 120 examples; 2 beams; xsum beam
 https://www.comet.ml/danielglickmantau/summary-sampling/b51053680c0c48a49894b6b9277f27a0?experiment-tab=chart&showOutliers=true&smoothing=0&transformY=smoothing&xAxis=step
+
+
+
+
+
+RankerLoss:
+calc loss took 0.09874677658081055
+backwards took 0.044353485107421875
+calc loss took 0.10303854942321777
+backwards took 0.04399609565734863
+calc loss took 0.09986352920532227
+backwards took 0.04465222358703613
+calc loss took 0.09724926948547363
+backwards took 0.04412579536437988
+calc loss took 0.10960721969604492
+backwards took 0.044916391372680664
+calc loss took 0.10616183280944824
+backwards took 0.04400801658630371
+calc loss took 0.10454940795898438
+backwards took 0.044226884841918945
+

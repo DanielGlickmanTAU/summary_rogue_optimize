@@ -14,12 +14,19 @@ class RankingLoss(nn.Module):
 
     def forward(self, logits, labels):
         assert logits.shape == labels.shape
-        assert len(logits.shape) == 1  # assuming 2 vectors
+        if len(logits.shape) == 1:
+            return self._forward_single(labels, logits)
+        element_wise_loss = [self._forward_single(label, logit) for label, logit in
+                             zip(labels.unbind(), logits.unbind())]
+        return torch.tensor(element_wise_loss, device=logits.device) \
+            .mean()
 
+    def _forward_single(self, labels, logits):
+        assert logits.shape == labels.shape
+        assert len(logits.shape) == 1  # assuming 2 vectors
         indices = labels.sort(descending=True).indices
         # sorted_logits = logits[indices]
         differences = nn.Parameter(torch.tensor([])).to(logits.device)
-
         for i, high_index in enumerate(indices[:-1]):
             for _, low_index in enumerate(indices[i + 1:]):
                 logit_high = logits[high_index]
@@ -31,7 +38,6 @@ class RankingLoss(nn.Module):
                 label_diff = label_high - label_low
                 if abs(label_diff) > self.tolerance:
                     differences = torch.cat((differences, torch.tensor([logit_diff], device=differences.device)))
-
         sigmoid_log_diffs = differences.sigmoid().log()
         if self.reduction == 'sum':
             return sigmoid_log_diffs.sum()

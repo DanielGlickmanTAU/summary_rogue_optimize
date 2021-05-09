@@ -66,9 +66,22 @@ class TestRankingLoss(TestCase):
         real_loss = loss(logits, labels)
         self.assertAlmostEqual(real_loss.item(), excepted_loss.item(), delta=0.001)
 
+    def test_forward_multi_batch(self):
+        loss = RankingLoss()
+
+        logits = torch.tensor([[1., 2.], [1., 2.]])
+        labels = torch.tensor([[0.1, 0.2], [0.2, 0.1]])
+
+        excepted_loss1 = torch.tensor([2. - 1.]).sigmoid().log()
+        excepted_loss2 = torch.tensor([1. - 2.]).sigmoid().log()
+        excepted_loss = torch.tensor([excepted_loss1, excepted_loss2]).mean()
+        real_loss = loss(logits, labels)
+        self.assertAlmostEqual(real_loss.item(), excepted_loss.item(), delta=0.001)
+
 
 if __name__ == '__main__':
     TestRankingLoss().test_forward_simple()
     TestRankingLoss().test_forward_below_tolerance()
     TestRankingLoss().test_forward()
     TestRankingLoss().test_forward_reordering()
+    TestRankingLoss().test_forward_multi_batch()

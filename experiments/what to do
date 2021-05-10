@@ -1,3 +1,5 @@
+train on samples generated on validation; not test..
+
 loss.backwards with RankerLoss takes 40x times more?
 
 ensure that also base model(roberta) weights are changing

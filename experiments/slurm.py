@@ -41,21 +41,23 @@ job_name = '''test_model_loading'''
 
 # partition, time_limit = 'studentbatch', '3-00:00:00'
 
-
 partition, time_limit = 'studentkillable', 'infinite'
 
 # partition, time_limit = 'studentrun', '33:00:00'
 
 params = {
-    'num_examples': 50_000,
-    'num_summaries_per_text': 6,
-    'learning_rate': 1e-5,
-    'gradient_accumulation_steps': 32,
-    'num_train_epochs': 10,
+    'num_examples': 200_000,
+    'num_summaries_per_text': 8,
+    'learning_rate': 1.5e-5,
+    'gradient_accumulation_steps': 2,
+    'num_train_epochs': 30,
+    'loss_fn': 'normalized-mse',
+    'tolerance': 0.08,
     'half_percision': False,
     'do_evaluation': True,
-    'loss_fn': 'normalized-mse',
     'validation_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
-    'train_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+    # 'train_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+    # 200k
+    'train_mapped_saved_path': 'processed_dataset__train_xsum200000_do_sampleFalse_top_pNone_top_kNone_num_beams16_num_return_sequences16_no_repeat_ngram_size0'
 }
 run_on_slurm(job_name, params, slurm=True)

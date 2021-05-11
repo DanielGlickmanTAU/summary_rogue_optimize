@@ -2,6 +2,7 @@ from unittest import TestCase
 
 import torch
 
+import evaluation.evaluate
 from train import training
 
 
@@ -21,7 +22,7 @@ class Test(TestCase):
             [0.2286, 0.1143]
         ]
 
-        best, _ = training.best_at_k(torch.tensor(labels), torch.tensor(logits), k=2)
+        best, _ = evaluation.evaluate.best_at_k(torch.tensor(labels), torch.tensor(logits), k=2)
 
         self.assertAlmostEqual(best, (0.1481 + 0.6957 + 0.4444 + 0.2286) / 4)
 
@@ -32,6 +33,6 @@ class Test(TestCase):
                                 [0.1182]],
                                [[0.0050],
                                 [0.1552]]])
-        best, _ = training.best_at_k(labels, logits, k=2)
+        best, _ = evaluation.evaluate.best_at_k(labels, logits, k=2)
 
         self.assertAlmostEqual(best, (0.1481 + 0.2286) / 2)

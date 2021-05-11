@@ -10,7 +10,7 @@ class Test(TestCase):
             num_skip=0,
             num_summaries_per_text=4,
             learning_rate=1e-5,
-            gradient_accumulation_steps=6,
+            gradient_accumulation_steps=1,
             num_train_epochs=100,
             half_percision=False,
             do_evaluation=True,

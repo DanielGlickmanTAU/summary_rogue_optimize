@@ -3,6 +3,7 @@ from typing import Dict
 from transformers import TrainingArguments, Trainer
 import torch
 
+from evaluation.evaluate import best_at_k
 from train.RankerTrainer import RankerTrainer
 
 learning_rate = 3e-06
@@ -40,18 +41,6 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
         type="torch", columns=["input_ids", "attention_mask", "decoder_input_ids", "decoder_attention_mask", "labels"],
     )
     return train_data
-
-
-def best_at_k(labels_tensor, index_tensor, k=None):
-    index_tensor = index_tensor.view(labels_tensor.shape)
-    if not k:
-        k = labels_tensor.shape[0]
-    best_indexes = index_tensor[:, 0:k].argmax(dim=1)
-    labels_value_at_index = labels_tensor[torch.arange(labels_tensor.shape[0]), best_indexes]
-    average_at_k = labels_tensor[torch.arange(labels_tensor.shape[0]), 0:k].mean().item()
-    # print(
-    #     f'results: labels_tensor: {labels_tensor} index_tensor {index_tensor} best indexes {best_indexes} label at best index {labels_value_at_index}')
-    return labels_value_at_index.mean().item(), average_at_k
 
 
 def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
@@ -129,7 +118,7 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
             learning_rate=learning_rate,
             gradient_accumulation_steps=gradient_accumulation_steps
         )
-        
+
         trainer = Trainer(
             model=model,
             args=training_args,

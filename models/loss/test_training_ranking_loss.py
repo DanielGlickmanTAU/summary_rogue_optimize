@@ -2,7 +2,7 @@ import time
 from unittest import TestCase
 
 from models.loss.RankNetLoss import RankNetLoss
-from train.training import best_at_k
+from evaluation.evaluate import best_at_k
 from utils import compute
 
 from torch import optim

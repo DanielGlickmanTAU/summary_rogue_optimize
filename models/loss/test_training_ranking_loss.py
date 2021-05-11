@@ -16,8 +16,8 @@ device = torch.device('cuda')
 
 class TrainingTester(TestCase):
     def test_train(self):
-        loss_fn = RankingLoss()
-        # loss_fn = RankNetLoss()
+        # loss_fn = RankingLoss()
+        loss_fn = RankNetLoss()
         # loss_fn = MSELoss()
         ff = self.get_ff().to(device)
         X, Y = self.get_dataset(num_samples=1000, candidates_per_sample=4)
@@ -32,7 +32,7 @@ class TrainingTester(TestCase):
             optimizer.zero_grad()
             output = ff(X)
             start = time.time()
-            loss = -loss_fn(output.view(Y.shape), Y)
+            loss = loss_fn(output.view(Y.shape), Y)
             # print(f'calc loss took {time.time() - start}')
             assert loss.grad is None
             assert output.grad is None

@@ -10,7 +10,12 @@ class RankNetLoss(nn.Module):
 
     def forward(self, logits, labels):
         assert logits.shape == labels.shape
-        assert len(logits.shape) == 1  # assuming 2 vectors
+        if len(logits.shape) == 1:
+            return self._forward_single(labels, logits)
+        element_wise_loss = [self._forward_single(label, logit) for label, logit in
+                             zip(labels.unbind(), logits.unbind())]
+        loss = torch.stack(element_wise_loss).mean()
+        return loss
 
         return self._forward_single(labels, logits)
 

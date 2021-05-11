@@ -5,7 +5,7 @@ import random
 
 from utils import compute
 
-n_threads = 8
+n_threads = 20
 
 
 def get_rouge(experiment_id=None):

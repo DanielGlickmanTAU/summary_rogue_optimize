@@ -11,6 +11,26 @@ def get_xsum_beam_train_setup():
     return dataset_name, split, train_examples, validation_examples, search_params, batch_size
 
 
+def get_cnn_beam_train_setup():
+    dataset_name = 'cnn'
+    split = 'train'
+    train_examples = 20_000
+    validation_examples = 1
+    search_params = BeamSearchParams(num_beams=32, num_return_sequences=32)
+    batch_size = 2
+    return dataset_name, split, train_examples, validation_examples, search_params, batch_size
+
+
+def get_cnn_beam_validation_setup():
+    dataset_name = 'cnn'
+    split = 'validation'
+    train_examples = 1
+    validation_examples = 10_000
+    search_params = BeamSearchParams(num_beams=32, num_return_sequences=32)
+    batch_size = 2
+    return dataset_name, split, train_examples, validation_examples, search_params, batch_size
+
+
 def get_xsum_beam_train_FULL_setup():
     dataset_name = 'xsum'
     split = 'train'

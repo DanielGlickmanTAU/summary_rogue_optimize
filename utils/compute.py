@@ -19,7 +19,7 @@ def is_university_server():
 
 def get_cache_dir():
     if is_university_server():
-        return '/specific/netapp5/joberant/nlp_fall_2021/glickman/cache'
+        return '/home/yandex/AMNLP2021/glickman1/cache/cache'
     return None
 
 

@@ -9,9 +9,14 @@ dataset_name, split, train_examples, validation_examples, search_params, batch_s
 
 assert dataset_name == 'cnn'
 
-split = 'train'
-train_examples = 1000
-validation_examples = 1
+split = 'validation'
+train_examples = 1
+validation_examples = 1000
+
+# split = 'train'
+# train_examples = 1000
+# validation_examples = 1
+
 model, tokenizer = model_loading.get_bart_model_and_tokenizer_cnn()
 dataset = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=validation_examples)
 

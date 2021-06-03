@@ -86,7 +86,7 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
 
         return d
 
-    assert training_arguments.remove_unused_columns == False
+    assert not training_arguments.remove_unused_columns
 
     trainer = RankerTrainer(
         model=ranker_model,

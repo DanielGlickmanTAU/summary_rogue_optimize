@@ -15,15 +15,18 @@ class SearchParams:
     num_beams: int = 4
     num_return_sequences: int = 1
     no_repeat_ngram_size: int = 0  # change to 3?
+    len_penalty: float = 1.
 
     # used for saving results to file
     def str_descriptor(self):
+        len_pen_dsc = f'_len_pen:{self.len_penalty}' if self.len_penalty != 1. else ''
+
         return 'do_sample' + str(self.do_sample) + '_' + \
                'top_p' + str(self.top_p) + '_' + \
                'top_k' + str(self.top_k) + '_' + \
                'num_beams' + str(self.num_beams) + '_' + \
                'num_return_sequences' + str(self.num_return_sequences) + '_' + \
-               'no_repeat_ngram_size' + str(self.no_repeat_ngram_size)
+               'no_repeat_ngram_size' + str(self.no_repeat_ngram_size) + len_pen_dsc
 
     def clone(self):
         return SearchParams(do_sample=self.do_sample, top_p=self.top_p, top_k=self.top_k, num_beams=self.num_beams,

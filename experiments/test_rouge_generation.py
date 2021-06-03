@@ -3,10 +3,12 @@ from flows.flows import search_validation_loss
 from flows import loading
 
 dataset_name, split, train_examples, validation_examples, search_params, batch_size = \
-    search_param_setups.get_cnn_beam_train_setup()
+    search_param_setups.get_xsum_beam_train_setup()
 
 
 def _generate():
+    # search_params.len_penalty = 0.8
+
     dataset, model, tokenizer = loading.load_dataset_model_tokenizer(dataset_name, train_examples, validation_examples)
     search_validation_loss(dataset[split], model, tokenizer, search_params, batch_size)
 

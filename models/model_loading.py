@@ -9,6 +9,7 @@ xsum_model_name = 'sshleifer/distilbart-xsum-12-3'
 cnn_model_name = 'sshleifer/distilbart-cnn-12-3'
 # ranker_model_name = 'roberta-large'
 ranker_model_name = 'roberta-base'
+bart_base_model_name = 'facebook/bart-base'
 
 
 def get_bart_model_and_tokenizer_xsum():
@@ -27,6 +28,19 @@ def get_bart_model_and_tokenizer_cnn():
                                               use_fast=True,
                                               )
 
+    adjust_model(model, tokenizer)
+    return model, tokenizer
+
+
+def get_bart_base_model_and_tokenizer():
+    return _get_bart_based_model_and_tokenizer(bart_base_model_name)
+
+
+def _get_bart_based_model_and_tokenizer(model_name):
+    model = BartForConditionalGeneration.from_pretrained(model_name)
+    tokenizer = BartTokenizer.from_pretrained(model_name,
+                                              force_bos_token_to_be_generated=True,
+                                              use_fast=True)
     adjust_model(model, tokenizer)
     return model, tokenizer
 

@@ -18,7 +18,7 @@ def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_p
                            batch_size=batch_size)
     print('saving only summaries: saving dataset to', mapped_search_path)
     ds.save_to_disk(mapped_search_path)
-    ds = dataset_split.map(generation.add_rouge, batched=True, batch_size=batch_size)
+    ds = ds.map(generation.add_rouge, batched=True, batch_size=batch_size)
     print('saving full: saving dataset to', mapped_search_path)
     ds.save_to_disk(mapped_search_path)
     return ds

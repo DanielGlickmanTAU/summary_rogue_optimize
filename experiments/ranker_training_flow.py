@@ -1,6 +1,7 @@
 from experiments import experiment
 from utils import compute
 import time
+import gc
 
 from transformers import TrainingArguments
 
@@ -19,6 +20,7 @@ def run_exp(config):
     ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
     validation_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
         config.validation_mapped_saved_path, config, tokenizer)
+
     train_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
         config.train_mapped_saved_path, config, tokenizer)
     training_args = TrainingArguments(
@@ -43,6 +45,10 @@ def run_exp(config):
         save_total_limit=1,
 
     )
+
+    gc.collect()
+    compute.get_torch().cuda.empty_cache()
+    
     training.train_ranker(ranker_model, config,
                           training_args, train_processed_generated_xsum,
                           eval_dataset=validation_processed_generated_xsum)

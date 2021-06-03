@@ -13,23 +13,11 @@ bart_base_model_name = 'facebook/bart-base'
 
 
 def get_bart_model_and_tokenizer_xsum():
-    model = BartForConditionalGeneration.from_pretrained(xsum_model_name)
-    tokenizer = BartTokenizer.from_pretrained(xsum_model_name,
-                                              force_bos_token_to_be_generated=True,
-                                              use_fast=True)
-    adjust_model(model, tokenizer)
-    return model, tokenizer
+    return _get_bart_based_model_and_tokenizer(xsum_model_name)
 
 
 def get_bart_model_and_tokenizer_cnn():
-    model = BartForConditionalGeneration.from_pretrained(cnn_model_name)
-    tokenizer = BartTokenizer.from_pretrained(cnn_model_name,
-                                              force_bos_token_to_be_generated=True,
-                                              use_fast=True,
-                                              )
-
-    adjust_model(model, tokenizer)
-    return model, tokenizer
+    return _get_bart_based_model_and_tokenizer(cnn_model_name)
 
 
 def get_bart_base_model_and_tokenizer():

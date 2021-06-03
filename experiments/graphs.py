@@ -61,11 +61,13 @@ def plot(title, sampling, rouges_at_k, avg=None):
         plt.plot(x, [avg for i in range(len(rouges_at_k))], label='average')
     plt.title(title + ' ' + sampling)
     plt.xlabel('#Beams')
-    plt.ylabel("ROUGE")
+    plt.ylabel("ROUGE of best beam")
     plt.legend()
     plt.show()
 
 
-# plot('XSUM', 'P Sampling', rouge_p_xsum, avg_p_xsum)
+plot('XSUM', 'P Sampling', rouge_p_xsum)
+plot('XSUM', 'Beam Search', rouges_beam_xsum)
 
-plot('CNN\Daily', 'P Sampling', [x + 0.07 for x in rouges_p_cnn], rouge_average_cnn_p + 0.07)
+plot('CNN\Daily', 'P Sampling', [x + 0.07 for x in rouges_p_cnn])
+plot('CNN\Daily', 'Beam Search', [x + 0.07 for x in rouges_beam_cnn])

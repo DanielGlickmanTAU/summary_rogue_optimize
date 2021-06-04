@@ -1,0 +1,25 @@
+
+
+
+----
+generation with different hyper params
+test_rouge_generation.py -- change penelty param
+----
+generating xsum 50k train with no_repeat_ngram = 3
+executing test_rouge_generation1622713406.3859925
+Submitted batch job 42145
+
+generating xsum 50k train with len_penalty= 1.2
+executing test_rouge_generation1622794087.0663729
+Submitted batch job 372
+
+generating xsum 50k train with len_penalty = 0.8
+executing test_rouge_generation1622794058.5707452
+Submitted batch job 371
+
+
+done:
+generating 2k summaries with bart base on xsum validation -- specific_generation_script.py
+ dataset facebook_bart-base/processed_dataset__validation_xsum2000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0
+
+generating 2k summaries with bart base on xsum train

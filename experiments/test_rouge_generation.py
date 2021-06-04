@@ -7,7 +7,7 @@ dataset_name, split, train_examples, validation_examples, search_params, batch_s
 
 
 def _generate():
-    # search_params.len_penalty = 0.8
+    # search_params.len_penalty = 1.2
 
     dataset, model, tokenizer = loading.load_dataset_model_tokenizer(dataset_name, train_examples, validation_examples)
     search_validation_loss(dataset[split], model, tokenizer, search_params, batch_size)

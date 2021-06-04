@@ -13,7 +13,7 @@ slurm_file = 'my_slurm.slurm'
 # job_name = '''slurm_test'''
 
 
-def run_on_slurm(job_name, params, slurm=True):
+def run_on_slurm(job_name, params, slurm=True, gpu=True):
     python_file = job_name
     python_file = python_file.replace('.py', '')
     job_name = job_name + str(time.time())
@@ -27,7 +27,7 @@ def run_on_slurm(job_name, params, slurm=True):
 ## SBATCH --time={time_limit}
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --gpus=1
+#SBATCH --gpus={'1' if gpu else '0'}
 {python} {python_file}.py ''' + ' '.join([f'--{key} {value}' for key, value in params.items()]))
 
         print(f'executing {job_name} ')

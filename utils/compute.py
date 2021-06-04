@@ -1,3 +1,5 @@
+import gc
+
 import comet_ml
 import os
 import time
@@ -90,3 +92,10 @@ def get_device_and_set_as_global():
     d = get_device()
     get_torch().cuda.set_device(d)
     return d
+
+
+def clean_memory():
+    t = time.time()
+    gc.collect()
+    get_torch().cuda.empty_cache()
+    print(f'gc took:{time.time() - t}')

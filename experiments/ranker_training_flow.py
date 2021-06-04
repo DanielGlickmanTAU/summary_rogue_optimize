@@ -46,9 +46,8 @@ def run_exp(config):
 
     )
 
-    gc.collect()
-    compute.get_torch().cuda.empty_cache()
-    
+    compute.clean_memory()
+
     training.train_ranker(ranker_model, config,
                           training_args, train_processed_generated_xsum,
                           eval_dataset=validation_processed_generated_xsum)

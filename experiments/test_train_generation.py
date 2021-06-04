@@ -4,7 +4,6 @@ import experiment
 from data import data_loading
 from models.generation import add_summary_and_rouge
 from models import model_loading
-from models.candidate_selection import select_best
 from models.generate import SearchParams, BeamSearchParams
 from train import training
 
@@ -15,14 +14,19 @@ def get_random_examples(ds, k):
 
 
 def eval_metric(dataset_split, exp, search_params: SearchParams):
+    # compute.clean_memory()
+
     ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
-                           batched=True)
-    ds_rouge_2 = sum(ds['rouge2']) / len(ds['rouge2'])
-    ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
-    print('rouge2 is ', ds_rouge_2, ' evaluate on', len(ds['rouge2']))
-    print('rouge1 is ', ds_rouge_1, ' evaluate on', len(ds['rouge2']))
+                           batched=True, batch_size=4)
+    ds_rouge_2 = sum(ds['rouge-2-first']) / len(ds['rouge-2-first'])
+    ds_rouge_avg = sum(ds['rouge-2-avg']) / len(ds['rouge-2-avg'])
+    # ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
+    print('rouge2 when selecting first beam is ', ds_rouge_2,
+          'rouge2 averaging ', search_params.num_beams, ' is ', ds_rouge_avg,
+          ' evaluated on', len(ds['rouge-2-first']))
+    # print('rouge1 is ', ds_rouge_1, ' evaluate on', len(ds['rouge2']))
     try:
-        exp.log_metrics({'rouge1': ds_rouge_1, 'rouge2': ds_rouge_2})
+        exp.log_metrics({'rouge2': ds_rouge_2})
     except Exception:
         pass
     return ds_rouge_2
@@ -36,9 +40,6 @@ def do_experiment(model, tokenizer, cnn, learning_rate,
                   ):
     exp = experiment.start_experiment(hyperparams={
         'batch_size': batch_size,
-        'top_p': search_params.top_p,
-        'top_k': search_params.top_k,
-        'do_sample': search_params.do_sample,
         'num_beams': search_params.num_beams,
         'num_return_sequences': search_params.num_return_sequences,
         'model_name': model_loading.xsum_model_name,
@@ -59,7 +60,7 @@ def do_experiment(model, tokenizer, cnn, learning_rate,
 
 search_params = BeamSearchParams(num_return_sequences=4, num_beams=4)
 model, tokenizer = model_loading.get_bart_base_model_and_tokenizer()
-dataset = data_loading.get_xsum_dataset(train_subset=1_000, valid_subset=1_000)
+dataset = data_loading.get_xsum_dataset(train_subset=1_00, valid_subset=1_00)
 
 do_experiment(model, tokenizer, dataset,
               learning_rate=3e-05,

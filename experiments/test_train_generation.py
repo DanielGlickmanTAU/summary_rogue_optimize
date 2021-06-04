@@ -46,6 +46,7 @@ def do_experiment(model, tokenizer, cnn, learning_rate,
         'learning_rate': training.learning_rate,
         'validation_split': validation_split,
         'gradient_accumulation_steps': gradient_accumulation_steps,
+        'validation_split': validation_split
     })
 
     cnn_train = cnn['train']
@@ -60,11 +61,15 @@ def do_experiment(model, tokenizer, cnn, learning_rate,
 
 search_params = BeamSearchParams(num_return_sequences=4, num_beams=4)
 model, tokenizer = model_loading.get_bart_base_model_and_tokenizer()
-dataset = data_loading.get_xsum_dataset(train_subset=1_00, valid_subset=1_00)
+dataset = data_loading.get_xsum_dataset(train_subset=1_0, valid_subset=1_0)
+
+validation_split = 'train'
+if validation_split != 'validation': print('WARNING TESTING ON ', validation_split)
 
 do_experiment(model, tokenizer, dataset,
               learning_rate=3e-05,
               batch_size=8,
               search_params=search_params,
               gradient_accumulation_steps=10,
-              num_epochs=40)
+              num_epochs=20,
+              validation_split=validation_split)

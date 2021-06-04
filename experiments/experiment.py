@@ -25,12 +25,14 @@ def start_experiment(tags=None, hyperparams=None):
     if tags is None:
         tags = []
 
+    if len(hyperparams):
+        print('hyperparams:', flatten(hyperparams))
+
     experiment = Experiment(project_name='summary-sampling', workspace="danielglickmantau")
     if len(tags):
         experiment.add_tags(tags)
     if len(hyperparams):
         hyperparams = flatten(hyperparams)
-        print('hyperparams:', hyperparams)
         experiment.log_parameters(hyperparams)
 
     return experiment

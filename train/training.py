@@ -101,13 +101,14 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
     trainer.train()
 
 
-# trains generaiton for single epoch
-def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1):
+# trains generaiton
+def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1,
+          num_epochs=1):
     mini_split = prepare_split_for_training(mini_split, tokenizer, batch_size)
 
     training_args = TrainingArguments(
         output_dir="./",
-        num_train_epochs=1,
+        num_train_epochs=num_epochs,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
         do_train=True,

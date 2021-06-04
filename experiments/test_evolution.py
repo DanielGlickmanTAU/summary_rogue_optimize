@@ -66,14 +66,19 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
         # comment this out when I want to compare to normal train.. and also set select scale_exp=0
         top = top.map(lambda examples: {'highlights': examples['generated_summaries']})
         print('train')
-        training.train(model, tokenizer, top, int(batch_size / 2), learning_rate=learning_rate,
+        training.train(model, tokenizer, top, cnn[validation_split], search_params, int(batch_size / 2),
+                       learning_rate=learning_rate,
                        gradient_accumulation_steps=gradient_accumulation_steps)
 
-        new_valid_score = eval_metric(cnn[validation_split], exp, search_params)
-        if new_valid_score <= current_valid_score:
-            strikes = strikes - 1
-            if strikes <= 0:
-                break
+        # ???
+        # training.train(model, tokenizer, top int(batch_size / 2),
+        #                learning_rate=learning_rate,
+        #                gradient_accumulation_steps=gradient_accumulation_steps)
+        # new_valid_score = eval_metric(cnn[validation_split], exp, search_params)
+        # if new_valid_score <= current_valid_score:
+        #     strikes = strikes - 1
+        #     if strikes <= 0:
+        #         break
 
         current_valid_score = new_valid_score
         test_summaries = get_random_examples(cnn_train, examples_for_training_epoch).map(

@@ -102,9 +102,9 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
 
 
 # trains generaiton
-def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1,
+def train(model, tokenizer, train_dataset, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1,
           num_epochs=1):
-    mini_split = prepare_split_for_training(mini_split, tokenizer, batch_size)
+    train_dataset = prepare_split_for_training(train_dataset, tokenizer, batch_size)
 
     training_args = TrainingArguments(
         output_dir="./",
@@ -124,7 +124,7 @@ def train(model, tokenizer, mini_split, batch_size, learning_rate=learning_rate,
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=mini_split,
+        train_dataset=train_dataset,
     )
 
     trainer.train()

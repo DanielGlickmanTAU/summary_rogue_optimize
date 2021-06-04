@@ -50,8 +50,6 @@ def do_experiment(model, tokenizer, cnn, learning_rate,
     })
 
     cnn_train = cnn['train']
-
-    print('train')
     training.train(model, tokenizer, cnn_train, batch_size, learning_rate=learning_rate,
                    gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=num_epochs)
 
@@ -70,6 +68,6 @@ do_experiment(model, tokenizer, dataset,
               learning_rate=3e-05,
               batch_size=8,
               search_params=search_params,
-              gradient_accumulation_steps=10,
-              num_epochs=20,
+              gradient_accumulation_steps=1,
+              num_epochs=2,
               validation_split=validation_split)

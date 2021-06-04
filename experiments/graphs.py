@@ -69,5 +69,5 @@ def plot(title, sampling, rouges_at_k, avg=None):
 plot('XSUM', 'P Sampling', rouge_p_xsum)
 plot('XSUM', 'Beam Search', rouges_beam_xsum)
 
-plot('CNN\Daily', 'P Sampling', [x + 0.07 for x in rouges_p_cnn])
-plot('CNN\Daily', 'Beam Search', [x + 0.07 for x in rouges_beam_cnn])
+plot('CNN\Daily', 'P Sampling', rouges_p_cnn)
+plot('CNN\Daily', 'Beam Search', rouges_beam_cnn)

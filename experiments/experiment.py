@@ -29,6 +29,8 @@ def start_experiment(tags=None, hyperparams=None):
     if len(tags):
         experiment.add_tags(tags)
     if len(hyperparams):
-        experiment.log_parameters(flatten(hyperparams))
+        hyperparams = flatten(hyperparams)
+        print('hyperparams:', hyperparams)
+        experiment.log_parameters(hyperparams)
 
     return experiment

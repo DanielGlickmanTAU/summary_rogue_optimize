@@ -15,9 +15,6 @@ learning_rate = 3e-06
 def prepare_examples_for_training(examples, tokenizer):
     def assert_bart():
         assert 'Bart' in str(tokenizer.__class__)
-        # because BERT automatically shifts the labels, the labels correspond exactly to `decoder_input_ids`.
-        # We have to make sure that the PAD token is ignored
-        # labels = [[-100 if token == tokenizer.pad_token_id else token for token in tokens] for tokens in labels]
 
     assert_bart()
 
@@ -27,6 +24,9 @@ def prepare_examples_for_training(examples, tokenizer):
     decoder_input_ids = highlight_tokens['input_ids']
     decoder_attention_mask = highlight_tokens['attention_mask']
     labels = highlight_tokens['input_ids'].copy()
+    # because BERT automatically shifts the labels, the labels correspond exactly to `decoder_input_ids`.
+    # We have to make sure that the PAD token is ignored
+    # labels = [[-100 if token == tokenizer.pad_token_id else token for token in tokens] for tokens in labels]
 
     return {
         'input_ids': input_tokens['input_ids'],

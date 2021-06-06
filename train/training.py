@@ -1,25 +1,32 @@
 from typing import Dict
 
-from transformers import TrainingArguments, Trainer
+from transformers import TrainingArguments, Trainer, Seq2SeqTrainingArguments
 import torch
+from transformers.models.bart.modeling_bart import shift_tokens_right
 
 from evaluation.evaluate import best_at_k
 from train.RankerTrainer import RankerTrainer
+
+# from transformers.modeling_bart import shift_tokens_right
 
 learning_rate = 3e-06
 
 
 def prepare_examples_for_training(examples, tokenizer):
+    def assert_bart():
+        assert 'Bart' in str(tokenizer.__class__)
+        # because BERT automatically shifts the labels, the labels correspond exactly to `decoder_input_ids`.
+        # We have to make sure that the PAD token is ignored
+        # labels = [[-100 if token == tokenizer.pad_token_id else token for token in tokens] for tokens in labels]
+
+    assert_bart()
+
     input_tokens = tokenizer(examples["article"], padding="max_length", truncation=True, max_length=512)
     highlight_tokens = tokenizer(examples["highlights"], padding="max_length", truncation=True, max_length=128)
 
     decoder_input_ids = highlight_tokens['input_ids']
     decoder_attention_mask = highlight_tokens['attention_mask']
     labels = highlight_tokens['input_ids'].copy()
-
-    # because BERT automatically shifts the labels, the labels correspond exactly to `decoder_input_ids`.
-    # We have to make sure that the PAD token is ignored
-    labels = [[-100 if token == tokenizer.pad_token_id else token for token in tokens] for tokens in labels]
 
     return {
         'input_ids': input_tokens['input_ids'],
@@ -102,21 +109,31 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
 
 
 # trains generaiton
-def train(model, tokenizer, train_dataset, batch_size, learning_rate=learning_rate, gradient_accumulation_steps=1,
+def train(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_rate=learning_rate,
+          gradient_accumulation_steps=1,
           num_epochs=1):
-    train_dataset = prepare_split_for_training(train_dataset, tokenizer, batch_size)
+    # def compute_metric(a1, **args):
+    #     print('compute metric a1', a1)
+    #     print('compute metric args', args)
+    #     return {}
 
-    training_args = TrainingArguments(
+    train_dataset = prepare_split_for_training(train_dataset, tokenizer, batch_size)
+    eval_dataset = prepare_split_for_training(eval_dataset, tokenizer, batch_size)
+
+    training_args = Seq2SeqTrainingArguments(
+        # predict_with_generate=True,
         output_dir="./",
         num_train_epochs=num_epochs,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
         do_train=True,
-        do_eval=False,
+        do_eval=True,
+        evaluation_strategy='epoch',
+        prediction_loss_only=True,
+
         overwrite_output_dir=False,
         # warmup_steps=0,
         fp16=torch.cuda.is_available(),
-        prediction_loss_only=True,
         learning_rate=learning_rate,
         gradient_accumulation_steps=gradient_accumulation_steps
     )
@@ -125,6 +142,9 @@ def train(model, tokenizer, train_dataset, batch_size, learning_rate=learning_ra
         model=model,
         args=training_args,
         train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        # compute_metrics=compute_metric,
+
     )
 
     trainer.train()

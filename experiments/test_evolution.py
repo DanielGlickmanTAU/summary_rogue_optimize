@@ -69,7 +69,7 @@ def do_experiment(model, tokenizer, cnn, train_examples, examples_for_training_e
         training.train(model, tokenizer, top, cnn[validation_split], search_params, int(batch_size / 2),
                        learning_rate=learning_rate,
                        gradient_accumulation_steps=gradient_accumulation_steps)
-
+        
         # ???
         # training.train(model, tokenizer, top int(batch_size / 2),
         #                learning_rate=learning_rate,

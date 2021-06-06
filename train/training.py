@@ -123,10 +123,9 @@ def train(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_ra
         pred_ids = pred.predictions[0]
 
         loss = torch.nn.CrossEntropyLoss()(torch.tensor(pred_ids[0]).squeeze(0), torch.tensor(labels_ids).squeeze(0))
-        pred_str = tokenizer.batch_decode(pred_ids.argmax(2), skip_special_tokens=True,
-                                          clean_up_tokenization_spaces=False)
+        pred_str = tokenizer.batch_decode(pred_ids.argmax(2), skip_special_tokens=True, )
         labels_ids[labels_ids == -100] = tokenizer.pad_token_id
-        label_str = tokenizer.batch_decode(labels_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+        label_str = tokenizer.batch_decode(labels_ids, skip_special_tokens=True)
 
         rouge_output = rouge.compute(predictions=pred_str, references=label_str, rouge_types=["rouge2"])["rouge2"].mid
         print(rouge_output)

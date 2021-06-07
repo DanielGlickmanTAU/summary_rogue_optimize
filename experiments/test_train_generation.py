@@ -1,16 +1,10 @@
 from utils import compute
-import random
 
 import experiment
 from data import data_loading
 from models import model_loading
 from models.generate import SearchParams, BeamSearchParams
 from train.generation_training import generation_train_flow
-
-
-def get_random_examples(ds, k):
-    indexes = random.sample(range(len(ds)), k)
-    return ds.select(indexes)
 
 
 def do_experiment(model, tokenizer, cnn, learning_rate,

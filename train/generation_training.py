@@ -72,11 +72,11 @@ def generation_train_flow(model, tokenizer, exp, search_params, train_dataset, v
                               gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=10)
         trainer.train()
 
-        # new_valid_score = eval_metric(model, tokenizer, validation_dataset, exp, search_params)
-        trainer.evaluate(
+        print(f'epoch {i}', trainer.evaluate(
             max_length=128, num_beams=4, metric_key_prefix="eval"
-        )
-        # print(f'rouge 2 on validation in iteration {i} is {new_valid_score}')
+        ))
+        new_valid_score = eval_metric(model, tokenizer, validation_dataset, exp, search_params)
+        print(f'rouge 2 on validation in iteration {i} is {new_valid_score}')
 
 
 # trains generaiton
@@ -87,7 +87,9 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
         # print('compute metric a1', pred)
         print('compute metric args', args)
         labels_ids = pred.label_ids
-        pred_ids = pred.predictions[0]
+        pred_ids = pred.predictions
+        if isinstance(pred_ids, tuple):
+            pred_ids = pred.predictions[0]
 
         loss = torch.nn.CrossEntropyLoss()(torch.tensor(pred_ids[0]).squeeze(0), torch.tensor(labels_ids).squeeze(0))
         pred_str = tokenizer.batch_decode(pred_ids.argmax(2), skip_special_tokens=True, )

@@ -2,36 +2,15 @@ import random
 
 import experiment
 from data import data_loading
-from models.generation import add_summary_and_rouge
 from models import model_loading
 from models.generate import SearchParams, BeamSearchParams
 from train import training
-from tqdm import tqdm
+from train.generation_training import generation_train_flow
 
 
 def get_random_examples(ds, k):
     indexes = random.sample(range(len(ds)), k)
     return ds.select(indexes)
-
-
-def eval_metric(model, tokenizer, dataset_split, exp, search_params: SearchParams):
-    # compute.clean_memory()
-
-    ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
-                           batched=True, batch_size=4)
-    print(ds[0]['generated_highlights'])
-    ds_rouge_2 = sum(ds['rouge-2-first']) / len(ds['rouge-2-first'])
-    ds_rouge_avg = sum(ds['rouge-2-avg']) / len(ds['rouge-2-avg'])
-    # ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
-    print('rouge2 when selecting first beam is ', ds_rouge_2,
-          'rouge2 averaging ', search_params.num_beams, ' is ', ds_rouge_avg,
-          ' evaluated on', len(ds['rouge-2-first']))
-    # print('rouge1 is ', ds_rouge_1, ' evaluate on', len(ds['rouge2']))
-    try:
-        exp.log_metrics({'rouge2': ds_rouge_2})
-    except Exception:
-        pass
-    return ds_rouge_2
 
 
 def do_experiment(model, tokenizer, cnn, learning_rate,
@@ -44,12 +23,10 @@ def do_experiment(model, tokenizer, cnn, learning_rate,
 
     train_dataset = cnn['train']
     validation_dataset = cnn[validation_split]
-    for i in tqdm(range(num_epochs)):
-        training.train(model, tokenizer, train_dataset, validation_dataset, batch_size, learning_rate=learning_rate,
-                       gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=10)
 
-        new_valid_score = eval_metric(model, tokenizer, validation_dataset, exp, search_params)
-        print(f'rouge 2 on validation in iteration {i} is {new_valid_score}')
+    generation_train_flow(model, tokenizer, exp, search_params, train_dataset, validation_dataset,
+                          batch_size,
+                          learning_rate, gradient_accumulation_steps, num_epochs)
 
 
 def log_experiment(batch_size, gradient_accumulation_steps, search_params, validation_split):

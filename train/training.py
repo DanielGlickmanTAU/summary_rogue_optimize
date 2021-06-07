@@ -1,54 +1,13 @@
 from typing import Dict
 
-import datasets
-from transformers import TrainingArguments, Trainer, Seq2SeqTrainingArguments
+from transformers import TrainingArguments
 import torch
-from transformers.models.bart.modeling_bart import shift_tokens_right
 
 from evaluation.evaluate import best_at_k
 from train.RankerTrainer import RankerTrainer
 
+
 # from transformers.modeling_bart import shift_tokens_right
-
-learning_rate = 3e-06
-
-
-def prepare_examples_for_training(examples, tokenizer):
-    def assert_bart():
-        assert 'Bart' in str(tokenizer.__class__)
-
-    assert_bart()
-
-    input_tokens = tokenizer(examples["article"], padding="max_length", truncation=True, max_length=512)
-    highlight_tokens = tokenizer(examples["highlights"], padding="max_length", truncation=True, max_length=128)
-
-    decoder_input_ids = highlight_tokens['input_ids']
-    decoder_attention_mask = highlight_tokens['attention_mask']
-    labels = highlight_tokens['input_ids'].copy()
-    # because BERT automatically shifts the labels, the labels correspond exactly to `decoder_input_ids`.
-    # We have to make sure that the PAD token is ignored
-    labels = [[-100 if token == tokenizer.pad_token_id else token for token in tokens] for tokens in labels]
-
-    return {
-        'input_ids': input_tokens['input_ids'],
-        'attention_mask': input_tokens['attention_mask'],
-        'decoder_input_ids': decoder_input_ids,
-        'decoder_attention_mask': decoder_attention_mask,
-        'labels': labels
-    }
-
-
-def prepare_split_for_training(train_data, tokenizer, batch_size):
-    train_data = train_data.map(
-        lambda examples: prepare_examples_for_training(examples, tokenizer),
-        batched=True,
-        batch_size=batch_size,
-        remove_columns=["article", "highlights", "id"] if 'id' in train_data else ["article", "highlights"]
-    )
-    train_data.set_format(
-        type="torch", columns=["input_ids", "attention_mask", "decoder_input_ids", "decoder_attention_mask", "labels"],
-    )
-    return train_data
 
 
 def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
@@ -104,63 +63,6 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
         data_collator=ranker_data_collator,
         compute_metrics=compute_metrics,
         config=config
-    )
-
-    trainer.train()
-
-
-rouge = datasets.load_metric("rouge")
-
-
-# trains generaiton
-def train(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_rate=learning_rate,
-          gradient_accumulation_steps=1,
-          num_epochs=1):
-    def compute_metric(pred, **args):
-        # print('compute metric a1', pred)
-        print('compute metric args', args)
-        labels_ids = pred.label_ids
-        pred_ids = pred.predictions[0]
-
-        loss = torch.nn.CrossEntropyLoss()(torch.tensor(pred_ids[0]).squeeze(0), torch.tensor(labels_ids).squeeze(0))
-        pred_str = tokenizer.batch_decode(pred_ids.argmax(2), skip_special_tokens=True, )
-        labels_ids[labels_ids == -100] = tokenizer.pad_token_id
-        label_str = tokenizer.batch_decode(labels_ids, skip_special_tokens=True)
-
-        rouge_output = rouge.compute(predictions=pred_str, references=label_str, rouge_types=["rouge2"])["rouge2"].mid
-        print(rouge_output)
-        print('predictd str:', pred_str)
-        print('label_str:', label_str)
-        return {'loss': loss, 'rouge2': rouge_output.fmeasure}
-
-    train_dataset = prepare_split_for_training(train_dataset, tokenizer, batch_size)
-    eval_dataset = prepare_split_for_training(eval_dataset, tokenizer, batch_size)
-
-    training_args = Seq2SeqTrainingArguments(
-        # predict_with_generate=True,
-        output_dir="./",
-        num_train_epochs=num_epochs,
-        per_device_train_batch_size=batch_size,
-        per_device_eval_batch_size=batch_size,
-        do_train=True,
-        do_eval=True,
-        evaluation_strategy='epoch',
-        # prediction_loss_only=True,
-
-        overwrite_output_dir=False,
-        # warmup_steps=0,
-        fp16=torch.cuda.is_available(),
-        learning_rate=learning_rate,
-        gradient_accumulation_steps=gradient_accumulation_steps
-    )
-
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        compute_metrics=compute_metric,
-
     )
 
     trainer.train()

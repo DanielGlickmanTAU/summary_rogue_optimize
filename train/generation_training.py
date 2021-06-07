@@ -1,5 +1,7 @@
 import datasets
 import nltk
+
+from utils import compute
 import numpy
 from transformers import Trainer, Seq2SeqTrainingArguments, Seq2SeqTrainer
 import torch
@@ -48,40 +50,6 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
-def generation_train_flow(model, tokenizer, exp, search_params, train_dataset, validation_dataset, batch_size,
-                          learning_rate, gradient_accumulation_steps, num_epochs):
-    def eval_metric(model, tokenizer, dataset_split, exp, search_params):
-
-        ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
-                               batched=True, batch_size=4)
-        print(ds[0]['generated_highlights'])
-        ds_rouge_2 = sum(ds['rouge-2-first']) / len(ds['rouge-2-first'])
-        ds_rouge_avg = sum(ds['rouge-2-avg']) / len(ds['rouge-2-avg'])
-        # ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
-        print('rouge2 when selecting first beam is ', ds_rouge_2,
-              'rouge2 averaging ', search_params.num_beams, ' is ', ds_rouge_avg,
-              ' evaluated on', len(ds['rouge-2-first']))
-        # print('rouge1 is ', ds_rouge_1, ' evaluate on', len(ds['rouge2']))
-        try:
-            exp.log_metrics({'rouge2': ds_rouge_2})
-        except Exception:
-            pass
-        return ds_rouge_2
-
-    for i in range(num_epochs):
-        trainer = get_trainer(model, tokenizer, train_dataset, validation_dataset, batch_size,
-                              learning_rate=learning_rate,
-                              gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=10)
-        trainer.train()
-
-        print(f'epoch {i}', trainer.evaluate(
-            max_length=128, num_beams=4, metric_key_prefix="eval"
-        ))
-        new_valid_score = eval_metric(model, tokenizer, validation_dataset, exp, search_params)
-        print(f'rouge 2 on validation in iteration {i} is {new_valid_score}')
-
-
-# trains generaiton
 def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_rate,
                 gradient_accumulation_steps=1,
                 num_epochs=1):
@@ -90,8 +58,9 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
         labels = [label.strip() for label in labels]
 
         # rougeLSum expects newline after each sentence
-        preds = ["\n".join(nltk.sent_tokenize(pred)) for pred in preds]
-        labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
+        # nltk.download('punkt', download_dir=compute.get_cache_dir())
+        # preds = ["\n".join(nltk.sent_tokenize(pred)) for pred in preds]
+        # labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
 
         return preds, labels
 
@@ -108,7 +77,10 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
 
-        result = rouge.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
+        # nltk.download('punkt', download_dir=compute.get_cache_dir())
+        # result = rouge.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
+
+        result = rouge.compute(predictions=decoded_preds, references=decoded_labels)
         # Extract a few results from ROUGE
         result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
 
@@ -116,28 +88,6 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
         result["gen_len"] = numpy.mean(prediction_lens)
         result = {k: round(v, 4) for k, v in result.items()}
         return result
-
-    # def compute_metric(pred, **args):
-    #     # print('compute metric a1', pred)
-    #     print('compute metric args', args)
-    #     labels_ids = pred.label_ids
-    #     pred_ids = pred.predictions
-    #     if isinstance(pred_ids, tuple):
-    #         pred_ids = pred.predictions[0]
-    #
-    #     loss = torch.nn.CrossEntropyLoss()(torch.tensor(pred_ids[0]).squeeze(0), torch.tensor(labels_ids).squeeze(0))
-    #     pred_str = tokenizer.batch_decode(pred_ids.argmax(2), skip_special_tokens=True, )
-    #     labels_ids[labels_ids == -100] = tokenizer.pad_token_id
-    #     label_str = tokenizer.batch_decode(labels_ids, skip_special_tokens=True)
-    #
-    #     rouge_output = rouge.compute(predictions=pred_str, references=label_str, rouge_types=["rouge2"])["rouge2"].mid
-    #     print(rouge_output)
-    #     print('predictd str:', pred_str)
-    #     print('label_str:', label_str)
-    #     return {'loss': loss, 'rouge2': rouge_output.fmeasure}
-
-    train_dataset = prepare_split_for_training(train_dataset, tokenizer, batch_size)
-    eval_dataset = prepare_split_for_training(eval_dataset, tokenizer, batch_size)
 
     training_args = Seq2SeqTrainingArguments(
         # predict_with_generate=True,
@@ -167,3 +117,61 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
     )
 
     return trainer
+
+
+def generation_train_flow(model, tokenizer, exp, search_params, train_dataset, validation_dataset, batch_size,
+                          learning_rate, gradient_accumulation_steps, num_epochs):
+    def eval_metric(model, tokenizer, dataset_split, exp, search_params):
+
+        ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
+                               batched=True, batch_size=4)
+        print(ds[0]['generated_highlights'])
+        ds_rouge_2 = sum(ds['rouge-2-first']) / len(ds['rouge-2-first'])
+        ds_rouge_avg = sum(ds['rouge-2-avg']) / len(ds['rouge-2-avg'])
+        # ds_rouge_1 = sum(ds['rouge1']) / len(ds['rouge1'])
+        print('rouge2 when selecting first beam is ', ds_rouge_2,
+              'rouge2 averaging ', search_params.num_beams, ' is ', ds_rouge_avg,
+              ' evaluated on', len(ds['rouge-2-first']))
+        # print('rouge1 is ', ds_rouge_1, ' evaluate on', len(ds['rouge2']))
+        try:
+            exp.log_metrics({'rouge2': ds_rouge_2})
+        except Exception:
+            pass
+        return ds_rouge_2
+
+    train_dataset = prepare_split_for_training(train_dataset, tokenizer, batch_size)
+    validation_dataset = prepare_split_for_training(validation_dataset, tokenizer, batch_size)
+
+    for i in range(num_epochs):
+        trainer = get_trainer(model, tokenizer, train_dataset, validation_dataset, batch_size,
+                              learning_rate=learning_rate,
+                              gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=1)
+        trainer.train()
+
+        print(f'epoch {i}', trainer.evaluate(
+            max_length=128, num_beams=4, metric_key_prefix="eval"
+        ))
+        predict(tokenizer, trainer, validation_dataset, search_params)
+
+
+def predict(tokenizer, trainer, test_dataset, search_params):
+    predict_results = trainer.predict(
+        test_dataset,
+        metric_key_prefix="predict",
+        max_length=128,
+        num_beams=search_params.num_beams,
+        # num_return_sequences=search_params.num_return_sequences
+    )
+    metrics = predict_results.metrics
+
+    metrics["predict_samples"] = len(test_dataset)
+    trainer.log_metrics("predict", metrics)
+    trainer.save_metrics("predict", metrics)
+
+    if trainer.is_world_process_zero():
+        if trainer.args.predict_with_generate:
+            predictions = tokenizer.batch_decode(
+                predict_results.predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
+            )
+            predictions = [pred.strip() for pred in predictions]
+            print('predictions:', predictions)

@@ -41,7 +41,7 @@ def log_experiment(model, tokenizer, cnn, learning_rate, gradient_accumulation_s
 
 search_params = BeamSearchParams(num_return_sequences=4, num_beams=4)
 model, tokenizer = model_loading.get_bart_base_model_and_tokenizer()
-dataset = data_loading.get_xsum_dataset(train_subset=1, valid_subset=1)
+dataset = data_loading.get_xsum_dataset(train_subset=2, valid_subset=2)
 
 validation_split = 'train'
 if validation_split != 'validation': print('WARNING TESTING ON ', validation_split)

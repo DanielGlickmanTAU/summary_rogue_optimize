@@ -19,8 +19,9 @@ def do_experiment(model, tokenizer, cnn, learning_rate,
                   num_epochs,
                   validation_split='validation'
                   ):
-    exp = log_experiment(batch_size, gradient_accumulation_steps, search_params, validation_split)
-
+    exp = log_experiment(model, tokenizer, cnn, learning_rate, gradient_accumulation_steps, batch_size, num_epochs,
+                         validation_split, search_params)
+    exp = None
     train_dataset = cnn['train']
     validation_dataset = cnn[validation_split]
 
@@ -29,13 +30,14 @@ def do_experiment(model, tokenizer, cnn, learning_rate,
                           learning_rate, gradient_accumulation_steps, num_epochs)
 
 
-def log_experiment(batch_size, gradient_accumulation_steps, search_params, validation_split):
+def log_experiment(model, tokenizer, cnn, learning_rate, gradient_accumulation_steps, batch_size, num_epochs,
+                   validation_split, search_params):
     exp = experiment.start_experiment(hyperparams={
         'batch_size': batch_size,
         'num_beams': search_params.num_beams,
         'num_return_sequences': search_params.num_return_sequences,
-        'model_name': model_loading.xsum_model_name,
-        'learning_rate': training.learning_rate,
+        'model_name': str(model.__class__),
+        'learning_rate': learning_rate,
         'gradient_accumulation_steps': gradient_accumulation_steps,
         'validation_split': validation_split
     })

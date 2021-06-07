@@ -13,9 +13,10 @@ def do_experiment(model, tokenizer, cnn, learning_rate,
                   num_epochs,
                   validation_split='validation'
                   ):
-    exp = log_experiment(model, tokenizer, cnn, learning_rate, gradient_accumulation_steps, batch_size, num_epochs,
-                         validation_split, search_params)
+    # exp = log_experiment(model, tokenizer, cnn, learning_rate, gradient_accumulation_steps, batch_size, num_epochs,
+    #                      validation_split, search_params)
     exp = None
+    print('exp is none')
     train_dataset = cnn['train']
     validation_dataset = cnn[validation_split]
 

@@ -1,10 +1,11 @@
 import datasets
-from transformers import Trainer, Seq2SeqTrainingArguments
+from transformers import Trainer, Seq2SeqTrainingArguments, Seq2SeqTrainer
 import torch
 
+from data import metrics
 from models.generation import add_summary_and_rouge
 
-rouge = datasets.load_metric("rouge")
+rouge = metrics.get_rouge()
 
 
 def prepare_examples_for_training(examples, tokenizer):
@@ -48,7 +49,6 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
 def generation_train_flow(model, tokenizer, exp, search_params, train_dataset, validation_dataset, batch_size,
                           learning_rate, gradient_accumulation_steps, num_epochs):
     def eval_metric(model, tokenizer, dataset_split, exp, search_params):
-        # compute.clean_memory()
 
         ds = dataset_split.map(lambda x: add_summary_and_rouge(model, tokenizer, x, search_params),
                                batched=True, batch_size=4)
@@ -67,17 +67,22 @@ def generation_train_flow(model, tokenizer, exp, search_params, train_dataset, v
         return ds_rouge_2
 
     for i in range(num_epochs):
-        train(model, tokenizer, train_dataset, validation_dataset, batch_size, learning_rate=learning_rate,
-              gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=10)
+        trainer = get_trainer(model, tokenizer, train_dataset, validation_dataset, batch_size,
+                              learning_rate=learning_rate,
+                              gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=10)
+        trainer.train()
 
-        new_valid_score = eval_metric(model, tokenizer, validation_dataset, exp, search_params)
-        print(f'rouge 2 on validation in iteration {i} is {new_valid_score}')
+        # new_valid_score = eval_metric(model, tokenizer, validation_dataset, exp, search_params)
+        trainer.evaluate(
+            max_length=128, num_beams=4, metric_key_prefix="eval"
+        )
+        # print(f'rouge 2 on validation in iteration {i} is {new_valid_score}')
 
 
 # trains generaiton
-def train(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_rate,
-          gradient_accumulation_steps=1,
-          num_epochs=1):
+def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_rate,
+                gradient_accumulation_steps=1,
+                num_epochs=1):
     def compute_metric(pred, **args):
         # print('compute metric a1', pred)
         print('compute metric args', args)
@@ -116,7 +121,7 @@ def train(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_ra
         gradient_accumulation_steps=gradient_accumulation_steps
     )
 
-    trainer = Trainer(
+    trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
@@ -125,4 +130,4 @@ def train(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_ra
 
     )
 
-    trainer.train()
+    return trainer

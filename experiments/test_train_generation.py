@@ -1,10 +1,10 @@
+from utils import compute
 import random
 
 import experiment
 from data import data_loading
 from models import model_loading
 from models.generate import SearchParams, BeamSearchParams
-from train import training
 from train.generation_training import generation_train_flow
 
 
@@ -46,14 +46,14 @@ def log_experiment(model, tokenizer, cnn, learning_rate, gradient_accumulation_s
 
 search_params = BeamSearchParams(num_return_sequences=4, num_beams=4)
 model, tokenizer = model_loading.get_bart_base_model_and_tokenizer()
-dataset = data_loading.get_xsum_dataset(train_subset=8, valid_subset=8)
+dataset = data_loading.get_xsum_dataset(train_subset=1, valid_subset=1)
 
 validation_split = 'train'
 if validation_split != 'validation': print('WARNING TESTING ON ', validation_split)
 
 do_experiment(model, tokenizer, dataset,
               learning_rate=3e-05,
-              batch_size=8,
+              batch_size=1,
               search_params=search_params,
               gradient_accumulation_steps=1,
               num_epochs=25,

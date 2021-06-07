@@ -1,4 +1,6 @@
 import datasets
+import nltk
+import numpy
 from transformers import Trainer, Seq2SeqTrainingArguments, Seq2SeqTrainer
 import torch
 
@@ -83,24 +85,56 @@ def generation_train_flow(model, tokenizer, exp, search_params, train_dataset, v
 def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_rate,
                 gradient_accumulation_steps=1,
                 num_epochs=1):
-    def compute_metric(pred, **args):
-        # print('compute metric a1', pred)
-        print('compute metric args', args)
-        labels_ids = pred.label_ids
-        pred_ids = pred.predictions
-        if isinstance(pred_ids, tuple):
-            pred_ids = pred.predictions[0]
+    def postprocess_text(preds, labels):
+        preds = [pred.strip() for pred in preds]
+        labels = [label.strip() for label in labels]
 
-        loss = torch.nn.CrossEntropyLoss()(torch.tensor(pred_ids[0]).squeeze(0), torch.tensor(labels_ids).squeeze(0))
-        pred_str = tokenizer.batch_decode(pred_ids.argmax(2), skip_special_tokens=True, )
-        labels_ids[labels_ids == -100] = tokenizer.pad_token_id
-        label_str = tokenizer.batch_decode(labels_ids, skip_special_tokens=True)
+        # rougeLSum expects newline after each sentence
+        preds = ["\n".join(nltk.sent_tokenize(pred)) for pred in preds]
+        labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
 
-        rouge_output = rouge.compute(predictions=pred_str, references=label_str, rouge_types=["rouge2"])["rouge2"].mid
-        print(rouge_output)
-        print('predictd str:', pred_str)
-        print('label_str:', label_str)
-        return {'loss': loss, 'rouge2': rouge_output.fmeasure}
+        return preds, labels
+
+    def compute_metric(eval_preds):
+        preds, labels = eval_preds
+        preds = preds[0]
+
+        decoded_preds = tokenizer.batch_decode(preds.argmax(2), skip_special_tokens=True)
+
+        # Replace -100 in the labels as we can't decode them.
+        labels = numpy.where(labels != -100, labels, tokenizer.pad_token_id)
+        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+
+        # Some simple post-processing
+        decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
+
+        result = rouge.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
+        # Extract a few results from ROUGE
+        result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
+
+        prediction_lens = [numpy.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
+        result["gen_len"] = numpy.mean(prediction_lens)
+        result = {k: round(v, 4) for k, v in result.items()}
+        return result
+
+    # def compute_metric(pred, **args):
+    #     # print('compute metric a1', pred)
+    #     print('compute metric args', args)
+    #     labels_ids = pred.label_ids
+    #     pred_ids = pred.predictions
+    #     if isinstance(pred_ids, tuple):
+    #         pred_ids = pred.predictions[0]
+    #
+    #     loss = torch.nn.CrossEntropyLoss()(torch.tensor(pred_ids[0]).squeeze(0), torch.tensor(labels_ids).squeeze(0))
+    #     pred_str = tokenizer.batch_decode(pred_ids.argmax(2), skip_special_tokens=True, )
+    #     labels_ids[labels_ids == -100] = tokenizer.pad_token_id
+    #     label_str = tokenizer.batch_decode(labels_ids, skip_special_tokens=True)
+    #
+    #     rouge_output = rouge.compute(predictions=pred_str, references=label_str, rouge_types=["rouge2"])["rouge2"].mid
+    #     print(rouge_output)
+    #     print('predictd str:', pred_str)
+    #     print('label_str:', label_str)
+    #     return {'loss': loss, 'rouge2': rouge_output.fmeasure}
 
     train_dataset = prepare_split_for_training(train_dataset, tokenizer, batch_size)
     eval_dataset = prepare_split_for_training(eval_dataset, tokenizer, batch_size)

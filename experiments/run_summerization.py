@@ -394,18 +394,7 @@ def main():
         return model_inputs
 
     if training_args.do_train:
-        if "train" not in datasets:
-            raise ValueError("--do_train requires a train dataset")
-        train_dataset = datasets["train"]
-        if data_args.max_train_samples is not None:
-            train_dataset = train_dataset.select(range(data_args.max_train_samples))
-        train_dataset = train_dataset.map(
-            preprocess_function,
-            batched=True,
-            num_proc=data_args.preprocessing_num_workers,
-            remove_columns=column_names,
-            load_from_cache_file=not data_args.overwrite_cache,
-        )
+        train_dataset = prepare_train_dataset(column_names, data_args, datasets, preprocess_function)
 
     if training_args.do_eval:
         max_target_length = data_args.val_max_target_length
@@ -496,23 +485,7 @@ def main():
 
     # Training
     if training_args.do_train:
-        checkpoint = last_checkpoint
-        if training_args.resume_from_checkpoint is not None:
-            checkpoint = training_args.resume_from_checkpoint
-        # elif last_checkpoint is not None:
-        #     checkpoint = last_checkpoint
-        train_result = trainer.train(resume_from_checkpoint=checkpoint)
-        trainer.save_model()  # Saves the tokenizer too for easy upload
-
-        metrics = train_result.metrics
-        max_train_samples = (
-            data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
-        )
-        metrics["train_samples"] = min(max_train_samples, len(train_dataset))
-
-        trainer.log_metrics("train", metrics)
-        trainer.save_metrics("train", metrics)
-        trainer.save_state()
+        do_train(data_args, last_checkpoint, train_dataset, trainer, training_args)
 
     # Evaluation
     results = {}
@@ -529,21 +502,6 @@ def main():
         print('eval metrics', metrics)
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
-
-        def eval_it(example):
-            summary_ids = model.generate(compute.get_torch().tensor(example["input_ids"]).device(model.device),
-                                         attention_mask=compute.get_torch().tensor(example["attention_mask"]).to(
-                                             model.device), num_beams=4,
-                                         max_length=128, num_return_sequences=4,
-                                         # ignore_keys=['labels']
-                                         # early_stopping=True,
-                                         )
-            ids_ = [tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in
-                    summary_ids]
-            print(ids_)
-            return {'summary': ids_}
-
-        eval_dataset.map(lambda x: eval_it(x), batched=True, batch_size=4)
 
         if training_args.do_predict:
             logger.info("*** Predict ***")
@@ -569,11 +527,46 @@ def main():
                     predict_results.predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
                 )
                 predictions = [pred.strip() for pred in predictions]
+                print(predictions)
                 output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.txt")
                 with open(output_prediction_file, "w") as writer:
                     writer.write("\n".join(predictions))
 
     return results
+
+
+def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):
+    checkpoint = last_checkpoint
+    if training_args.resume_from_checkpoint is not None:
+        checkpoint = training_args.resume_from_checkpoint
+    # elif last_checkpoint is not None:
+    #     checkpoint = last_checkpoint
+    train_result = trainer.train(resume_from_checkpoint=checkpoint)
+    trainer.save_model()  # Saves the tokenizer too for easy upload
+    metrics = train_result.metrics
+    max_train_samples = (
+        data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
+    )
+    metrics["train_samples"] = min(max_train_samples, len(train_dataset))
+    trainer.log_metrics("train", metrics)
+    trainer.save_metrics("train", metrics)
+    trainer.save_state()
+
+
+def prepare_train_dataset(column_names, data_args, datasets, preprocess_function):
+    if "train" not in datasets:
+        raise ValueError("--do_train requires a train dataset")
+    train_dataset = datasets["train"]
+    if data_args.max_train_samples is not None:
+        train_dataset = train_dataset.select(range(data_args.max_train_samples))
+    train_dataset = train_dataset.map(
+        preprocess_function,
+        batched=True,
+        num_proc=data_args.preprocessing_num_workers,
+        remove_columns=column_names,
+        load_from_cache_file=not data_args.overwrite_cache,
+    )
+    return train_dataset
 
 
 def _mp_fn(index):

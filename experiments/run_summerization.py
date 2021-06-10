@@ -472,16 +472,8 @@ def main():
         result = {k: round(v, 4) for k, v in result.items()}
         return result
 
-    # Initialize our Trainer
-    trainer = Seq2SeqTrainer(
-        model=model,
-        args=training_args,
-        train_dataset=train_dataset if training_args.do_train else None,
-        eval_dataset=eval_dataset if training_args.do_eval else None,
-        tokenizer=tokenizer,
-        data_collator=data_collator,
-        compute_metrics=compute_metrics if training_args.predict_with_generate else None,
-    )
+    trainer = create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset,
+                             training_args)
 
     # Training
     if training_args.do_train:
@@ -533,6 +525,20 @@ def main():
                     writer.write("\n".join(predictions))
 
     return results
+
+
+def create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset, training_args):
+    # Initialize our Trainer
+    trainer = Seq2SeqTrainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset if training_args.do_train else None,
+        eval_dataset=eval_dataset if training_args.do_eval else None,
+        tokenizer=tokenizer,
+        data_collator=data_collator,
+        compute_metrics=compute_metrics if training_args.predict_with_generate else None,
+    )
+    return trainer
 
 
 def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):

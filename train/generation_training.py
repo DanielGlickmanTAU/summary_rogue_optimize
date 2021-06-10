@@ -101,7 +101,9 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
         do_eval=True,
         evaluation_strategy='epoch',
         # prediction_loss_only=True,
-
+        load_best_model_at_end=True,
+        metric_for_best_model='rouge2',
+        save_total_limit=2,
         overwrite_output_dir=False,
         # warmup_steps=0,
         fp16=torch.cuda.is_available(),
@@ -116,9 +118,7 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
         eval_dataset=eval_dataset,
         compute_metrics=compute_metric,
         tokenizer=tokenizer,
-        load_best_model_at_end=True,
-        metric_for_best_model='rouge2',
-        save_total_limit=2
+
     )
 
     return trainer

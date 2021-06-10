@@ -66,9 +66,11 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
 
     def compute_metric(eval_preds):
         preds, labels = eval_preds
-        preds = preds[0]
+        if isinstance(preds, tuple):
+            preds = preds[0]
 
-        decoded_preds = tokenizer.batch_decode(preds.argmax(2), skip_special_tokens=True)
+        # decoded_preds = tokenizer.batch_decode(preds.argmax(2), skip_special_tokens=True)
+        decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
 
         # Replace -100 in the labels as we can't decode them.
         labels = numpy.where(labels != -100, labels, tokenizer.pad_token_id)
@@ -90,7 +92,7 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
         return result
 
     training_args = Seq2SeqTrainingArguments(
-        # predict_with_generate=True,
+        predict_with_generate=True,
         output_dir="./",
         num_train_epochs=num_epochs,
         per_device_train_batch_size=batch_size,
@@ -113,7 +115,10 @@ def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learn
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         compute_metrics=compute_metric,
-
+        tokenizer=tokenizer,
+        load_best_model_at_end=True,
+        metric_for_best_model='rouge2',
+        save_total_limit=2
     )
 
     return trainer
@@ -145,7 +150,7 @@ def generation_train_flow(model, tokenizer, exp, search_params, train_dataset, v
     for i in range(num_epochs):
         trainer = get_trainer(model, tokenizer, train_dataset, validation_dataset, batch_size,
                               learning_rate=learning_rate,
-                              gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=1)
+                              gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=100)
         trainer.train()
 
         print(f'epoch {i}', trainer.evaluate(
@@ -168,10 +173,10 @@ def predict(tokenizer, trainer, test_dataset, search_params):
     trainer.log_metrics("predict", metrics)
     trainer.save_metrics("predict", metrics)
 
+    assert trainer.args.predict_with_generate
     if trainer.is_world_process_zero():
-        if trainer.args.predict_with_generate:
-            predictions = tokenizer.batch_decode(
-                predict_results.predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
-            )
-            predictions = [pred.strip() for pred in predictions]
-            print('predictions:', predictions)
+        predictions = tokenizer.batch_decode(
+            predict_results.predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
+        )
+        predictions = [pred.strip() for pred in predictions]
+        print('predictions:', predictions)

@@ -4,8 +4,7 @@ import time
 
 print(os.path)
 python = os.sys.executable
-# path =
-# 1 / 0
+
 slurm_file = 'my_slurm.slurm'
 
 

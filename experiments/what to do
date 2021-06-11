@@ -1,10 +1,19 @@
+so run_summerization.py is working and determenistic.. with 1k examples gets 'eval_rouge2': 10.3939 on 64 examples
+
+
+todo:
+early stopping..by rouge2.. or save best metric rouge2
+average 5 runs to see consistant results... random training examples
+
+try if add_summary_and_rouge works
+    create summaries on validation and development set.. and also on train for training ranker
+
+
+
+
 train on samples generated on validation; not test..
 
-loss.backwards with RankerLoss takes 40x times more?
 
-ensure that also base model(roberta) weights are changing
-overfit on a single example with 6 beams..
-try log sigmoid loss of 2 samples?
 
 
 algorithm limitations:

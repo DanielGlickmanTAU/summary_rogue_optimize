@@ -19,7 +19,7 @@ from transformers import (
     HfArgumentParser,
     Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
-    set_seed,
+    set_seed, Trainer,
 )
 from transformers.file_utils import is_offline_mode
 from transformers.trainer_utils import get_last_checkpoint
@@ -232,8 +232,30 @@ def main():
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
     model_args.cache_dir = compute.get_cache_dir()
-    training_args.predict_with_generate = True
     training_args.resume_from_checkpoint = None
+    training_args.load_best_model_at_end = True
+    # training_args.save_total_limit = 2
+    training_args.eval_steps = 2
+    # training_args.evaluation_strategy = 'steps'
+    # training_args.evaluation_strategy = 'epoch'
+
+    training_args.predict_with_generate = False
+    # training_args.prediction_loss_only = True
+
+    training_args.predict_with_generate = True
+    training_args.output_dir = "./out/"
+    training_args.do_train = True
+    training_args.do_eval = True
+    # training_args.evaluation_strategy = 'epoch'
+    training_args.load_best_model_at_end = True
+    training_args.metric_for_best_model = 'rouge2'
+    training_args.save_total_limit = 1
+    training_args.greater_is_better = True
+    # training_args.overwrite_output_dir = False
+    training_args.overwrite_output_dir = False
+
+    training_args.fp16 = compute.get_torch().cuda.is_available()
+    # metric_for_best_model='rouge2',
 
     # Detecting last checkpoint.
     last_checkpoint = None
@@ -470,7 +492,10 @@ def main():
 
         prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
         result["gen_len"] = np.mean(prediction_lens)
-        result = {k: round(v, 4) for k, v in result.items()}
+
+        global iter
+        iter = iter + 10
+        result = {k: round(v, 4) - iter for k, v in result.items()}
         return result
 
     trainer = create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset,
@@ -530,6 +555,9 @@ def main():
 
 def create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset, training_args):
     # Initialize our Trainer
+    assert training_args.predict_with_generate
+    assert training_args.do_eval and eval_dataset is not None
+
     trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,
@@ -574,6 +602,9 @@ def prepare_train_dataset(column_names, data_args, datasets, preprocess_function
         load_from_cache_file=not data_args.overwrite_cache,
     )
     return train_dataset
+
+
+iter = 0
 
 
 def _mp_fn(index):

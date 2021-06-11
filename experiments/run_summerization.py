@@ -31,14 +31,14 @@ from transformers.utils import check_min_version
 logger = logging.getLogger(__name__)
 
 try:
-    nltk.data.find("tokenizers/punkt")
+    nltk.data.find("tokenizers/punkt", paths=[compute.get_cache_dir()])
 except (LookupError, OSError):
     if is_offline_mode():
         raise LookupError(
             "Offline mode: run this script without TRANSFORMERS_OFFLINE first to download nltk data files"
         )
     with FileLock(".lock") as lock:
-        nltk.download("punkt", quiet=True)
+        nltk.download("punkt", quiet=True, download_dir=compute.get_cache_dir())
 
 
 @dataclass

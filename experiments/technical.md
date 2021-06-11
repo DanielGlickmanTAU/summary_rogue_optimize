@@ -1,3 +1,11 @@
+Huggingface trainer:
+did not evaluate because I passed evalluation_strategy='epoch' as string, after construction and it did not create an
+objec.. init trainer properly next time
+
+Huggingface Seq2Seq trainer:
+Seq2Seq trainer in TRAINING does not call compute_metric if training_args.prediction_loss_only is False(default).
+Seq2Seq trainer.evaluate calls compute_metric when training.prediction_loss_only is false..
+
 disable dropout made it clear that the model does not learn?
 
 too small learning rate caused it not to converge in reasonable time.

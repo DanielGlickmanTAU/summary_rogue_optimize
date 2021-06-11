@@ -218,7 +218,7 @@ summarization_name_mapping = {
 }
 
 
-def main():
+def run():
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
@@ -603,4 +603,4 @@ def prepare_train_dataset(column_names, data_args, datasets, preprocess_function
 
 
 if __name__ == "__main__":
-    main()
+    run()

@@ -533,7 +533,7 @@ def run():
             data_args.max_predict_samples if data_args.max_predict_samples is not None else len(predict_dataset)
         )
         metrics["predict_samples"] = min(max_predict_samples, len(predict_dataset))
-
+        print('prediciton metrics', metrics)
         trainer.log_metrics("predict", metrics)
         trainer.save_metrics("predict", metrics)
 

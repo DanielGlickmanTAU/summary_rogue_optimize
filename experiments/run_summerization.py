@@ -493,9 +493,7 @@ def main():
         prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
         result["gen_len"] = np.mean(prediction_lens)
 
-        global iter
-        iter = iter + 10
-        result = {k: round(v, 4) - iter for k, v in result.items()}
+        result = {k: round(v, 4) for k, v in result.items()}
         return result
 
     trainer = create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset,
@@ -602,9 +600,6 @@ def prepare_train_dataset(column_names, data_args, datasets, preprocess_function
         load_from_cache_file=not data_args.overwrite_cache,
     )
     return train_dataset
-
-
-iter = 0
 
 
 def _mp_fn(index):

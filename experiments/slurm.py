@@ -75,7 +75,6 @@ params_for_grid_search = {
 
 import time
 
-d
 if __name__ == '__main__':
     # job_name = '''test_model_loading'''
     # for p in gridsearch(params, params_for_grid_search):

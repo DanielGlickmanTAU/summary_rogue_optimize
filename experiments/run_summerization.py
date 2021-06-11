@@ -507,48 +507,52 @@ def run():
     results = {}
     print('do eval', training_args.do_eval)
     if training_args.do_eval:
-        logger.info("*** Evaluate ***")
+        do_eval(data_args, eval_dataset, trainer)
 
-        metrics = trainer.evaluate(
-            max_length=data_args.val_max_target_length, num_beams=data_args.num_beams, metric_key_prefix="eval"
-        )
-        max_eval_samples = data_args.max_eval_samples if data_args.max_eval_samples is not None else len(eval_dataset)
-        metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
-
-        print('eval metrics', metrics)
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
-
-        if training_args.do_predict:
-            logger.info("*** Predict ***")
-
-        predict_results = trainer.predict(
-            predict_dataset,
-            metric_key_prefix="predict",
-            max_length=data_args.val_max_target_length,
-            num_beams=data_args.num_beams,
-        )
-        metrics = predict_results.metrics
-        max_predict_samples = (
-            data_args.max_predict_samples if data_args.max_predict_samples is not None else len(predict_dataset)
-        )
-        metrics["predict_samples"] = min(max_predict_samples, len(predict_dataset))
-        print('prediciton metrics', metrics)
-        trainer.log_metrics("predict", metrics)
-        trainer.save_metrics("predict", metrics)
-
-        if trainer.is_world_process_zero():
-            if training_args.predict_with_generate:
-                predictions = tokenizer.batch_decode(
-                    predict_results.predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
-                )
-                predictions = [pred.strip() for pred in predictions]
-                print(predictions)
-                output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.txt")
-                with open(output_prediction_file, "w") as writer:
-                    writer.write("\n".join(predictions))
+    if training_args.do_predict:
+        do_predict(data_args, predict_dataset, tokenizer, trainer, training_args)
 
     return results
+
+
+def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
+    logger.info("*** Predict ***")
+    predict_results = trainer.predict(
+        predict_dataset,
+        metric_key_prefix="predict",
+        max_length=data_args.val_max_target_length,
+        num_beams=data_args.num_beams,
+    )
+    metrics = predict_results.metrics
+    max_predict_samples = (
+        data_args.max_predict_samples if data_args.max_predict_samples is not None else len(predict_dataset)
+    )
+    metrics["predict_samples"] = min(max_predict_samples, len(predict_dataset))
+    print('prediciton metrics', metrics)
+    trainer.log_metrics("predict", metrics)
+    trainer.save_metrics("predict", metrics)
+    if trainer.is_world_process_zero():
+        if training_args.predict_with_generate:
+            predictions = tokenizer.batch_decode(
+                predict_results.predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
+            )
+            predictions = [pred.strip() for pred in predictions]
+            print(predictions)
+            output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.txt")
+            with open(output_prediction_file, "w") as writer:
+                writer.write("\n".join(predictions))
+
+
+def do_eval(data_args, eval_dataset, trainer):
+    logger.info("*** Evaluate ***")
+    metrics = trainer.evaluate(
+        max_length=data_args.val_max_target_length, num_beams=data_args.num_beams, metric_key_prefix="eval"
+    )
+    max_eval_samples = data_args.max_eval_samples if data_args.max_eval_samples is not None else len(eval_dataset)
+    metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
+    print('eval metrics', metrics)
+    trainer.log_metrics("eval", metrics)
+    trainer.save_metrics("eval", metrics)
 
 
 def create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset, training_args):

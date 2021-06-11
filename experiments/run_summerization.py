@@ -602,10 +602,5 @@ def prepare_train_dataset(column_names, data_args, datasets, preprocess_function
     return train_dataset
 
 
-def _mp_fn(index):
-    # For xla_spawn (TPUs)
-    main()
-
-
 if __name__ == "__main__":
     main()

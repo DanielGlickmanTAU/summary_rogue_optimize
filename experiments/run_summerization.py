@@ -21,7 +21,7 @@ from transformers import (
     HfArgumentParser,
     Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
-    set_seed, Trainer,
+    set_seed, Trainer, EarlyStoppingCallback,
 )
 from transformers.file_utils import is_offline_mode
 from transformers.trainer_utils import get_last_checkpoint
@@ -467,8 +467,8 @@ def run():
         labels = [label.strip() for label in labels]
 
         # rougeLSum expects newline after each sentence
-        # preds = ["\n".join(nltk.sent_tokenize(pred)) for pred in preds]
-        # labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
+        preds = ["\n".join(nltk.sent_tokenize(pred)) for pred in preds]
+        labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
 
         return preds, labels
 
@@ -487,8 +487,8 @@ def run():
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
 
         # skip this nltk shit
-        # result = metric.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
-        result = metric.compute(predictions=decoded_preds, references=decoded_labels)
+        result = metric.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
+        # result = metric.compute(predictions=decoded_preds, references=decoded_labels)
         # Extract a few results from ROUGE
         result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
 
@@ -582,6 +582,9 @@ def create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenize
         data_collator=data_collator,
         compute_metrics=compute_metrics if training_args.predict_with_generate else None,
     )
+    callback = EarlyStoppingCallback(early_stopping_patience=3)
+    trainer.add_callback(callback)
+
     return trainer
 
 

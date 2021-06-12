@@ -33,7 +33,9 @@ from transformers.utils import check_min_version
 logger = logging.getLogger(__name__)
 
 try:
-    nltk.data.find("tokenizers/punkt", paths=[compute.get_cache_dir()])
+    nltk.data.find("tokenizers/punkt",
+                   # paths=[compute.get_cache_dir()]
+                   )
 except (LookupError, OSError):
     if is_offline_mode():
         raise LookupError(

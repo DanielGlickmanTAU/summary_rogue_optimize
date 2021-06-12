@@ -239,28 +239,11 @@ def run():
     model_args.cache_dir = compute.get_cache_dir()
     training_args.resume_from_checkpoint = None
     training_args.load_best_model_at_end = True
-    # training_args.save_total_limit = 2
-    training_args.eval_steps = 2
-    # training_args.evaluation_strategy = 'steps'
-    # training_args.evaluation_strategy = 'epoch'
 
-    training_args.predict_with_generate = False
-    # training_args.prediction_loss_only = True
-
-    training_args.predict_with_generate = True
-    training_args.output_dir = "./out/"
-    training_args.do_train = True
-    training_args.do_eval = True
-    # training_args.evaluation_strategy = 'epoch'
     training_args.load_best_model_at_end = True
     training_args.metric_for_best_model = 'rouge2'
-    training_args.save_total_limit = 1
-    training_args.greater_is_better = True
-    # training_args.overwrite_output_dir = False
-    training_args.overwrite_output_dir = False
-
+    
     training_args.fp16 = compute.get_torch().cuda.is_available()
-    # metric_for_best_model='rouge2',
 
     # Detecting last checkpoint.
     last_checkpoint = None

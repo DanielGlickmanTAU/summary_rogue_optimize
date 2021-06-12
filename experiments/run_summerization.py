@@ -1,3 +1,5 @@
+import comet_ml
+
 from utils import compute
 import logging
 import os
@@ -531,6 +533,9 @@ def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
     print('prediciton metrics', metrics)
     trainer.log_metrics("predict", metrics)
     trainer.save_metrics("predict", metrics)
+
+    log_metrics(metrics)
+
     if trainer.is_world_process_zero():
         if training_args.predict_with_generate:
             predictions = tokenizer.batch_decode(
@@ -541,6 +546,14 @@ def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
             output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.txt")
             with open(output_prediction_file, "w") as writer:
                 writer.write("\n".join(predictions))
+
+
+def log_metrics(metrics):
+    try:
+        experiment = comet_ml.config.get_global_experiment()
+        experiment.log_metrics(metrics)
+    except:
+        print('WARNING FAILED REPORTING METRICS', metrics)
 
 
 def do_eval(data_args, eval_dataset, trainer):

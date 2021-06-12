@@ -11,7 +11,7 @@ def load_generated_dataset(mapped_search_path, batch_size, process_function=None
         print('loading saved dataset', mapped_search_path)
         disk = load_from_disk(mapped_search_path)
         if 'rouge-2-all' not in disk.features:
-            # for backwards compatibality, the 402, 32 beams on amazon
+            # for backwards compatibality
             print('adding rouge')
             disk = disk.map(process_function, batched=True, batch_size=20)
             disk.save_to_disk(mapped_search_path)

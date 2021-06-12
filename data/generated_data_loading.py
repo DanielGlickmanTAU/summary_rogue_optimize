@@ -20,7 +20,7 @@ def load_generated_dataset(mapped_search_path, batch_size, process_function=None
 
 
 def load_processed_generated_dataset(validation_mapped_saved_path, config: RankingDatasetConfig, tokenizer):
-    validation_generated_xsum = load_generated_dataset(validation_mapped_saved_path, 5)
+    validation_generated_xsum = load_generated_dataset(validation_mapped_saved_path, batch_size=5)
     # validation_generated_xsum = _limit_before_processing(config, validation_generated_xsum)
 
     validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(

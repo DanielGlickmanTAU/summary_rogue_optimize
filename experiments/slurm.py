@@ -36,6 +36,7 @@ def run_on_slurm(job_name, params, slurm=True, gpu=True):
     else:
         f = f'{python} {python_file}.py ' + ' '.join([f'--{key} {value}' for key, value in params.items()])
         os.system(f"nohup sh -c ' {f} > res.txt '&")
+    os.system('rm slurm.py')
 
 
 # job_name = 'cnn_generation_with_xsum_pretrained'

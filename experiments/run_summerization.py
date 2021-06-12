@@ -40,7 +40,8 @@ except (LookupError, OSError):
             "Offline mode: run this script without TRANSFORMERS_OFFLINE first to download nltk data files"
         )
     with FileLock(".lock") as lock:
-        nltk.download("punkt", quiet=True, download_dir=compute.get_cache_dir())
+        nltk.download("punkt", quiet=True,
+                      download_dir='/home/yandex/AMNLP2021/glickman1/anaconda3/envs/comet/nltk_data')
 
 
 @dataclass

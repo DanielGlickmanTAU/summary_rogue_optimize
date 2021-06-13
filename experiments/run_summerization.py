@@ -242,7 +242,7 @@ def run():
 
     training_args.load_best_model_at_end = True
     training_args.metric_for_best_model = 'rouge2'
-    
+
     training_args.fp16 = compute.get_torch().cuda.is_available()
 
     # Detecting last checkpoint.
@@ -446,7 +446,9 @@ def run():
     )
 
     # Metric
-    metric = load_metric("rouge", cache_dir=compute.get_cache_dir())
+    import random
+    import time
+    metric = load_metric("rouge", cache_dir=compute.get_cache_dir(), experiment_id=f'{random.random()}_{time.time()}')
 
     def postprocess_text(preds, labels):
         preds = [pred.strip() for pred in preds]

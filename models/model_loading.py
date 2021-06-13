@@ -24,9 +24,11 @@ def get_bart_base_model_and_tokenizer():
     return _get_bart_based_model_and_tokenizer(bart_base_model_name)
 
 
-def _get_bart_based_model_and_tokenizer(model_name):
+def _get_bart_based_model_and_tokenizer(model_name, tokenizer_name=None):
+    if tokenizer_name is None:
+        tokenizer_name = model_name
     model = BartForConditionalGeneration.from_pretrained(model_name)
-    tokenizer = BartTokenizer.from_pretrained(model_name,
+    tokenizer = BartTokenizer.from_pretrained(tokenizer_name,
                                               force_bos_token_to_be_generated=True,
                                               use_fast=True)
     adjust_model(model, tokenizer)

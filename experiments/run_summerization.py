@@ -282,6 +282,8 @@ def run():
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
+    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+
     # Get the datasets: you can either provide your own CSV/JSON training and evaluation files (see below)
     # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
     # (the dataset will be downloaded automatically from the datasets Hub).
@@ -309,8 +311,6 @@ def run():
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
-    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
-    
     prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
 
     # Preprocessing the datasets.

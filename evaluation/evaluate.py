@@ -5,6 +5,7 @@ torch = compute.get_torch()
 
 def best_at_k(labels_tensor, index_tensor, k=None):
     index_tensor = index_tensor.view(labels_tensor.shape)
+    labels_tensor = labels_tensor.float()
     if not k:
         k = labels_tensor.shape[0]
     best_indexes = index_tensor[:, 0:k].argmax(dim=1)

@@ -17,6 +17,7 @@ class RankingDatasetConfig:
 
 @dataclass
 class RankerConfig(RankingDatasetConfig):
+    mode: str = 'ranker'
     loss_fn: str = 'mse'
     tolerance: float = None
     learning_rate: float = 5e-3

@@ -11,7 +11,7 @@ from train import training
 
 
 def run_exp(config):
-    tags = [f'num train examples{config.num_examples}', f'summaries per text{config.num_summaries_per_text}',
+    tags = [f'num train examples {config.num_examples}', f'summaries per text {config.num_summaries_per_text}',
             config.train_mapped_saved_path,
             config.validation_mapped_saved_path,
             config.loss_fn]

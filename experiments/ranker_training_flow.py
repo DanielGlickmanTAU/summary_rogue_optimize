@@ -19,16 +19,16 @@ def run_exp(config):
     print(config)
     ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
     validation_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-        config.validation_mapped_saved_path, config, tokenizer)
+        config.validation_mapped_saved_path, config, tokenizer, config.num_examples)
 
     if config.test_mapped_saved_path:
         test_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-            config.test_mapped_saved_path, config, tokenizer)
+            config.test_mapped_saved_path, config, tokenizer, config.num_examples)
     else:
         test_processed_generated_xsum = None
 
     train_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-        config.train_mapped_saved_path, config, tokenizer)
+        config.train_mapped_saved_path, config, tokenizer, config.num_examples)
     training_args = TrainingArguments(
         output_dir="./ranker_output_dir_" + str(time.time()).replace('.', '_'),
         num_train_epochs=config.num_train_epochs,

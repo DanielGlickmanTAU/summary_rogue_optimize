@@ -19,7 +19,8 @@ def load_generated_dataset(mapped_search_path, batch_size, process_function=None
     return None
 
 
-def load_processed_generated_dataset(validation_mapped_saved_path, config: RankingDatasetConfig, tokenizer):
+def load_processed_generated_dataset(validation_mapped_saved_path, config: RankingDatasetConfig, tokenizer,
+                                     mode='regression', max_examples=None):
     validation_generated_xsum = load_generated_dataset(validation_mapped_saved_path, batch_size=5)
     # validation_generated_xsum = _limit_before_processing(config, validation_generated_xsum)
 
@@ -27,17 +28,18 @@ def load_processed_generated_dataset(validation_mapped_saved_path, config: Ranki
         validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
         max_seq_len=config.max_seq_len)
 
-    validation_processed_generated_xsum = _limit_after_processing(config, validation_processed_generated_xsum)
+    validation_processed_generated_xsum = _limit_after_processing(config, validation_processed_generated_xsum,
+                                                                  max_examples=max_examples)
 
     return validation_processed_generated_xsum
 
 
-def _limit_after_processing(config, validation_processed_generated_xsum):
-    if config.num_examples:
-        if len(validation_processed_generated_xsum) < config.num_examples:
+def _limit_after_processing(config, validation_processed_generated_xsum, max_examples):
+    if max_examples:
+        if len(validation_processed_generated_xsum) < max_examples:
             print(f'WARNING not enough examples, only {len(validation_processed_generated_xsum)}')
             return validation_processed_generated_xsum
-        validation_processed_generated_xsum = validation_processed_generated_xsum.select(range(config.num_examples))
+        validation_processed_generated_xsum = validation_processed_generated_xsum.select(range(max_examples))
     return validation_processed_generated_xsum
 
 

@@ -57,5 +57,3 @@ def run_exp(config):
                           training_args, train_processed_generated_xsum,
                           eval_dataset=validation_processed_generated_xsum,
                           test_dataset=test_processed_generated_xsum)
-
-    # if __name__ == '__main__':

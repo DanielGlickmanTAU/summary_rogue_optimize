@@ -19,11 +19,11 @@ def run_exp(config):
     print(config)
     ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
     validation_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-        config.validation_mapped_saved_path, config, tokenizer, config.num_examples)
+        config.validation_mapped_saved_path, config, tokenizer, max_examples=None)
 
     if config.test_mapped_saved_path:
         test_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-            config.test_mapped_saved_path, config, tokenizer, config.num_examples)
+            config.test_mapped_saved_path, config, tokenizer, max_examples=None)
     else:
         test_processed_generated_xsum = None
 

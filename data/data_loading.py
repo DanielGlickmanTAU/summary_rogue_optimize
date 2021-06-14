@@ -143,7 +143,8 @@ def preprocess(column_names, data_args, preprocess_function, dataset_split,
     if max_samples:
         dataset_split = dataset_split.select(range(max_samples))
         # assert we have enough examples after filter.
-        assert len(dataset_split) == max_samples
+        assert len(
+            dataset_split) == max_samples, f'taking split {len(dataset_split)} for split {dataset_split.split} limited for {bert_max_len} tokens'
     print(f'taking split {len(dataset_split)} for split {dataset_split.split} limited for {bert_max_len} tokens')
     return dataset_split
 

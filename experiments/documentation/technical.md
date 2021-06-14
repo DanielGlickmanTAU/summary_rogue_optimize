@@ -1,3 +1,6 @@
+slurm:
+it runs the inner file as main
+
 Huggingface trainer:
 did not evaluate because I passed evalluation_strategy='epoch' as string, after construction and it did not create an
 objec.. init trainer properly next time

@@ -1,3 +1,7 @@
+generation on xsum; bart base; 100 examples;
+lr of 1e-5 3e-5 work about the same(with earrly stopping)
+
+
 trained on cnn evaluated on xsum
 1 beam 2.8 , 8 beam 3.8 rouge2
 

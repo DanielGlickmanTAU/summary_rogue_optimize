@@ -24,7 +24,5 @@ def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, to
 
     dataset_map.set_format(
         type="torch", columns=["input_ids_s", "attention_mask_s", "labels"])
-    # )
-    # )
 
     return dataset_map

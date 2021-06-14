@@ -29,7 +29,7 @@ params = {
 }
 
 params_for_grid_search = {
-    'max_train_samples': [10, 50, 100],
+    'max_train_samples': [16, 32, 64, 128, 256],
     # 'learning_rate': [1e-5, 3e-5, 10e-5]
     'learning_rate': [1e-5]
 

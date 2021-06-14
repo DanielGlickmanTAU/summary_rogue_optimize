@@ -5,12 +5,12 @@ from flows import loading
 from models import model_loading
 from models.generate import BeamSearchParams
 
-split = 'test'
+split = 'train'
 
 train_examples = 200
 validation_examples = 128
 test_examples = 1000
-search_params = BeamSearchParams(num_beams=8, num_return_sequences=8)
+search_params = BeamSearchParams(num_beams=4, num_return_sequences=4)
 batch_size = 2
 
 # exp = experiment.start_experiment(hyperparams={'search': search_params,

@@ -1,4 +1,4 @@
-training summarizaition model: run_summarization.py
+training summarizaition model: run_summarization.py output is trained model at --output_dir
 --output_dir ./models/xsum/100/facebook/bart-base/1e-05
 --model_name_or_path facebook/bart-base --dataset_name xsum
 --overwrite_output_dir False

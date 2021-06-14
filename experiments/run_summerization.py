@@ -348,12 +348,6 @@ def run():
     max_target_length = data_args.max_target_length
     padding = "max_length" if data_args.pad_to_max_length else False
 
-    if training_args.label_smoothing_factor > 0 and not hasattr(model, "prepare_decoder_input_ids_from_labels"):
-        logger.warning(
-            "label_smoothing is enabled but the `prepare_decoder_input_ids_from_labels` method is not defined for"
-            f"`{model.__class__.__name__}`. This will lead to loss being calculated twice and will take up more memory"
-        )
-
     def preprocess_function(examples):
         inputs = examples[text_column]
         targets = examples[summary_column]
@@ -469,6 +463,8 @@ def run():
         result = {k: round(v, 4) for k, v in result.items()}
         return result
 
+    label_smoothing_check(model, training_args)
+
     trainer = create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset,
                              training_args)
 
@@ -486,6 +482,14 @@ def run():
         do_predict(data_args, predict_dataset, tokenizer, trainer, training_args)
 
     return results
+
+
+def label_smoothing_check(model, training_args):
+    if training_args.label_smoothing_factor > 0 and not hasattr(model, "prepare_decoder_input_ids_from_labels"):
+        logger.warning(
+            "label_smoothing is enabled but the `prepare_decoder_input_ids_from_labels` method is not defined for"
+            f"`{model.__class__.__name__}`. This will lead to loss being calculated twice and will take up more memory"
+        )
 
 
 def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):

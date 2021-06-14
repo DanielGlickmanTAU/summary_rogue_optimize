@@ -6,7 +6,7 @@ from config.config import RankingDatasetConfig
 from data import processing
 
 
-def load_generated_dataset(mapped_search_path, batch_size, process_function=None):
+def load_generated_dataset(mapped_search_path, process_function=None):
     if os.path.isdir(mapped_search_path):
         print('loading saved dataset', mapped_search_path)
         disk = load_from_disk(mapped_search_path)
@@ -21,7 +21,7 @@ def load_generated_dataset(mapped_search_path, batch_size, process_function=None
 
 def load_processed_generated_dataset(validation_mapped_saved_path, config: RankingDatasetConfig, tokenizer,
                                      mode='regression', max_examples=None):
-    validation_generated_xsum = load_generated_dataset(validation_mapped_saved_path, batch_size=5)
+    validation_generated_xsum = load_generated_dataset(validation_mapped_saved_path)
     # validation_generated_xsum = _limit_before_processing(config, validation_generated_xsum)
 
     validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(

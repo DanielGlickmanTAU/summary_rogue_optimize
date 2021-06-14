@@ -6,8 +6,7 @@ import torch
 #     config.validation_mapped_saved_path, config, tokenizer)
 
 validation_generated_xsum = load_generated_dataset(
-    'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
-    5)
+    'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0')
 
 
 def max_rouge_index(example):

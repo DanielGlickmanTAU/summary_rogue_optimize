@@ -311,8 +311,6 @@ def run():
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
-    prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
-
     # Preprocessing the datasets.
     # We need to tokenize inputs and targets.
     if training_args.do_train:
@@ -347,6 +345,8 @@ def run():
     # Temporarily set max_target_length for training.
     max_target_length = data_args.max_target_length
     padding = "max_length" if data_args.pad_to_max_length else False
+
+    prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
 
     def preprocess_function(examples):
         inputs = examples[text_column]

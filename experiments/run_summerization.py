@@ -1,5 +1,6 @@
 import comet_ml
 
+from data import data_loading
 from models import model_loading
 from utils import compute
 import logging
@@ -293,125 +294,127 @@ def run():
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
-    if data_args.dataset_name is not None:
-        # Downloading and loading a dataset from the hub.
-        datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name, cache_dir=model_args.cache_dir)
-    else:
-        data_files = {}
-        if data_args.train_file is not None:
-            data_files["train"] = data_args.train_file
-            extension = data_args.train_file.split(".")[-1]
-        if data_args.validation_file is not None:
-            data_files["validation"] = data_args.validation_file
-            extension = data_args.validation_file.split(".")[-1]
-        if data_args.test_file is not None:
-            data_files["test"] = data_args.test_file
-            extension = data_args.test_file.split(".")[-1]
-        datasets = load_dataset(extension, data_files=data_files, cache_dir=model_args.cache_dir)
-    # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
-    # https://huggingface.co/docs/datasets/loading_datasets.html.
+    # if data_args.dataset_name is not None:
+    #     # Downloading and loading a dataset from the hub.
+    #     datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name, cache_dir=model_args.cache_dir)
+    # else:
+    #     data_files = {}
+    #     if data_args.train_file is not None:
+    #         data_files["train"] = data_args.train_file
+    #         extension = data_args.train_file.split(".")[-1]
+    #     if data_args.validation_file is not None:
+    #         data_files["validation"] = data_args.validation_file
+    #         extension = data_args.validation_file.split(".")[-1]
+    #     if data_args.test_file is not None:
+    #         data_files["test"] = data_args.test_file
+    #         extension = data_args.test_file.split(".")[-1]
+    #     datasets = load_dataset(extension, data_files=data_files, cache_dir=model_args.cache_dir)
+    # # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
+    # # https://huggingface.co/docs/datasets/loading_datasets.html.
+    #
+    # # Preprocessing the datasets.
+    # # We need to tokenize inputs and targets.
+    # if training_args.do_train:
+    #     column_names = datasets["train"].column_names
+    # elif training_args.do_eval:
+    #     column_names = datasets["validation"].column_names
+    # elif training_args.do_predict:
+    #     column_names = datasets["test"].column_names
+    # else:
+    #     logger.info("There is nothing to do. Please pass `do_train`, `do_eval` and/or `do_predict`.")
+    #     return
+    #
+    # # Get the column names for input/target.
+    # dataset_columns = summarization_name_mapping.get(data_args.dataset_name, None)
+    # if data_args.text_column is None:
+    #     text_column = dataset_columns[0] if dataset_columns is not None else column_names[0]
+    # else:
+    #     text_column = data_args.text_column
+    #     if text_column not in column_names:
+    #         raise ValueError(
+    #             f"--text_column' value '{data_args.text_column}' needs to be one of: {', '.join(column_names)}"
+    #         )
+    # if data_args.summary_column is None:
+    #     summary_column = dataset_columns[1] if dataset_columns is not None else column_names[1]
+    # else:
+    #     summary_column = data_args.summary_column
+    #     if summary_column not in column_names:
+    #         raise ValueError(
+    #             f"--summary_column' value '{data_args.summary_column}' needs to be one of: {', '.join(column_names)}"
+    #         )
+    #
+    # # Temporarily set max_target_length for training.
+    # max_target_length = data_args.max_target_length
+    # padding = "max_length" if data_args.pad_to_max_length else False
+    #
+    # prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
+    #
+    # def preprocess_function(examples):
+    #     inputs = examples[text_column]
+    #     targets = examples[summary_column]
+    #     inputs = [prefix + inp for inp in inputs]
+    #     model_inputs = tokenizer(inputs, max_length=data_args.max_source_length, padding=padding, truncation=True)
+    #
+    #     # Setup the tokenizer for targets
+    #     with tokenizer.as_target_tokenizer():
+    #         labels = tokenizer(targets, max_length=max_target_length, padding=padding, truncation=True)
+    #
+    #     # If we are padding here, replace all tokenizer.pad_token_id in the labels by -100 when we want to ignore
+    #     # padding in the loss.
+    #     if padding == "max_length" and data_args.ignore_pad_token_for_loss:
+    #         labels["input_ids"] = [
+    #             [(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]
+    #         ]
+    #
+    #     model_inputs["labels"] = labels["input_ids"]
+    #     return model_inputs
+    #
+    # if training_args.do_train:
+    #     if "train" not in datasets:
+    #         raise ValueError("--do_train requires a train dataset")
+    #     dataset = datasets["train"]
+    #     if data_args.max_train_samples is not None:
+    #         dataset = dataset.select(range(data_args.max_train_samples))
+    #     dataset = dataset.map(
+    #         preprocess_function,
+    #         batched=True,
+    #         num_proc=data_args.preprocessing_num_workers,
+    #         remove_columns=column_names,
+    #         load_from_cache_file=not data_args.overwrite_cache,
+    #     )
+    #     train_dataset = dataset
+    #
+    # if training_args.do_eval:
+    #     max_target_length = data_args.val_max_target_length
+    #     if "validation" not in datasets:
+    #         raise ValueError("--do_eval requires a validation dataset")
+    #     eval_dataset = datasets["validation"]
+    #     if data_args.max_eval_samples is not None:
+    #         eval_dataset = eval_dataset.select(range(data_args.max_eval_samples))
+    #     eval_dataset = eval_dataset.map(
+    #         preprocess_function,
+    #         batched=True,
+    #         num_proc=data_args.preprocessing_num_workers,
+    #         remove_columns=column_names,
+    #         load_from_cache_file=not data_args.overwrite_cache,
+    #     )
+    #
+    # if training_args.do_predict:
+    #     max_target_length = data_args.val_max_target_length
+    #     if "test" not in datasets:
+    #         raise ValueError("--do_predict requires a test dataset")
+    #     predict_dataset = datasets["test"]
+    #     if data_args.max_predict_samples is not None:
+    #         predict_dataset = predict_dataset.select(range(data_args.max_predict_samples))
+    #     predict_dataset = predict_dataset.map(
+    #         preprocess_function,
+    #         batched=True,
+    #         num_proc=data_args.preprocessing_num_workers,
+    #         remove_columns=column_names,
+    #         load_from_cache_file=not data_args.overwrite_cache,
+    #     )
 
-    # Preprocessing the datasets.
-    # We need to tokenize inputs and targets.
-    if training_args.do_train:
-        column_names = datasets["train"].column_names
-    elif training_args.do_eval:
-        column_names = datasets["validation"].column_names
-    elif training_args.do_predict:
-        column_names = datasets["test"].column_names
-    else:
-        logger.info("There is nothing to do. Please pass `do_train`, `do_eval` and/or `do_predict`.")
-        return
-
-    # Get the column names for input/target.
-    dataset_columns = summarization_name_mapping.get(data_args.dataset_name, None)
-    if data_args.text_column is None:
-        text_column = dataset_columns[0] if dataset_columns is not None else column_names[0]
-    else:
-        text_column = data_args.text_column
-        if text_column not in column_names:
-            raise ValueError(
-                f"--text_column' value '{data_args.text_column}' needs to be one of: {', '.join(column_names)}"
-            )
-    if data_args.summary_column is None:
-        summary_column = dataset_columns[1] if dataset_columns is not None else column_names[1]
-    else:
-        summary_column = data_args.summary_column
-        if summary_column not in column_names:
-            raise ValueError(
-                f"--summary_column' value '{data_args.summary_column}' needs to be one of: {', '.join(column_names)}"
-            )
-
-    # Temporarily set max_target_length for training.
-    max_target_length = data_args.max_target_length
-    padding = "max_length" if data_args.pad_to_max_length else False
-
-    prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
-
-    def preprocess_function(examples):
-        inputs = examples[text_column]
-        targets = examples[summary_column]
-        inputs = [prefix + inp for inp in inputs]
-        model_inputs = tokenizer(inputs, max_length=data_args.max_source_length, padding=padding, truncation=True)
-
-        # Setup the tokenizer for targets
-        with tokenizer.as_target_tokenizer():
-            labels = tokenizer(targets, max_length=max_target_length, padding=padding, truncation=True)
-
-        # If we are padding here, replace all tokenizer.pad_token_id in the labels by -100 when we want to ignore
-        # padding in the loss.
-        if padding == "max_length" and data_args.ignore_pad_token_for_loss:
-            labels["input_ids"] = [
-                [(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]
-            ]
-
-        model_inputs["labels"] = labels["input_ids"]
-        return model_inputs
-
-    if training_args.do_train:
-        if "train" not in datasets:
-            raise ValueError("--do_train requires a train dataset")
-        dataset = datasets["train"]
-        if data_args.max_train_samples is not None:
-            dataset = dataset.select(range(data_args.max_train_samples))
-        dataset = dataset.map(
-            preprocess_function,
-            batched=True,
-            num_proc=data_args.preprocessing_num_workers,
-            remove_columns=column_names,
-            load_from_cache_file=not data_args.overwrite_cache,
-        )
-        train_dataset = dataset
-
-    if training_args.do_eval:
-        max_target_length = data_args.val_max_target_length
-        if "validation" not in datasets:
-            raise ValueError("--do_eval requires a validation dataset")
-        eval_dataset = datasets["validation"]
-        if data_args.max_eval_samples is not None:
-            eval_dataset = eval_dataset.select(range(data_args.max_eval_samples))
-        eval_dataset = eval_dataset.map(
-            preprocess_function,
-            batched=True,
-            num_proc=data_args.preprocessing_num_workers,
-            remove_columns=column_names,
-            load_from_cache_file=not data_args.overwrite_cache,
-        )
-
-    if training_args.do_predict:
-        max_target_length = data_args.val_max_target_length
-        if "test" not in datasets:
-            raise ValueError("--do_predict requires a test dataset")
-        predict_dataset = datasets["test"]
-        if data_args.max_predict_samples is not None:
-            predict_dataset = predict_dataset.select(range(data_args.max_predict_samples))
-        predict_dataset = predict_dataset.map(
-            preprocess_function,
-            batched=True,
-            num_proc=data_args.preprocessing_num_workers,
-            remove_columns=column_names,
-            load_from_cache_file=not data_args.overwrite_cache,
-        )
+    train_dataset, eval_dataset, predict_dataset = data_loading.get_dataset(data_args, training_args, tokenizer)
 
     # Data collator
     label_pad_token_id = -100 if data_args.ignore_pad_token_for_loss else tokenizer.pad_token_id

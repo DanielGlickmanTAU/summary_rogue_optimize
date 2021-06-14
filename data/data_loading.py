@@ -1,6 +1,5 @@
-import datasets
-
 from utils import compute
+import datasets
 
 
 def get_cnn_dataset(train_subset: int = None, valid_subset: int = None, test_subset: int = None):

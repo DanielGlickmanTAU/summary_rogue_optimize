@@ -9,6 +9,8 @@ class RankingDatasetConfig:
     num_skip: int = 0
     num_summaries_per_text: int = 4
     max_seq_len: int = 512
+    test_mapped_saved_path: str = None
+    metric_for_best_model: str = None
 
 
 @dataclass

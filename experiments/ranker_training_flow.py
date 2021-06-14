@@ -21,6 +21,12 @@ def run_exp(config):
     validation_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
         config.validation_mapped_saved_path, config, tokenizer)
 
+    if config.test_mapped_saved_path:
+        test_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
+            config.test_mapped_saved_path, config, tokenizer)
+    else:
+        test_processed_generated_xsum = None
+
     train_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
         config.train_mapped_saved_path, config, tokenizer)
     training_args = TrainingArguments(
@@ -40,16 +46,16 @@ def run_exp(config):
         dataloader_num_workers=2,
         eval_steps=config.evaluate_every_steps,
         report_to=["comet_ml"],
-        # load_best_model_at_end=load_best_model_at_end,
-        # metric_for_best_model=metric_name,
+        load_best_model_at_end=True,
+        metric_for_best_model=config.metric_for_best_model,
         save_total_limit=1,
-
     )
 
     compute.clean_memory()
 
     training.train_ranker(ranker_model, config,
                           training_args, train_processed_generated_xsum,
-                          eval_dataset=validation_processed_generated_xsum)
+                          eval_dataset=validation_processed_generated_xsum,
+                          test_dataset=test_processed_generated_xsum)
 
     # if __name__ == '__main__':

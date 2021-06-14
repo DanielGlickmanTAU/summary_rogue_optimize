@@ -1,6 +1,6 @@
 from typing import Dict
 
-from transformers import TrainingArguments
+from transformers import TrainingArguments, EarlyStoppingCallback
 import torch
 
 from evaluation.evaluate import best_at_k
@@ -31,7 +31,8 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
 done_oracle = False
 
 
-def train_ranker(ranker_model, config, training_arguments: TrainingArguments, dataset, eval_dataset=None):
+def train_ranker(ranker_model, config, training_arguments: TrainingArguments, dataset, eval_dataset=None,
+                 test_dataset=None):
     def compute_metrics(eval_pred):
         predictions, labels = eval_pred
         predictions, labels = torch.tensor(predictions), torch.tensor(labels)
@@ -65,4 +66,14 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
         config=config
     )
 
+    callback = EarlyStoppingCallback(early_stopping_patience=3)
+    trainer.add_callback(callback)
+
     trainer.train()
+
+    print('STARTING PREDICT')
+    predict_results = trainer.predict(
+        test_dataset,
+        metric_key_prefix="predict",
+    )
+    print(predict_results)

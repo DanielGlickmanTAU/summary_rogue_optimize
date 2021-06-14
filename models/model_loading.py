@@ -2,7 +2,8 @@ from models.loss import loss_factory
 from utils import compute
 
 torch = compute.get_torch()
-from transformers import BartTokenizer, BartForConditionalGeneration, RobertaForSequenceClassification, RobertaTokenizer
+from transformers import BartTokenizer, BartForConditionalGeneration, RobertaForSequenceClassification, \
+    RobertaTokenizer, AutoConfig, AutoTokenizer, AutoModelForSeq2SeqLM
 from models import RankerModel
 
 xsum_model_name = 'sshleifer/distilbart-xsum-12-3'
@@ -46,6 +47,34 @@ def get_ranker_model_and_tokenizer(config):
     adjust_model(model, tokenizer)
     loss = loss_factory.get_loss(config)
     return RankerModel.RankerModel(model, config, loss_fn=loss), tokenizer
+
+
+def get_model_and_tokenizer(model_args):
+    config = AutoConfig.from_pretrained(
+        model_args.config_name if model_args.config_name else model_args.model_name_or_path,
+        cache_dir=model_args.cache_dir,
+        revision=model_args.model_revision,
+    )
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
+        cache_dir=model_args.cache_dir,
+        use_fast=model_args.use_fast_tokenizer,
+        revision=model_args.model_revision,
+    )
+    model = AutoModelForSeq2SeqLM.from_pretrained(
+        model_args.model_name_or_path,
+        from_tf=bool(".ckpt" in model_args.model_name_or_path),
+        config=config,
+        cache_dir=model_args.cache_dir,
+        revision=model_args.model_revision,
+    )
+
+    model.resize_token_embeddings(len(tokenizer))
+
+    if model.config.decoder_start_token_id is None:
+        raise ValueError("Make sure that `config.decoder_start_token_id` is correctly defined")
+
+    return model, tokenizer
 
 
 def adjust_model(model, tokenizer):

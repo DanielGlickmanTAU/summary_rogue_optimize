@@ -1,5 +1,6 @@
 import comet_ml
 
+from models import model_loading
 from utils import compute
 import logging
 import os
@@ -308,38 +309,8 @@ def run():
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
-    # Load pretrained model and tokenizer
-    #
-    # Distributed training:
-    # The .from_pretrained methods guarantee that only one local process can concurrently
-    # download model & vocab.
-    config = AutoConfig.from_pretrained(
-        model_args.config_name if model_args.config_name else model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-    )
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
-        use_fast=model_args.use_fast_tokenizer,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-    )
-    model = AutoModelForSeq2SeqLM.from_pretrained(
-        model_args.model_name_or_path,
-        from_tf=bool(".ckpt" in model_args.model_name_or_path),
-        config=config,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-    )
-
-    model.resize_token_embeddings(len(tokenizer))
-
-    if model.config.decoder_start_token_id is None:
-        raise ValueError("Make sure that `config.decoder_start_token_id` is correctly defined")
-
+    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+    
     prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
 
     # Preprocessing the datasets.
@@ -404,7 +375,19 @@ def run():
         return model_inputs
 
     if training_args.do_train:
-        train_dataset = prepare_train_dataset(column_names, data_args, datasets, preprocess_function)
+        if "train" not in datasets:
+            raise ValueError("--do_train requires a train dataset")
+        dataset = datasets["train"]
+        if data_args.max_train_samples is not None:
+            dataset = dataset.select(range(data_args.max_train_samples))
+        dataset = dataset.map(
+            preprocess_function,
+            batched=True,
+            num_proc=data_args.preprocessing_num_workers,
+            remove_columns=column_names,
+            load_from_cache_file=not data_args.overwrite_cache,
+        )
+        train_dataset = dataset
 
     if training_args.do_eval:
         max_target_length = data_args.val_max_target_length

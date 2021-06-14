@@ -1,0 +1,13 @@
+
+
+
+
+
+repeat experiment 3 times with different training sets:
+may be easy to do in data_loading.preprocess:
+            dataset_split = dataset_split.select(range(2 * max_samples)) <-- change this to select 1k
+            ...
+            ...
+            if max_samples:
+                 ** here shuffle before select
+                dataset_split = dataset_split.select(range(max_samples))

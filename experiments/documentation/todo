@@ -2,6 +2,8 @@
 
 
 
+BCELoss weights(higher for positives)(can do it by adding positve at start of labels and giving it higher weight)
+
 
 repeat experiment 3 times with different training sets:
 may be easy to do in data_loading.preprocess:
@@ -11,3 +13,6 @@ may be easy to do in data_loading.preprocess:
             if max_samples:
                  ** here shuffle before select
                 dataset_split = dataset_split.select(range(max_samples))
+
+
+

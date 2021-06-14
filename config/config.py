@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from config.consts import bert_max_len
+
 
 @dataclass
 class RankingDatasetConfig:
@@ -8,7 +10,7 @@ class RankingDatasetConfig:
     num_examples: int = 50_000
     num_skip: int = 0
     num_summaries_per_text: int = 4
-    max_seq_len: int = 512
+    max_seq_len: int = bert_max_len
     test_mapped_saved_path: str = None
     metric_for_best_model: str = None
 

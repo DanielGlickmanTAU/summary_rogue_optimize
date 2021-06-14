@@ -1,6 +1,7 @@
 import datasets
 import nltk
 
+from config.consts import bert_max_len
 from utils import compute
 import numpy
 from transformers import Trainer, Seq2SeqTrainingArguments, Seq2SeqTrainer
@@ -18,7 +19,7 @@ def prepare_examples_for_training(examples, tokenizer):
 
     assert_bart()
 
-    input_tokens = tokenizer(examples["article"], padding="max_length", truncation=True, max_length=512)
+    input_tokens = tokenizer(examples["article"], padding="max_length", truncation=True, max_length=bert_max_len)
     highlight_tokens = tokenizer(examples["highlights"], padding="max_length", truncation=True, max_length=128)
 
     decoder_input_ids = highlight_tokens['input_ids']

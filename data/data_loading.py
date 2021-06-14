@@ -1,3 +1,4 @@
+from config.consts import bert_max_len
 from utils import compute
 import datasets
 
@@ -129,14 +130,21 @@ def get_dataset(data_args, training_args, tokenizer):
 def preprocess(column_names, data_args, preprocess_function, dataset_split,
                max_samples=None):
     if max_samples:
-        dataset_split = dataset_split.select(range(data_args.max_train_samples))
+        dataset_split = dataset_split.select(range(2 * max_samples))
     dataset_split = dataset_split.map(
         preprocess_function,
         batched=True,
-        num_proc=data_args.preprocessing_num_workers,
+        # num_proc=data_args.preprocessing_num_workers,
         remove_columns=column_names,
         load_from_cache_file=not data_args.overwrite_cache,
     )
+    dataset_split = dataset_split.filter(
+        lambda example: len(example['input_ids']) + len(example['labels']) < bert_max_len)
+    if max_samples:
+        dataset_split = dataset_split.select(range(max_samples))
+        # assert we have enough examples after filter.
+        assert len(dataset_split) == max_samples
+    print(f'taking split {len(dataset_split)} for split {dataset_split.split} limited for {bert_max_len} tokens')
     return dataset_split
 
 

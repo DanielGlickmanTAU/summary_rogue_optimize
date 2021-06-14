@@ -581,21 +581,5 @@ def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):
     trainer.save_state()
 
 
-def prepare_train_dataset(column_names, data_args, datasets, preprocess_function):
-    if "train" not in datasets:
-        raise ValueError("--do_train requires a train dataset")
-    train_dataset = datasets["train"]
-    if data_args.max_train_samples is not None:
-        train_dataset = train_dataset.select(range(data_args.max_train_samples))
-    train_dataset = train_dataset.map(
-        preprocess_function,
-        batched=True,
-        num_proc=data_args.preprocessing_num_workers,
-        remove_columns=column_names,
-        load_from_cache_file=not data_args.overwrite_cache,
-    )
-    return train_dataset
-
-
 if __name__ == "__main__":
     run()

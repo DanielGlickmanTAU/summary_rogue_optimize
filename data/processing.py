@@ -14,8 +14,7 @@ def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, to
                 'labels': labels}
 
     dataset_map = dataset.map(convert_to_input_ids,
-                              remove_columns=["article", "highlights", "generated_highlights", 'rouge-2-all',
-                                              'rouge-2-avg', 'rouge-2-best', 'rouge-2-first'])
+                              remove_columns=list(dataset.features))
     if max_seq_len:
         len_before = len(dataset_map)
         print('WARNING! filtering sequences for only max len', max_seq_len)

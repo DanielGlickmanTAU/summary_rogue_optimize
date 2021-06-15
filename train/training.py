@@ -76,4 +76,4 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
         test_dataset,
         metric_key_prefix="predict",
     )
-    print(predict_results)
+    print(predict_results.metrics)

@@ -16,6 +16,10 @@ summarization_name_mapping = {
     "wiki_summary": ("article", "highlights"),
 }
 
+summarization_config_mapping = {
+    "cnn_dailymail": '3.0.0'
+}
+
 
 def get_cnn_dataset(train_subset: int = None, valid_subset: int = None, test_subset: int = None):
     dataset = datasets.load_dataset('cnn_dailymail', '3.0.0', cache_dir=compute.get_cache_dir())
@@ -46,7 +50,8 @@ def get_dataset(data_args, training_args, tokenizer):
     # download the dataset.
     if data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
-        dataset = datasets.load_dataset(data_args.dataset_name, data_args.dataset_config_name,
+        dataset = datasets.load_dataset(data_args.dataset_name,
+                                        summarization_config_mapping.get(data_args.dataset_name, None),
                                         cache_dir=compute.get_cache_dir())
     else:
         dataset = _load_dataset_from_file(data_args)
@@ -130,7 +135,7 @@ def get_dataset(data_args, training_args, tokenizer):
 def preprocess(column_names, data_args, preprocess_function, dataset_split,
                max_samples=None):
     if max_samples:
-        dataset_split = dataset_split.select(range(2 * max_samples))
+        dataset_split = dataset_split.select(range(3 * max_samples))
     dataset_split = dataset_split.map(
         preprocess_function,
         batched=True,
@@ -141,10 +146,12 @@ def preprocess(column_names, data_args, preprocess_function, dataset_split,
     dataset_split = dataset_split.filter(
         lambda example: len(example['input_ids']) + len(example['labels']) < bert_max_len)
     if max_samples:
-        dataset_split = dataset_split.select(range(max_samples))
         # assert we have enough examples after filter.
+        # this must be after select, because of .select but that does not update dataset len..
         assert len(
-            dataset_split) == max_samples, f'taking split {len(dataset_split)} for split {dataset_split.split} limited for {bert_max_len} tokens'
+            dataset_split) >= max_samples, f'taking split {len(dataset_split)} for split {dataset_split.split} limited for {bert_max_len} tokens'
+        dataset_split = dataset_split.select(range(max_samples))
+
     print(f'taking split {len(dataset_split)} for split {dataset_split.split} limited for {bert_max_len} tokens')
     return dataset_split
 

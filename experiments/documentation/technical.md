@@ -1,3 +1,6 @@
+training steps:
+if grad_acc_steps = 2, batch_size = 4 then each step is 8 examples. so if train set size is 80, it would be 10 steps
+
 slurm:
 it runs the inner file as main
 

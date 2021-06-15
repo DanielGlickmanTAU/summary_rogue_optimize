@@ -4,7 +4,6 @@ import random
 
 dataset_name = 'xsum'
 model_name = 'facebook/bart-base'
-train_samples = 100
 params = {
     'num_train_epochs': '30',
     'evaluation_strategy': 'epoch',

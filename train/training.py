@@ -28,7 +28,7 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
     }
 
 
-done_oracle = False
+done_oracle = set()
 
 
 def train_ranker(ranker_model, config, training_arguments: TrainingArguments, dataset, eval_dataset=None,
@@ -38,9 +38,9 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
         predictions, labels = torch.tensor(predictions), torch.tensor(labels)
         d = {}
 
-        global done_oracle
-        if not done_oracle:
-            done_oracle = True
+        labels_hash = (labels[0] + labels[-1]).sum().item()
+        if labels_hash not in done_oracle:
+            done_oracle.add(labels_hash)
             for k in range(1, labels.shape[-1] + 1):
                 oracle_at_k, average_at_k = best_at_k(labels, labels, k)
                 print(f'oracle rouge best and average at {k}:', oracle_at_k, average_at_k)

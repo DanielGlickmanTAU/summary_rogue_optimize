@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import random
 
 from experiments.gridsearch import gridsearch
 
@@ -48,28 +49,33 @@ partition, time_limit = 'studentkillable', 'infinite'
 # partition, time_limit = 'studentrun', '33:00:00'
 
 params = {
-    'num_examples': 120,
-    'num_summaries_per_text': 32,
+    'num_examples': 50_000,
+    'num_summaries_per_text': 4,
     'learning_rate': 1e-5,
-    'gradient_accumulation_steps': 128,
-    'num_train_epochs': 60,
+    'gradient_accumulation_steps': 4,
+    'num_train_epochs': 30,
     'loss_fn': 'rank-net',
-    'tolerance': 0.08,
+    'tolerance': 0.05,
     'half_percision': False,
     'do_evaluation': True,
     # 'validation_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
     # 'train_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
-    'validation_mapped_saved_path': 'sshleifer_distilbart-cnn-12-3/processed_dataset__validation_xsum1000_do_sampleFalse_top_pNone_top_kNone_num_beams32_num_return_sequences32_no_repeat_ngram_size0',
-    'train_mapped_saved_path': 'sshleifer_distilbart-cnn-12-3/processed_dataset__train_xsum1000_do_sampleFalse_top_pNone_top_kNone_num_beams32_num_return_sequences32_no_repeat_ngram_size0',
+    # 'validation_mapped_saved_path': 'sshleifer_distilbart-cnn-12-3/processed_dataset__validation_xsum1000_do_sampleFalse_top_pNone_top_kNone_num_beams32_num_return_sequences32_no_repeat_ngram_size0',
+    # 'train_mapped_saved_path': 'sshleifer_distilbart-cnn-12-3/processed_dataset__train_xsum1000_do_sampleFalse_top_pNone_top_kNone_num_beams32_num_return_sequences32_no_repeat_ngram_size0',
+
+    'train_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
+    'validation_mapped_saved_path': 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0',
+    'test_mapped_saved_path': 'models_xsum_100_facebook_bart-base_1e-05/processed_dataset__test_xsum1000_do_sampleFalse_top_pNone_top_kNone_num_beams4_num_return_sequences4_no_repeat_ngram_size0',
+
     # 200k
     # 'train_mapped_saved_path': 'processed_dataset__train_xsum200000_do_sampleFalse_top_pNone_top_kNone_num_beams16_num_return_sequences16_no_repeat_ngram_size0'
 }
 
 params_for_grid_search = {
-    'num_summaries_per_text': [32, 16, 8],
-    'learning_rate': [3e-5, 2e-5, 1e-5],
-    'gradient_accumulation_steps': [32, 16, 8, 4, 2],
-    'loss_fn': ['normalized-mse', 'centered-mse', 'rank-net'],
+    # 'num_summaries_per_text': [32, 16, 8],
+    'learning_rate': [3e-5, 1e-5],
+    # 'gradient_accumulation_steps': [32, 16, 8, 4, 2],
+    'loss_fn': ['normalized-mse', 'ranking', 'rank-net'],
     # 'loss_fn': ['ranking'],
     # 'tolerance': [0.04, 0.08, 0.1],
 }
@@ -77,11 +83,11 @@ params_for_grid_search = {
 import time
 
 if __name__ == '__main__':
-    # job_name = '''test_model_loading'''
-    # for p in gridsearch(params, params_for_grid_search):
-    #     run_on_slurm(job_name, p, slurm=True)
-    #     time.sleep(120)
+    job_name = '''test_model_loading'''
+    for p in gridsearch(params, params_for_grid_search):
+        run_on_slurm(job_name, p, slurm=True)
+        time.sleep(random.randint(0, 40))
 
     # job_name = '''specific_generation_script'''
-    job_name = '''test_rouge_generation'''
-    run_on_slurm(job_name, {}, slurm=True)
+    # job_name = '''test_rouge_generation'''
+    # run_on_slurm(job_name, {}, slurm=True)

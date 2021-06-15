@@ -38,20 +38,27 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
         predictions, labels = torch.tensor(predictions), torch.tensor(labels)
         d = {}
 
+        is_gold_in_labels = bool(labels[0:, 0].mean() == 1)
         labels_hash = (labels[0] + labels[-1]).sum().item()
+
+        if is_gold_in_labels:
+            for k in range(1, labels.shape[-1] + 1):
+                accuracy_k = (predictions[:, 0:k + 1].argmax(dim=1) == 0).float().mean().item()
+                d[f'accuracy_at_{k}'] = accuracy_k
+            labels = labels[:, 1:]
+            predictions = predictions[:, 1:]
         if labels_hash not in done_oracle:
             done_oracle.add(labels_hash)
             for k in range(1, labels.shape[-1] + 1):
                 oracle_at_k, average_at_k = best_at_k(labels, labels, k)
-                print(f'oracle rouge best and average at {k}:', oracle_at_k, average_at_k)
+                print(f'oracle rouge best and average at {k}:', oracle_at_k, average_at_k, is_gold_in_labels)
                 d[f'oracle_at_{k}'] = oracle_at_k
                 d[f'average_at_{k}'] = average_at_k
         for k in range(1, labels.shape[-1] + 1):
             selected_at_k, average_at_k = best_at_k(labels, predictions, k)
-            print(f'eval rouge best and average at {k}:', selected_at_k, average_at_k)
             d[f'selected_at_{k}'] = selected_at_k
-            print('\n' * 5)
 
+        print(d)
         return d
 
     assert not training_arguments.remove_unused_columns

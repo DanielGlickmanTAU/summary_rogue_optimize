@@ -11,7 +11,7 @@ from models import model_loading as model_loading
 from train import training
 
 
-def run_exp(config):
+def run_exp(config: RankerConfig):
     tags = [f'num train examples {config.num_examples}', f'summaries per text {config.num_summaries_per_text}',
             config.train_mapped_saved_path,
             config.validation_mapped_saved_path,
@@ -19,17 +19,25 @@ def run_exp(config):
     exp = experiment.start_experiment(hyperparams=vars(config), tags=tags)
     print(config)
     ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
+    binary_classification = False
+    include_gold = True
     validation_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-        config.validation_mapped_saved_path, config, tokenizer, max_examples=None)
+        config.validation_mapped_saved_path, config, tokenizer, max_examples=None,
+        binary_classification=binary_classification,
+        include_gold=include_gold)
 
     if config.test_mapped_saved_path:
         test_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-            config.test_mapped_saved_path, config, tokenizer, max_examples=None)
+            config.test_mapped_saved_path, config, tokenizer, max_examples=None,
+            binary_classification=binary_classification,
+            include_gold=include_gold
+        )
     else:
         test_processed_generated_xsum = None
 
     train_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-        config.train_mapped_saved_path, config, tokenizer, config.num_examples)
+        config.train_mapped_saved_path, config, tokenizer, binary_classification=binary_classification,
+        include_gold=include_gold)
     training_args = TrainingArguments(
         output_dir="./ranker_output_dir_" + str(time.time()).replace('.', '_'),
         num_train_epochs=config.num_train_epochs,
@@ -82,7 +90,7 @@ def run_exp_filter(config: RankerConfig):
         test_processed_generated_xsum = None
 
     train_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-        config.train_mapped_saved_path, config, tokenizer, config.num_examples)
+        config.train_mapped_saved_path, config, tokenizer)
     training_args = TrainingArguments(
         output_dir="./ranker_output_dir_" + str(time.time()).replace('.', '_'),
         num_train_epochs=config.num_train_epochs,

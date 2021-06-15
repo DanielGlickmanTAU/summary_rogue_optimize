@@ -20,13 +20,13 @@ def load_generated_dataset(mapped_search_path, process_function=None):
 
 
 def load_processed_generated_dataset(validation_mapped_saved_path, config: RankingDatasetConfig, tokenizer,
-                                     mode='regression', max_examples=None):
+                                     max_examples=None, binary_classification=False, include_gold=False):
     validation_generated_xsum = load_generated_dataset(validation_mapped_saved_path)
     # validation_generated_xsum = _limit_before_processing(config, validation_generated_xsum)
 
     validation_processed_generated_xsum = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
         validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
-        max_seq_len=config.max_seq_len)
+        max_seq_len=config.max_seq_len, binary_classification=binary_classification, include_gold=include_gold)
 
     validation_processed_generated_xsum = _limit_after_processing(config, validation_processed_generated_xsum,
                                                                   max_examples=max_examples)

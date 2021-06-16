@@ -22,13 +22,14 @@ params = {
     'load_best_model_at_end': True,
     'predict_with_generate': True,
     'save_total_limit': 2,
-    'greater_is_better': True,
-    'metric_for_best_model': 'rouge2'
+    # 'greater_is_better': True,
+    # 'metric_for_best_model': 'rouge2'
+    'metric_for_best_model': 'loss'
 }
 
 params_for_grid_search = {
     'max_train_samples': [16, 32, 64, 128, 256],
-    'learning_rate': [1e-4, 3e-5, 1e-5],
+    'learning_rate': [3e-5, 1e-5],
     'dataset_name': ['cnn_dailymail', 'xsum']
 }
 

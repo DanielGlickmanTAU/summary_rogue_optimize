@@ -244,27 +244,6 @@ def run():
                 "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
             )
 
-    # Setup logging
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        handlers=[logging.StreamHandler(sys.stdout)],
-    )
-    # logger.setLevel(logging.INFO if training_args.should_log else logging.WARN)
-
-    # Log on each process the small summary:
-    logger.warning(
-        f"Process rank: {training_args.local_rank}, device: {training_args.device}, n_gpu: {training_args.n_gpu}"
-        + f"distributed training: {bool(training_args.local_rank != -1)}, 16-bits training: {training_args.fp16}"
-    )
-    # Set the verbosity to info of the Transformers logger (on main process only):
-    # if training_args.should_log:
-    #     transformers.utils.logging.set_verbosity_info()
-    logger.info(f"Training/evaluation parameters {training_args}")
-
-    # Set seed before initializing model.
-    set_seed(training_args.seed)
-
     model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
 
     train_dataset, eval_dataset, predict_dataset = data_loading.get_dataset(data_args, training_args, tokenizer)

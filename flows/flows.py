@@ -29,6 +29,4 @@ def search_validation_loss(dataset_split, model, tokenizer, search_params: Searc
     exp = experiment.start_experiment(hyperparams={'search': search_params,
                                                    'batch_size': batch_size, 'model': model.config.name_or_path})
     ds = get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params, batch_size)
-
     print_rouge_stuff(ds)
-    # print('rouge-2-std average', avg('rouge-2-std'))

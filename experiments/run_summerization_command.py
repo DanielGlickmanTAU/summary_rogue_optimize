@@ -40,5 +40,4 @@ for p in gridsearch(params, params_for_grid_search):
     dataset_name = p['dataset_name']
     p['output_dir'] = f'./models/{dataset_name}/{p["max_train_samples"]}/{model_name}/{p["learning_rate"]}'
     run_on_slurm(job_name, p, slurm=True)
-    time.sleep(1)
     print(f'submited {len(p)} jobs')

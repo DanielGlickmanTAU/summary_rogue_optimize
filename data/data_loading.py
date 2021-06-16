@@ -2,6 +2,8 @@ from config.consts import bert_max_len
 from utils import compute
 import datasets
 
+skip_constant = 6
+
 summarization_name_mapping = {
     "amazon_reviews_multi": ("review_body", "review_title"),
     "big_patent": ("description", "abstract"),
@@ -141,7 +143,7 @@ def get_dataset(data_args, training_args, tokenizer):
 def preprocess(column_names, data_args, preprocess_function, dataset_split,
                max_samples=None):
     if max_samples:
-        dataset_split = dataset_split.select(range(6 * max_samples))
+        dataset_split = dataset_split.select(range(skip_constant * max_samples))
     print(dataset_split[0])
     dataset_split = dataset_split.map(
         preprocess_function,

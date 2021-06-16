@@ -89,8 +89,6 @@ def run():
         result = {k: round(v, 4) for k, v in result.items()}
         return result
 
-    label_smoothing_check(model, training_args)
-
     trainer = create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset,
                              training_args)
 
@@ -173,6 +171,7 @@ def create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenize
     # Initialize our Trainer
     assert training_args.predict_with_generate
     assert training_args.do_eval and eval_dataset is not None
+    label_smoothing_check(model, training_args)
 
     trainer = Seq2SeqTrainer(
         model=model,

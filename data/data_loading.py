@@ -144,13 +144,12 @@ def preprocess(column_names, data_args, preprocess_function, dataset_split,
                max_samples=None):
     if max_samples:
         dataset_split = dataset_split.select(range(skip_constant * max_samples))
-    print(dataset_split[0])
     dataset_split = dataset_split.map(
         preprocess_function,
         batched=True,
         # batch_size=1,
         # num_proc=data_args.preprocessing_num_workers,
-        remove_columns=column_names,
+        # remove_columns=column_names,
         load_from_cache_file=not data_args.overwrite_cache,
     )
     dataset_split = dataset_split.filter(

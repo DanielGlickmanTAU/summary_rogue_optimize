@@ -118,6 +118,7 @@ def label_smoothing_check(model, training_args):
 
 def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
     logger.info("*** Predict ***")
+    print('predict item firt', predict_dataset[0])
     predict_results = trainer.predict(
         predict_dataset,
         metric_key_prefix="predict",

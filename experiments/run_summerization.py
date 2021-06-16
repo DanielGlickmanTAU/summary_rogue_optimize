@@ -1,27 +1,21 @@
 import comet_ml
 
-from config.argument_parsing import DataTrainingArguments, GeneratorModelArguments
+from config.argument_parsing import parse_generation_args
 from data import data_loading, metrics
 from models import model_loading
-from utils import compute
 import logging
 import os
-import sys
 
 import nltk  # Here to have a nice missing dependency error message early on
 import numpy as np
-from datasets import load_metric
 
 from filelock import FileLock
 from transformers import (
     DataCollatorForSeq2Seq,
-    HfArgumentParser,
     Seq2SeqTrainer,
-    Seq2SeqTrainingArguments,
     EarlyStoppingCallback,
 )
 from transformers.file_utils import is_offline_mode
-from transformers.trainer_utils import get_last_checkpoint
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.7.0.dev0")
@@ -57,7 +51,7 @@ def run():
         label_pad_token_id=label_pad_token_id,
         pad_to_multiple_of=8 if training_args.fp16 else None,
     )
-    
+
     metric = metrics.get_rouge()
 
     def postprocess_text(preds, labels):
@@ -114,38 +108,6 @@ def run():
         do_predict(data_args, predict_dataset, tokenizer, trainer, training_args)
 
     return results
-
-
-def parse_generation_args():
-    # See all possible arguments in src/transformers/training_args.py
-    # or by passing the --help flag to this script.
-    # We now keep distinct sets of args, for a cleaner separation of concerns.
-    parser = HfArgumentParser((GeneratorModelArguments, DataTrainingArguments, Seq2SeqTrainingArguments))
-    if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
-        # If we pass only one argument to the script and it's the path to a json file,
-        # let's parse it to get our arguments.
-        model_args, data_args, training_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
-    else:
-        model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-    model_args.cache_dir = compute.get_cache_dir()
-    training_args.resume_from_checkpoint = None
-    training_args.load_best_model_at_end = True
-    training_args.fp16 = compute.get_torch().cuda.is_available()
-    # Detecting last checkpoint.
-    last_checkpoint = None
-    if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
-        last_checkpoint = get_last_checkpoint(training_args.output_dir)
-        if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
-            raise ValueError(
-                f"Output directory ({training_args.output_dir}) already exists and is not empty. "
-                "Use --overwrite_output_dir to overcome."
-            )
-        elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
-            logger.info(
-                f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
-                "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
-            )
-    return data_args, model_args, training_args, last_checkpoint
 
 
 def label_smoothing_check(model, training_args):

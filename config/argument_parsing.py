@@ -1,6 +1,12 @@
+import os
+import sys
 from dataclasses import dataclass, field
 from typing import Optional
 
+from transformers import HfArgumentParser, Seq2SeqTrainingArguments
+from transformers.trainer_utils import get_last_checkpoint
+
+from experiments.run_summerization import logger
 from utils import compute
 import transformers.hf_argparser as argparser
 
@@ -12,6 +18,11 @@ def get_args():
     args = parser.parse_args()
     print(args)
     return args
+
+
+@dataclass
+class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
+    do_unsupervised: bool = field(default=False, metadata={"help": "Whether to create and train unsupervsied set"})
 
 
 @dataclass
@@ -102,6 +113,7 @@ class DataTrainingArguments:
                     "value if set."
         },
     )
+
     max_predict_samples: Optional[int] = field(
         default=None,
         metadata={
@@ -109,6 +121,15 @@ class DataTrainingArguments:
                     "value if set."
         },
     )
+
+    max_unsupervised_samples: Optional[int] = field(
+        default=None,
+        metadata={
+            "help": "For debugging purposes or quicker training, truncate the number of unsupervised examples to this "
+                    "value if set."
+        },
+    )
+
     num_beams: Optional[int] = field(
         default=None,
         metadata={
@@ -174,3 +195,35 @@ class GeneratorModelArguments:
                     "with private models)."
         },
     )
+
+
+def parse_generation_args():
+    # See all possible arguments in src/transformers/training_args.py
+    # or by passing the --help flag to this script.
+    # We now keep distinct sets of args, for a cleaner separation of concerns.
+    parser = HfArgumentParser((GeneratorModelArguments, DataTrainingArguments, UnsupervisedSeq2SeqTrainingArguments))
+    if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
+        # If we pass only one argument to the script and it's the path to a json file,
+        # let's parse it to get our arguments.
+        model_args, data_args, training_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
+    else:
+        model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    model_args.cache_dir = compute.get_cache_dir()
+    training_args.resume_from_checkpoint = None
+    training_args.load_best_model_at_end = True
+    training_args.fp16 = compute.get_torch().cuda.is_available()
+    # Detecting last checkpoint.
+    last_checkpoint = None
+    if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
+        if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
+            raise ValueError(
+                f"Output directory ({training_args.output_dir}) already exists and is not empty. "
+                "Use --overwrite_output_dir to overcome."
+            )
+        elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
+            logger.info(
+                f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
+                "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
+            )
+    return data_args, model_args, training_args, last_checkpoint

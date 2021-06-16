@@ -134,7 +134,7 @@ def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
                 predict_results.predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
             )
             predictions = [pred.strip() for pred in predictions]
-            print(predictions)
+            # print(predictions)
             output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.txt")
             with open(output_prediction_file, "w") as writer:
                 writer.write("\n".join(predictions))

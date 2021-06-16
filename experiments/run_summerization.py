@@ -227,9 +227,6 @@ def run():
     training_args.resume_from_checkpoint = None
     training_args.load_best_model_at_end = True
 
-    training_args.load_best_model_at_end = True
-    training_args.metric_for_best_model = 'rouge2'
-
     training_args.fp16 = compute.get_torch().cuda.is_available()
 
     # Detecting last checkpoint.

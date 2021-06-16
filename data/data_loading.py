@@ -14,10 +14,16 @@ summarization_name_mapping = {
     "xglue": ("news_body", "news_title"),
     "xsum": ("document", "summary"),
     "wiki_summary": ("article", "highlights"),
+    "newsroom": ("text", "summary"),
+    "reddit_tifu": ("document", "tldr"),
+
 }
 
 summarization_config_mapping = {
-    "cnn_dailymail": '3.0.0'
+    "cnn_dailymail": '3.0.0',
+    "big_patent": 'a',
+    'reddit_tifu': 'long',
+    'amazon_reviews_multi': 'en'
 }
 
 
@@ -135,10 +141,12 @@ def get_dataset(data_args, training_args, tokenizer):
 def preprocess(column_names, data_args, preprocess_function, dataset_split,
                max_samples=None):
     if max_samples:
-        dataset_split = dataset_split.select(range(3 * max_samples))
+        dataset_split = dataset_split.select(range(6 * max_samples))
+    print(dataset_split[0])
     dataset_split = dataset_split.map(
         preprocess_function,
         batched=True,
+        # batch_size=1,
         # num_proc=data_args.preprocessing_num_workers,
         remove_columns=column_names,
         load_from_cache_file=not data_args.overwrite_cache,

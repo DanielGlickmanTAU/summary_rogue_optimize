@@ -10,11 +10,8 @@ n_threads = 20
 
 def get_rouge(experiment_id=None):
     return datasets.load_metric('rouge',
-                                # num_process=8
-                                # , keep_in_memory=True
                                 experiment_id=experiment_id,
-                                cache_dir=compute.get_cache_dir()
-                                )
+                                cache_dir=compute.get_cache_dir())
 
 
 def rouge_aggregate_score_to_rouge1_mid(aggregate_score):

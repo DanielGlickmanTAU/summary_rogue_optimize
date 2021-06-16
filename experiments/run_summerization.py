@@ -108,14 +108,6 @@ def run():
     return results
 
 
-def label_smoothing_check(model, training_args):
-    if training_args.label_smoothing_factor > 0 and not hasattr(model, "prepare_decoder_input_ids_from_labels"):
-        logger.warning(
-            "label_smoothing is enabled but the `prepare_decoder_input_ids_from_labels` method is not defined for"
-            f"`{model.__class__.__name__}`. This will lead to loss being calculated twice and will take up more memory"
-        )
-
-
 def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
     logger.info("*** Predict ***")
     print('predict item firt', predict_dataset[0])
@@ -169,6 +161,13 @@ def do_eval(data_args, eval_dataset, trainer):
 
 
 def create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset, training_args):
+    def label_smoothing_check(model, training_args):
+        if training_args.label_smoothing_factor > 0 and not hasattr(model, "prepare_decoder_input_ids_from_labels"):
+            logger.warning(
+                "label_smoothing is enabled but the `prepare_decoder_input_ids_from_labels` method is not defined for"
+                f"`{model.__class__.__name__}`. This will lead to loss being calculated twice and will take up more memory"
+            )
+
     # Initialize our Trainer
     assert training_args.predict_with_generate
     assert training_args.do_eval and eval_dataset is not None

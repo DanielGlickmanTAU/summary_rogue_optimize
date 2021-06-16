@@ -15,7 +15,7 @@ slurm_file = 'my_slurm.slurm'
 # job_name = '''slurm_test'''
 
 
-def run_on_slurm(job_name, params, slurm=True, gpu=True):
+def run_on_slurm(job_name, params, slurm=True, gpu=True, sleep=True):
     python_file = job_name
     python_file = python_file.replace('.py', '')
     job_name = job_name + str(time.time())
@@ -38,6 +38,8 @@ def run_on_slurm(job_name, params, slurm=True, gpu=True):
         f = f'{python} {python_file}.py ' + ' '.join([f'--{key} {value}' for key, value in params.items()])
         os.system(f"nohup sh -c ' {f} > res.txt '&")
     os.system('chmod 700 slurm.py')
+    if sleep:
+        time.sleep(random.randint(0, 20))
 
 
 # job_name = 'cnn_generation_with_xsum_pretrained'
@@ -86,7 +88,6 @@ if __name__ == '__main__':
     job_name = '''test_model_loading'''
     for p in gridsearch(params, params_for_grid_search):
         run_on_slurm(job_name, p, slurm=True)
-        time.sleep(random.randint(0, 40))
 
     # job_name = '''specific_generation_script'''
     # job_name = '''test_rouge_generation'''

@@ -1,3 +1,4 @@
+from evaluation.evaluate import print_rouge_stuff
 from experiments import experiment
 import numpy
 
@@ -29,16 +30,5 @@ def search_validation_loss(dataset_split, model, tokenizer, search_params: Searc
                                                    'batch_size': batch_size, 'model': model.config.name_or_path})
     ds = get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params, batch_size)
 
-    def avg(key): return sum(ds[key]) / len(ds[key])
-
-    def mean_until(a, k):
-        return a[:, 0:k + 1].max(axis=1).mean()
-
-    scores = numpy.array(ds['rouge-2-all'])  # list[list[float]
-    bests = [mean_until(scores, k) for k in range(len(scores[0]))]
-    print('best at ', len(ds['rouge-2-best']), 'with params', search_params)
-    print('rouge-2 best at', avg('rouge-2-best'))
-    print('rouge-2 avg', avg('rouge-2-avg'))
-    print('rouge-2 first', avg('rouge-2-first'))
-    print('rouge-2-all', bests)
+    print_rouge_stuff(ds)
     # print('rouge-2-std average', avg('rouge-2-std'))

@@ -310,9 +310,8 @@ def run():
         # Some simple post-processing
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
 
-        # skip this nltk shit
         result = metric.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
-        # result = metric.compute(predictions=decoded_preds, references=decoded_labels)
+
         # Extract a few results from ROUGE
         result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
 
@@ -428,7 +427,11 @@ def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):
         checkpoint = training_args.resume_from_checkpoint
     # elif last_checkpoint is not None:
     #     checkpoint = last_checkpoint
-    train_result = trainer.train(resume_from_checkpoint=checkpoint)
+    if checkpoint:
+        train_result = trainer.train(resume_from_checkpoint=checkpoint)
+    else:
+        train_result = trainer.train()
+
     trainer.save_model()  # Saves the tokenizer too for easy upload
     metrics = train_result.metrics
     max_train_samples = (

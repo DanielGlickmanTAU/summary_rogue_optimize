@@ -5,11 +5,9 @@ from typing import Optional
 
 from transformers import HfArgumentParser, Seq2SeqTrainingArguments
 from transformers.trainer_utils import get_last_checkpoint
-
-from experiments.run_summerization import logger
-from utils import compute
 import transformers.hf_argparser as argparser
 
+from utils import compute
 from config.config import RankerConfig
 
 
@@ -222,7 +220,7 @@ def parse_generation_args():
                 "Use --overwrite_output_dir to overcome."
             )
         elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
-            logger.info(
+            print(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
                 "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
             )

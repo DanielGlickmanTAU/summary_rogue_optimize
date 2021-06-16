@@ -1,6 +1,5 @@
 from evaluation.evaluate import print_rouge_stuff
 from experiments import experiment
-import numpy
 
 from data import generated_data_loading
 from models.generate import SearchParams

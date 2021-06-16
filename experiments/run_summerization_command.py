@@ -28,7 +28,7 @@ params = {
 }
 
 params_for_grid_search = {
-    'max_train_samples': [16, 32, 64, 128, 256],
+    'max_train_samples': [0, 8, 16, 32, 64, 128, 256],
     'learning_rate': [3e-5, 1e-5],
     'dataset_name': ['cnn_dailymail', 'xsum']
 }

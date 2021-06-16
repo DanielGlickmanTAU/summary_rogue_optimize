@@ -1,10 +1,5 @@
 
 
-
-
-BCELoss weights(higher for positives)(can do it by adding positve at start of labels and giving it higher weight)
-
-
 repeat experiment 3 times with different training sets:
 may be easy to do in data_loading.preprocess:
             dataset_split = dataset_split.select(range(2 * max_samples)) <-- change this to select 1k
@@ -16,3 +11,7 @@ may be easy to do in data_loading.preprocess:
 
 
 
+extra:
+BCELoss weights(higher for positives)(can do it by adding positve at start of labels and giving it higher weight)
+
+in repeat, can either train the whole model(filter) from scratch, or continue. use --overwrite output dir for that

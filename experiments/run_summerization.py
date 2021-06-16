@@ -1,7 +1,7 @@
 import comet_ml
 
 from config.argument_parsing import DataTrainingArguments, GeneratorModelArguments
-from data import data_loading
+from data import data_loading, metrics
 from models import model_loading
 from utils import compute
 import logging
@@ -57,11 +57,8 @@ def run():
         label_pad_token_id=label_pad_token_id,
         pad_to_multiple_of=8 if training_args.fp16 else None,
     )
-
-    # Metric
-    import random
-    import time
-    metric = load_metric("rouge", cache_dir=compute.get_cache_dir(), experiment_id=f'{random.random()}_{time.time()}')
+    
+    metric = metrics.get_rouge()
 
     def postprocess_text(preds, labels):
         preds = [pred.strip() for pred in preds]

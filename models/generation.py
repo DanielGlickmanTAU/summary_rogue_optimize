@@ -1,6 +1,6 @@
 import math
 
-from data.metrics import calc_score_avg_best_first_for_list_of_summaries
+from data import metrics
 from models import generate
 from models.generate import SearchParams
 
@@ -13,7 +13,7 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
 def add_rouge(examples):
     generated_summaries = examples['generated_highlights']
     gold = examples['highlights']
-    scores = calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
+    scores = metrics.calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
     return {'rouge-2-best': get_by_key(scores, 'rouge-2-best'),
             'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
             'rouge-2-first': get_by_key(scores, 'rouge-2-first'),

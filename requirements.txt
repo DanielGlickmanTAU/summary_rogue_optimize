@@ -9,3 +9,4 @@ tqdm~=4.49.0
 comet_ml
 nltk
 rouge_score
+py-object-pool

@@ -9,12 +9,12 @@ summarization_name_mapping = {
     "big_patent": ("description", "abstract"),
     "cnn_dailymail": ("article", "highlights"),
     "orange_sum": ("text", "summary"),
+    "xsum": ("document", "summary"),
     "pn_summary": ("article", "summary"),
     "psc": ("extract_text", "summary_text"),
     "samsum": ("dialogue", "summary"),
     "thaisum": ("body", "summary"),
     "xglue": ("news_body", "news_title"),
-    "xsum": ("document", "summary"),
     "wiki_summary": ("article", "highlights"),
     "newsroom": ("text", "summary"),
     "reddit_tifu": ("document", "tldr"),
@@ -66,6 +66,13 @@ def get_dataset(data_args, training_args, tokenizer):
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
+    for t in ["description", "text", "document", "extract_text"]:
+        if t in dataset['train'].column_names:
+            dataset.rename_column_(t, "article")
+    for s in ["abstract", "summary", "summary_text"]:
+        if s in dataset['train'].column_names:
+            dataset.rename_column_(s, "highlights")
+
     # Preprocessing the datasets.
     # We need to tokenize inputs and targets.
     if training_args.do_train:
@@ -78,7 +85,8 @@ def get_dataset(data_args, training_args, tokenizer):
         raise Exception
 
     # Get the column names for input/target.
-    dataset_columns = summarization_name_mapping.get(data_args.dataset_name, None)
+    # dataset_columns = summarization_name_mapping.get(data_args.dataset_name, None)
+    dataset_columns = ("article", "highlights")
     if data_args.text_column is None:
         text_column = dataset_columns[0] if dataset_columns is not None else column_names[0]
     else:

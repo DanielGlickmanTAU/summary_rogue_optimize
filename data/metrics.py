@@ -2,8 +2,22 @@ import concurrent.futures
 import datasets
 import numpy
 import random
+from object_pool import ObjectPool
+
+from filelock import FileLock
 
 from utils import compute
+
+import nltk  # Here to have a nice missing dependency error message early on
+
+try:
+    nltk.data.find("tokenizers/punkt",
+                   # paths=[compute.get_cache_dir()]
+                   )
+except (LookupError, OSError):
+    with FileLock(".lock") as lock:
+        nltk.download("punkt", quiet=True,
+                      download_dir='/home/yandex/AMNLP2021/glickman1/anaconda3/envs/comet/nltk_data')
 
 n_threads = 20
 
@@ -30,6 +44,8 @@ def rouge_aggregate_score_to_rougel_mid(aggregate_score):
 
 rouge = get_rouge()
 
+rouges = ObjectPool(get_rouge, min_init=2, max_reusable=0, max_capacity=n_threads)
+
 
 def calc_score(prediction, gold):
     if not isinstance(prediction, list) and not isinstance(gold, list):
@@ -37,6 +53,12 @@ def calc_score(prediction, gold):
     score = rouge.compute(predictions=prediction, references=gold)
     return {'rouge-1': rouge_aggregate_score_to_rouge1_mid(score),
             'rouge-2': rouge_aggregate_score_to_rouge2_mid(score)}
+
+
+import time
+import threading
+
+total = 0.
 
 
 def calc_score_avg_and_best_and_first(predictions, gold):
@@ -47,9 +69,18 @@ def calc_score_avg_and_best_and_first(predictions, gold):
         gold = [gold]
 
     # todo if this doesnt work, create a fixed list of 8 rouges, each with its own experiment_id.
-    rouge = get_rouge(str(random.random()))
-    scores = [rouge.compute(predictions=[pred], references=gold) for pred in predictions]
-    scores = [rouge_aggregate_score_to_rouge2_mid(score) for score in scores]
+    global total
+    t = time.time()
+    with rouges.get() as (rouge, _):
+        # rouge = get_rouge(str(threading.get_ident()))
+        total += time.time() - t
+        if total > 10:
+            total = 0
+            for i in range(1000):
+                print('creating rouge taking lots of time')
+
+        scores = [rouge.compute(predictions=[pred], references=gold, use_stemmer=True) for pred in predictions]
+        scores = [rouge_aggregate_score_to_rouge2_mid(score) for score in scores]
 
     score_first = scores[0]
     score_best = max(scores)

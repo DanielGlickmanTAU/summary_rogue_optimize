@@ -21,6 +21,9 @@ def get_args():
 @dataclass
 class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     do_unsupervised: bool = field(default=False, metadata={"help": "Whether to create and train unsupervsied set"})
+    save_model_after_train: bool = field(
+        default=False
+    )
 
 
 @dataclass

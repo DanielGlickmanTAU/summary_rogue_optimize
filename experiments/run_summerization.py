@@ -1,8 +1,11 @@
+from time import time
+
 import comet_ml
 
 from config.argument_parsing import parse_generation_args
 from data import data_loading, metrics
-from models import model_loading
+from evaluation import evaluate
+from models import model_loading, generation
 import logging
 import os
 
@@ -19,6 +22,7 @@ from transformers.file_utils import is_offline_mode
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.7.0.dev0")
+from models.generate import BeamSearchParams
 
 logger = logging.getLogger(__name__)
 
@@ -111,13 +115,24 @@ def run():
 def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
     logger.info("*** Predict ***")
     print('predict item firt', predict_dataset[0])
+    ds = predict_dataset.map(lambda x: generation.add_summary_and_rouge(trainer.model, tokenizer, x,
+                                                                        BeamSearchParams(num_return_sequences=1,
+                                                                                         num_beams=data_args.num_beams)),
+                             batched=True, batch_size=4)
+
+    evaluate.print_rouge_stuff(ds)
+    print('done shit')
     predict_results = trainer.predict(
         predict_dataset,
         metric_key_prefix="predict",
         max_length=data_args.val_max_target_length,
         num_beams=data_args.num_beams,
     )
+
+    print(ds[0])
+    print(predict_results)
     metrics = predict_results.metrics
+
     max_predict_samples = (
         data_args.max_predict_samples if data_args.max_predict_samples is not None else len(predict_dataset)
     )
@@ -199,7 +214,12 @@ def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):
     else:
         train_result = trainer.train()
 
-    trainer.save_model()  # Saves the tokenizer too for easy upload
+    if training_args.save_model_after_train:
+        t = time()
+        trainer.save_model()  # Saves the tokenizer too for easy upload
+        print(f'saving took {time() - t} seconds')
+    else:
+        print('skiping saving generation model')
     metrics = train_result.metrics
     max_train_samples = (
         data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)

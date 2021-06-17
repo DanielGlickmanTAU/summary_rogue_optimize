@@ -56,7 +56,6 @@ def calc_score(prediction, gold):
 
 
 import time
-import threading
 
 total = 0.
 
@@ -79,6 +78,11 @@ def calc_score_avg_and_best_and_first(predictions, gold):
             for i in range(1000):
                 print('creating rouge taking lots of time')
 
+        assert len(gold) == 1
+        # gold = gold * len(predictions)
+
+        predictions, gold = postprocess_text(predictions, gold)
+
         scores = [rouge.compute(predictions=[pred], references=gold, use_stemmer=True) for pred in predictions]
         scores = [rouge_aggregate_score_to_rouge2_mid(score) for score in scores]
 
@@ -89,6 +93,40 @@ def calc_score_avg_and_best_and_first(predictions, gold):
 
     return {'rouge-2-best': score_best, 'rouge-2-avg': score_avg, 'rouge-2-first': score_first, 'rouge-2-all': scores,
             'rouge-2-std': std}
+
+
+def compute_rouge_from_token_ids(preds, labels, tokenizer, ignore_pad_token_for_loss=False):
+    decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
+    if ignore_pad_token_for_loss:
+        # Replace -100 in the labels as we can't decode them.
+        labels = numpy.where(labels != -100, labels, tokenizer.pad_token_id)
+
+    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+
+    # Some simple post-processing
+    decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
+    with rouges.get() as (rouge, _):
+        result = rouge.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
+
+    # Extract a few results from ROUGE
+    result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
+
+    prediction_lens = [numpy.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
+    result["gen_len"] = numpy.mean(prediction_lens)
+
+    result = {k: round(v, 4) for k, v in result.items()}
+    return result
+
+
+def postprocess_text(preds, labels):
+    preds = [pred.strip() for pred in preds]
+    labels = [label.strip() for label in labels]
+
+    # rougeLSum expects newline after each sentence
+    preds = ["\n".join(nltk.sent_tokenize(pred)) for pred in preds]
+    labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
+
+    return preds, labels
 
 
 def calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold):

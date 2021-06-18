@@ -24,6 +24,7 @@ from transformers.file_utils import is_offline_mode
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.7.0.dev0")
 from models.generate import BeamSearchParams
+from train import generation_training
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +49,8 @@ def run():
 
     train_dataset, eval_dataset, predict_dataset = data_loading.get_dataset(data_args, training_args, tokenizer)
 
-    trainer = create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
-                             tokenizer)
+    trainer = generation_training.create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
+                                                 tokenizer)
 
     # Training
     if training_args.do_train:
@@ -133,51 +134,6 @@ def do_eval(data_args, eval_dataset, trainer):
     trainer.save_metrics("eval", metrics)
 
 
-def create_trainer(train_dataset, eval_dataset, training_args, data_args, model, tokenizer):
-    def label_smoothing_check(model, training_args):
-        if training_args.label_smoothing_factor > 0 and not hasattr(model, "prepare_decoder_input_ids_from_labels"):
-            logger.warning(
-                "label_smoothing is enabled but the `prepare_decoder_input_ids_from_labels` method is not defined for"
-                f"`{model.__class__.__name__}`. This will lead to loss being calculated twice and will take up more memory"
-            )
-
-    # Initialize our Trainer
-    assert training_args.predict_with_generate
-    assert training_args.do_eval and eval_dataset is not None
-    label_smoothing_check(model, training_args)
-
-    # Data collator
-    label_pad_token_id = -100 if data_args.ignore_pad_token_for_loss else tokenizer.pad_token_id
-    data_collator = DataCollatorForSeq2Seq(
-        tokenizer,
-        model=model,
-        label_pad_token_id=label_pad_token_id,
-        pad_to_multiple_of=8 if training_args.fp16 else None,
-    )
-
-    def compute_metrics(eval_preds):
-        print('evaluating in training')
-        preds, labels = eval_preds
-        if isinstance(preds, tuple):
-            preds = preds[0]
-
-        return compute_rouge_from_token_ids(preds, labels, tokenizer, data_args.ignore_pad_token_for_loss)
-
-    trainer = Seq2SeqTrainer(
-        model=model,
-        args=training_args,
-        train_dataset=train_dataset if training_args.do_train else None,
-        eval_dataset=eval_dataset if training_args.do_eval else None,
-        tokenizer=tokenizer,
-        data_collator=data_collator,
-        compute_metrics=compute_metrics if training_args.predict_with_generate else None,
-    )
-    callback = EarlyStoppingCallback(early_stopping_patience=3)
-    trainer.add_callback(callback)
-
-    return trainer
-
-
 def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):
     checkpoint = last_checkpoint
     if training_args.resume_from_checkpoint is not None:
@@ -196,10 +152,6 @@ def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):
     else:
         print('skiping saving generation model')
     metrics = train_result.metrics
-    max_train_samples = (
-        data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
-    )
-    metrics["train_samples"] = min(max_train_samples, len(train_dataset))
     trainer.log_metrics("train", metrics)
     trainer.save_metrics("train", metrics)
     trainer.save_state()

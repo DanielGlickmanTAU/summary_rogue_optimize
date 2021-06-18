@@ -1,10 +1,12 @@
+from utils import compute
 import datasets
 import nltk
 
 from config.consts import bert_max_len
-from utils import compute
+from data.metrics import compute_rouge_from_token_ids
 import numpy
-from transformers import Trainer, Seq2SeqTrainingArguments, Seq2SeqTrainer
+from transformers import Trainer, Seq2SeqTrainingArguments, Seq2SeqTrainer, EarlyStoppingCallback, \
+    DataCollatorForSeq2Seq
 import torch
 
 from data import metrics
@@ -51,76 +53,48 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
-def get_trainer(model, tokenizer, train_dataset, eval_dataset, batch_size, learning_rate,
-                gradient_accumulation_steps=1,
-                num_epochs=1):
-    def postprocess_text(preds, labels):
-        preds = [pred.strip() for pred in preds]
-        labels = [label.strip() for label in labels]
+def create_trainer(train_dataset, eval_dataset, training_args, data_args, model, tokenizer):
+    def label_smoothing_check(model, training_args):
+        if training_args.label_smoothing_factor > 0 and not hasattr(model, "prepare_decoder_input_ids_from_labels"):
+            print(
+                "WARNING label_smoothing is enabled but the `prepare_decoder_input_ids_from_labels` method is not defined for"
+                f"`{model.__class__.__name__}`. This will lead to loss being calculated twice and will take up more memory"
+            )
 
-        # rougeLSum expects newline after each sentence
-        # nltk.download('punkt', download_dir=compute.get_cache_dir())
-        # preds = ["\n".join(nltk.sent_tokenize(pred)) for pred in preds]
-        # labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
+    # Initialize our Trainer
+    assert training_args.predict_with_generate
+    assert training_args.do_eval and eval_dataset is not None
+    label_smoothing_check(model, training_args)
 
-        return preds, labels
+    # Data collator
+    label_pad_token_id = -100 if data_args.ignore_pad_token_for_loss else tokenizer.pad_token_id
+    data_collator = DataCollatorForSeq2Seq(
+        tokenizer,
+        model=model,
+        label_pad_token_id=label_pad_token_id,
+        pad_to_multiple_of=8 if training_args.fp16 else None,
+    )
 
-    def compute_metric(eval_preds):
+    def compute_metrics(eval_preds):
+        print('evaluating in training')
         preds, labels = eval_preds
         if isinstance(preds, tuple):
             preds = preds[0]
 
-        # decoded_preds = tokenizer.batch_decode(preds.argmax(2), skip_special_tokens=True)
-        decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
-
-        # Replace -100 in the labels as we can't decode them.
-        labels = numpy.where(labels != -100, labels, tokenizer.pad_token_id)
-        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
-
-        # Some simple post-processing
-        decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-
-        # nltk.download('punkt', download_dir=compute.get_cache_dir())
-        # result = rouge.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
-
-        result = rouge.compute(predictions=decoded_preds, references=decoded_labels)
-        # Extract a few results from ROUGE
-        result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
-
-        prediction_lens = [numpy.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
-        result["gen_len"] = numpy.mean(prediction_lens)
-        result = {k: round(v, 4) for k, v in result.items()}
-        return result
-
-    training_args = Seq2SeqTrainingArguments(
-        predict_with_generate=True,
-        output_dir="./",
-        num_train_epochs=num_epochs,
-        per_device_train_batch_size=batch_size,
-        per_device_eval_batch_size=batch_size,
-        do_train=True,
-        do_eval=True,
-        evaluation_strategy='epoch',
-        # prediction_loss_only=True,
-        load_best_model_at_end=True,
-        metric_for_best_model='rouge2',
-        save_total_limit=2,
-        overwrite_output_dir=False,
-        # warmup_steps=0,
-        fp16=torch.cuda.is_available(),
-        learning_rate=learning_rate,
-        gradient_accumulation_steps=gradient_accumulation_steps
-    )
+        return compute_rouge_from_token_ids(preds, labels, tokenizer, data_args.ignore_pad_token_for_loss)
 
     trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        compute_metrics=compute_metric,
+        train_dataset=train_dataset if training_args.do_train else None,
+        eval_dataset=eval_dataset if training_args.do_eval else None,
         tokenizer=tokenizer,
+        data_collator=data_collator,
 
+        compute_metrics=compute_metrics if training_args.predict_with_generate else None,
     )
+    callback = EarlyStoppingCallback(early_stopping_patience=3)
+    trainer.add_callback(callback)
 
     return trainer
 
@@ -149,9 +123,10 @@ def generation_train_flow(model, tokenizer, exp, search_params, train_dataset, v
     validation_dataset = prepare_split_for_training(validation_dataset, tokenizer, batch_size)
 
     for i in range(num_epochs):
-        trainer = get_trainer(model, tokenizer, train_dataset, validation_dataset, batch_size,
-                              learning_rate=learning_rate,
-                              gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=100)
+        # this will fail... switch from old trainer to new trainer
+        trainer = create_trainer(model, tokenizer, train_dataset, validation_dataset, batch_size,
+                                 learning_rate=learning_rate,
+                                 gradient_accumulation_steps=gradient_accumulation_steps, num_epochs=100)
         trainer.train()
 
         print(f'epoch {i}', trainer.evaluate(

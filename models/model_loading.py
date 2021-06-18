@@ -69,7 +69,7 @@ def get_model_and_tokenizer(model_args):
         revision=model_args.model_revision,
     )
 
-    model.resize_token_embeddings(len(tokenizer))
+    adjust_model(model, tokenizer)
 
     if model.config.decoder_start_token_id is None:
         raise ValueError("Make sure that `config.decoder_start_token_id` is correctly defined")

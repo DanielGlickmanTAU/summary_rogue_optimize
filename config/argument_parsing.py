@@ -1,3 +1,4 @@
+from utils import compute
 import os
 import sys
 from dataclasses import dataclass, field
@@ -7,7 +8,6 @@ from transformers import HfArgumentParser, Seq2SeqTrainingArguments
 from transformers.trainer_utils import get_last_checkpoint
 import transformers.hf_argparser as argparser
 
-from utils import compute
 from config.config import RankerConfig
 
 

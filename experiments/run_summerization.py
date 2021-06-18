@@ -148,13 +148,13 @@ def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):
     if training_args.save_model_after_train:
         t = time()
         trainer.save_model()  # Saves the tokenizer too for easy upload
+        trainer.save_state()
         print(f'saving took {time() - t} seconds')
     else:
         print('skiping saving generation model')
     metrics = train_result.metrics
     trainer.log_metrics("train", metrics)
     trainer.save_metrics("train", metrics)
-    trainer.save_state()
 
 
 if __name__ == "__main__":

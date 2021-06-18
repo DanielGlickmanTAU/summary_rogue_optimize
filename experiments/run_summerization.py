@@ -57,8 +57,6 @@ def run():
         pad_to_multiple_of=8 if training_args.fp16 else None,
     )
 
-    metric = metrics.get_rouge()
-
     def compute_metrics(eval_preds):
         print('evaluating in training')
         preds, labels = eval_preds

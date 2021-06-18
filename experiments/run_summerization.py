@@ -65,8 +65,8 @@ def run():
 
         return compute_rouge_from_token_ids(preds, labels, tokenizer, data_args.ignore_pad_token_for_loss)
 
-    trainer = create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset,
-                             training_args)
+    trainer = create_trainer(train_dataset, eval_dataset, training_args, compute_metrics, data_collator, model,
+                             tokenizer)
 
     # Training
     if training_args.do_train:
@@ -150,7 +150,7 @@ def do_eval(data_args, eval_dataset, trainer):
     trainer.save_metrics("eval", metrics)
 
 
-def create_trainer(compute_metrics, data_collator, eval_dataset, model, tokenizer, train_dataset, training_args):
+def create_trainer(train_dataset, eval_dataset, training_args, compute_metrics, data_collator, model, tokenizer):
     def label_smoothing_check(model, training_args):
         if training_args.label_smoothing_factor > 0 and not hasattr(model, "prepare_decoder_input_ids_from_labels"):
             logger.warning(

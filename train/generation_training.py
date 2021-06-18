@@ -1,4 +1,4 @@
-from utils import compute
+from utils import compute, decorators
 import datasets
 import nltk
 
@@ -53,6 +53,7 @@ def prepare_split_for_training(train_data, tokenizer, batch_size):
     return train_data
 
 
+@decorators.measure_time
 def create_trainer(train_dataset, eval_dataset, training_args, data_args, model, tokenizer):
     def label_smoothing_check(model, training_args):
         if training_args.label_smoothing_factor > 0 and not hasattr(model, "prepare_decoder_input_ids_from_labels"):

@@ -47,7 +47,7 @@ def get_xsum_dataset(train_subset: int = None, valid_subset: int = None, test_su
     return dataset
 
 
-def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, tokenizer):
+def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, tokenizer, do_unsupervised=False):
     # Get the datasets: you can either provide your own CSV/JSON training and evaluation files (see below)
     # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
     # (the dataset will be downloaded automatically from the datasets Hub).
@@ -136,7 +136,7 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
         train_dataset = dataset["train"]
         if training_args.shuffle_training_set:
             train_dataset = train_dataset.shuffle(seed=42)
-        if training_args.do_unsupervised:
+        if do_unsupervised:
             train_dataset = preprocess(data_args, preprocess_function, train_dataset, max_samples=None)
             splited = train_dataset.train_test_split(train_size=data_args.max_train_samples)
 
@@ -158,7 +158,7 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
         predict_dataset = preprocess(data_args, preprocess_function, predict_dataset,
                                      data_args.max_predict_samples)
 
-    if training_args.do_unsupervised:
+    if do_unsupervised:
         return train_dataset, eval_dataset, predict_dataset, unsupervised_dataset
     return train_dataset, eval_dataset, predict_dataset
 

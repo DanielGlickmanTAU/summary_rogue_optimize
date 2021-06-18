@@ -44,7 +44,7 @@ def rouge_aggregate_score_to_rougel_mid(aggregate_score):
 
 rouge = get_rouge()
 
-rouges = ObjectPool(get_rouge, min_init=2, max_reusable=0, max_capacity=n_threads)
+rouges = ObjectPool(get_rouge, min_init=2, max_reusable=0, max_capacity=n_threads, expires=0)
 
 
 def calc_score(prediction, gold):

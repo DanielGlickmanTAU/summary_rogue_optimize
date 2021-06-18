@@ -125,6 +125,10 @@ class DataTrainingArguments:
     )
 
     max_unsupervised_samples: Optional[int] = field(
+        default=None
+    )
+
+    max_unsupervised_samples: Optional[int] = field(
         default=None,
         metadata={
             "help": "For debugging purposes or quicker training, truncate the number of unsupervised examples to this "

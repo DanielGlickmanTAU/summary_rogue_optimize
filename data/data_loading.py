@@ -141,6 +141,8 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
             splited = train_dataset.train_test_split(train_size=data_args.max_train_samples, shuffle=False)
 
             train_dataset, unsupervised_dataset = splited['train'], splited['test']
+            if data_args.max_unsupervised_samples:
+                unsupervised_dataset = unsupervised_dataset.select(range(data_args.max_unsupervised_samples))
             print(
                 f'len of train dataset is {len(train_dataset)} and len of unsupervised data set {len(unsupervised_dataset)}')
 

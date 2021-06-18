@@ -48,24 +48,7 @@ def run():
 
     train_dataset, eval_dataset, predict_dataset = data_loading.get_dataset(data_args, training_args, tokenizer)
 
-    # Data collator
-    label_pad_token_id = -100 if data_args.ignore_pad_token_for_loss else tokenizer.pad_token_id
-    data_collator = DataCollatorForSeq2Seq(
-        tokenizer,
-        model=model,
-        label_pad_token_id=label_pad_token_id,
-        pad_to_multiple_of=8 if training_args.fp16 else None,
-    )
-
-    def compute_metrics(eval_preds):
-        print('evaluating in training')
-        preds, labels = eval_preds
-        if isinstance(preds, tuple):
-            preds = preds[0]
-
-        return compute_rouge_from_token_ids(preds, labels, tokenizer, data_args.ignore_pad_token_for_loss)
-
-    trainer = create_trainer(train_dataset, eval_dataset, training_args, compute_metrics, data_collator, model,
+    trainer = create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
                              tokenizer)
 
     # Training
@@ -150,7 +133,7 @@ def do_eval(data_args, eval_dataset, trainer):
     trainer.save_metrics("eval", metrics)
 
 
-def create_trainer(train_dataset, eval_dataset, training_args, compute_metrics, data_collator, model, tokenizer):
+def create_trainer(train_dataset, eval_dataset, training_args, data_args, model, tokenizer):
     def label_smoothing_check(model, training_args):
         if training_args.label_smoothing_factor > 0 and not hasattr(model, "prepare_decoder_input_ids_from_labels"):
             logger.warning(
@@ -162,6 +145,23 @@ def create_trainer(train_dataset, eval_dataset, training_args, compute_metrics, 
     assert training_args.predict_with_generate
     assert training_args.do_eval and eval_dataset is not None
     label_smoothing_check(model, training_args)
+
+    # Data collator
+    label_pad_token_id = -100 if data_args.ignore_pad_token_for_loss else tokenizer.pad_token_id
+    data_collator = DataCollatorForSeq2Seq(
+        tokenizer,
+        model=model,
+        label_pad_token_id=label_pad_token_id,
+        pad_to_multiple_of=8 if training_args.fp16 else None,
+    )
+
+    def compute_metrics(eval_preds):
+        print('evaluating in training')
+        preds, labels = eval_preds
+        if isinstance(preds, tuple):
+            preds = preds[0]
+
+        return compute_rouge_from_token_ids(preds, labels, tokenizer, data_args.ignore_pad_token_for_loss)
 
     trainer = Seq2SeqTrainer(
         model=model,

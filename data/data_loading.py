@@ -138,7 +138,7 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
             train_dataset = train_dataset.shuffle(seed=42)
         if do_unsupervised:
             train_dataset = preprocess(data_args, preprocess_function, train_dataset, max_samples=None)
-            splited = train_dataset.train_test_split(train_size=data_args.max_train_samples)
+            splited = train_dataset.train_test_split(train_size=data_args.max_train_samples, shuffle=False)
 
             train_dataset, unsupervised_dataset = splited['train'], splited['test']
             print(

@@ -68,23 +68,29 @@ def calc_score_avg_and_best_and_first(predictions, gold):
         gold = [gold]
 
     # todo if this doesnt work, create a fixed list of 8 rouges, each with its own experiment_id.
-    global total
-    t = time.time()
-    with rouges.get() as (rouge, _):
-        # rouge = get_rouge(str(threading.get_ident()))
-        total += time.time() - t
-        if total > 10:
-            total = 0
-            for i in range(1000):
-                print('creating rouge taking lots of time')
+    # global total
+    # t = time.time()
+    # with rouges.get() as (rouge, _):
+    #     # rouge = get_rouge(str(threading.get_ident()))
+    #     total += time.time() - t
+    #     if total > 10:
+    #         total = 0
+    #         for i in range(1000):
+    #             print('creating rouge taking lots of time')
+    #
+    #     assert len(gold) == 1
+    #     # gold = gold * len(predictions)
+    #
+    #     predictions, gold = postprocess_text(predictions, gold)
+    #
+    #     scores = [rouge.compute(predictions=[pred], references=gold, use_stemmer=True) for pred in predictions]
+    #     scores = [100 * rouge_aggregate_score_to_rouge2_mid(score) for score in scores]
 
-        assert len(gold) == 1
-        # gold = gold * len(predictions)
+    their_scores = [compute_rouge_from_decoder_strings(gold, [pred]) for pred in predictions]
 
-        predictions, gold = postprocess_text(predictions, gold)
-
-        scores = [rouge.compute(predictions=[pred], references=gold, use_stemmer=True) for pred in predictions]
-        scores = [rouge_aggregate_score_to_rouge2_mid(score) for score in scores]
+    scores = get_by_key(their_scores, 'rouge2')
+    scores1 = get_by_key(their_scores, 'rouge1')
+    scoresL = get_by_key(their_scores, 'rougeL')
 
     score_first = scores[0]
     score_best = max(scores)
@@ -92,7 +98,9 @@ def calc_score_avg_and_best_and_first(predictions, gold):
     std = numpy.std(scores)
 
     return {'rouge-2-best': score_best, 'rouge-2-avg': score_avg, 'rouge-2-first': score_first, 'rouge-2-all': scores,
-            'rouge-2-std': std}
+            'rouge-2-std': std,
+            'rouge-1-all': scores1,
+            'rouge-L-all': scoresL}
 
 
 def compute_rouge_from_token_ids(preds, labels, tokenizer, ignore_pad_token_for_loss=False):
@@ -103,18 +111,16 @@ def compute_rouge_from_token_ids(preds, labels, tokenizer, ignore_pad_token_for_
 
     decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
+    return compute_rouge_from_decoder_strings(decoded_labels, decoded_preds)
+
+
+def compute_rouge_from_decoder_strings(decoded_labels, decoded_preds):
     # Some simple post-processing
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     with rouges.get() as (rouge, _):
         result = rouge.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
-
     # Extract a few results from ROUGE
     result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
-
-    prediction_lens = [numpy.count_nonzero(pred != tokenizer.pad_token_id) for pred in preds]
-    result["gen_len"] = numpy.mean(prediction_lens)
-
-    result = {k: round(v, 4) for k, v in result.items()}
     return result
 
 
@@ -136,3 +142,7 @@ def calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold):
     with concurrent.futures.ThreadPoolExecutor(max_workers=n_threads) as executor:
         scores = executor.map(lambda x: calc_score_avg_and_best_and_first(*x), zip(generated_summaries, gold))
     return list(scores)
+
+
+def get_by_key(list_of_dicts, key):
+    return [x[key] for x in list_of_dicts]

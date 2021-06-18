@@ -1,6 +1,8 @@
 
 
-repeat experiment 3 times with different training sets:
+
+todo:
+1)repeat experiment 3 times with different training sets:
 may be easy to do in data_loading.preprocess:
             dataset_split = dataset_split.select(range(2 * max_samples)) <-- change this to select 1k
             ...
@@ -10,6 +12,9 @@ may be easy to do in data_loading.preprocess:
                 dataset_split = dataset_split.select(range(max_samples))
 
 
+
+may be problems:
+training on cnn is not consistent
 
 extra:
 BCELoss weights(higher for positives)(can do it by adding positve at start of labels and giving it higher weight)

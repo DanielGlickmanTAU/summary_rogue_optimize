@@ -1,6 +1,7 @@
 import math
 
 from data import metrics
+from data.metrics import get_by_key
 from models import generate
 from models.generate import SearchParams
 
@@ -18,7 +19,9 @@ def add_rouge(examples):
             'rouge-2-avg': get_by_key(scores, 'rouge-2-avg'),
             'rouge-2-first': get_by_key(scores, 'rouge-2-first'),
             'rouge-2-all': get_by_key(scores, 'rouge-2-all'),  # list[list[float]]
-            'generated_highlights': generated_summaries}
+            'generated_highlights': generated_summaries,
+            'rouge-1-all': get_by_key(scores, 'rouge-1-all'),
+            'rouge-L-all': get_by_key(scores, 'rouge-L-all')}
 
 
 def add_summary(model, tokenizer, examples, search_params: SearchParams):
@@ -50,7 +53,3 @@ def repeat_p_search(articles, model, search_params, tokenizer, repeat=8):
         for summaries_list in generated_summaries_lists:
             generated_summaries.append(summaries_list[summary_index])
     return generated_summaries
-
-
-def get_by_key(list_of_dicts, key):
-    return [x[key] for x in list_of_dicts]

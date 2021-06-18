@@ -103,8 +103,6 @@ def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
         num_beams=data_args.num_beams,
     )
 
-    print(ds[0])
-    print(predict_results)
     metrics = predict_results.metrics
 
     max_predict_samples = (
@@ -123,10 +121,15 @@ def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
                 predict_results.predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
             )
             predictions = [pred.strip() for pred in predictions]
-            # print(predictions)
-            output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.txt")
-            with open(output_prediction_file, "w") as writer:
-                writer.write("\n".join(predictions))
+            for i in range(len(predictions)):
+                mine = ds[i]['generated_highlights'][0]
+                print('mine', mine)
+                theirs = predictions[i]
+                print('theirs', theirs)
+                assert mine == theirs
+                # output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.txt")
+                # with open(output_prediction_file, "w") as writer:
+                #     writer.write("\n".join(predictions))
 
 
 def log_metrics(metrics):

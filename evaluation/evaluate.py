@@ -38,3 +38,4 @@ def print_rouge_stuff(ds):
     print_for_rouge_type(ds, rouge_type)
     print_for_rouge_type(ds, '1', all=False)
     print_for_rouge_type(ds, 'L', all=False)
+    return avg('rouge-%s-first' % rouge_type)

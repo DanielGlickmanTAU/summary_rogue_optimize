@@ -4,6 +4,7 @@ from data import metrics
 from data.metrics import get_by_key
 from models import generate
 from models.generate import SearchParams
+import datasets
 
 
 def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParams):
@@ -12,6 +13,8 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
 
 
 def add_rouge(examples):
+    if isinstance(examples, datasets.Dataset):
+        return examples.map(add_rouge, batched=True)
     generated_summaries = examples['generated_highlights']
     gold = examples['highlights']
     scores = metrics.calc_score_avg_best_first_for_list_of_summaries(generated_summaries, gold)
@@ -25,6 +28,9 @@ def add_rouge(examples):
 
 
 def add_summary(model, tokenizer, examples, search_params: SearchParams):
+    if isinstance(examples, datasets.Dataset):
+        return examples.map(lambda x: add_summary(model, tokenizer, x, search_params),
+                            batched=True, batch_size=4)
     articles = examples['article']
     if search_params.do_sample:
         # can fit like 8 beams in a time

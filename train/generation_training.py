@@ -77,7 +77,6 @@ def create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
     )
 
     def compute_metrics(eval_preds):
-        print('evaluating in training')
         preds, labels = eval_preds
         if isinstance(preds, tuple):
             preds = preds[0]

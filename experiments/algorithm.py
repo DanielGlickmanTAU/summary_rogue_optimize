@@ -7,6 +7,7 @@ from time import time
 # TODO this also exists in run_summarization, origanize and move this to one place
 from models.generate import BeamSearchParams
 from train import generation_training
+from utils import decorators
 
 
 def do_eval(data_args, eval_dataset, trainer):
@@ -23,7 +24,27 @@ def do_eval(data_args, eval_dataset, trainer):
     print(f'do_eval took {time() - t0}')
 
 
-def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):
+@decorators.measure_time
+def my_eval(dataset, model, tokenizer):
+    ds = generation.add_summary_and_rouge(model, tokenizer, dataset,
+                                          BeamSearchParams(num_return_sequences=1,
+                                                           num_beams=data_args.num_beams))
+    return evaluate.print_rouge_stuff(ds)
+
+
+# unsupervised_data = unsupervised_data.select(range(128))
+
+
+# eval_backup = eval_dataset.map()
+
+
+def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint):
+    # need this because the trainer remove features that are not neccessery for the model(like article and highlights), which messes things up later.
+    train_dataset = train_dataset.map()
+    eval_dataset = eval_dataset.map()
+    trainer = generation_training.create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
+                                                 tokenizer)
+
     checkpoint = last_checkpoint
     if training_args.resume_from_checkpoint is not None:
         checkpoint = training_args.resume_from_checkpoint
@@ -44,6 +65,7 @@ def do_train(data_args, last_checkpoint, train_dataset, trainer, training_args):
     metrics = train_result.metrics
     trainer.log_metrics("train", metrics)
     trainer.save_metrics("train", metrics)
+    return metrics
 
 
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
@@ -53,25 +75,15 @@ model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
 train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.get_dataset(data_args, training_args,
                                                                                            tokenizer,
                                                                                            do_unsupervised=True)
-# unsupervised_data = unsupervised_data.select(range(128))
-# training_args.remove_unused_columns = False
-# eval_backup = eval_dataset.map()
 
-trainer = generation_training.create_trainer(unsupervised_data, eval_dataset, training_args, data_args, model,
-                                             tokenizer)
+my_eval(eval_dataset, model, tokenizer)
+do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
 
-do_train(data_args, last_checkpoint, train_dataset, trainer, training_args)
+my_eval(eval_dataset, model, tokenizer)
 
-print('after training')
-do_eval(data_args, eval_dataset, trainer)
-ds = eval_backup.map(lambda x: generation.add_summary_and_rouge(trainer.model, tokenizer, x,
-                                                                BeamSearchParams(num_return_sequences=2,
-                                                                                 num_beams=data_args.num_beams)),
-                     batched=True, batch_size=4)
+# add rouge on unsupervised_data <-- need this only for top scoring rouge baseline
 
-t0 = time()
-evaluate.print_rouge_stuff(ds)
-print(f'my add_summary and rouge took {time() - t0}')
+# rank(unsupervised_data)
 # generator model , generator tokenizer =
 
 

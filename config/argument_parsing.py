@@ -21,6 +21,8 @@ def get_args():
 @dataclass
 class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     do_unsupervised: bool = field(default=False, metadata={"help": "Whether to create and train unsupervsied set"})
+    # todo when turning this on, see that the cache for tokenizing the training set still works
+    shuffle_training_set: bool = field(default=False)
     save_model_after_train: bool = field(
         default=False
     )

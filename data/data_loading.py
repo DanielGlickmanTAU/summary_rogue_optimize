@@ -1,3 +1,4 @@
+from config.argument_parsing import UnsupervisedSeq2SeqTrainingArguments
 from config.consts import bert_max_len
 from utils import compute
 import datasets
@@ -46,7 +47,7 @@ def get_xsum_dataset(train_subset: int = None, valid_subset: int = None, test_su
     return dataset
 
 
-def get_dataset(data_args, training_args, tokenizer):
+def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, tokenizer):
     # Get the datasets: you can either provide your own CSV/JSON training and evaluation files (see below)
     # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
     # (the dataset will be downloaded automatically from the datasets Hub).
@@ -130,25 +131,39 @@ def get_dataset(data_args, training_args, tokenizer):
         model_inputs["labels"] = labels["input_ids"]
         return model_inputs
 
+    train_dataset, eval_dataset, predict_dataset, unsupervised_dataset = None, None, None, None
     if training_args.do_train:
         train_dataset = dataset["train"]
-        train_dataset = preprocess(column_names, data_args, preprocess_function, train_dataset,
-                                   data_args.max_train_samples)
+        if training_args.shuffle_training_set:
+            train_dataset = train_dataset.shuffle(seed=42)
+        if training_args.do_unsupervised:
+            train_dataset = preprocess(data_args, preprocess_function, train_dataset, max_samples=None)
+            splited = train_dataset.train_test_split(train_size=data_args.max_train_samples)
+
+            train_dataset, unsupervised_dataset = splited['train'], splited['test']
+            print(
+                f'len of train dataset is {len(train_dataset)} and len of unsupervised data set {len(unsupervised_dataset)}')
+
+        else:
+            train_dataset = preprocess(data_args, preprocess_function, train_dataset,
+                                       data_args.max_train_samples)
 
     if training_args.do_eval:
         eval_dataset = dataset["validation"]
-        eval_dataset = preprocess(column_names, data_args, preprocess_function, eval_dataset,
+        eval_dataset = preprocess(data_args, preprocess_function, eval_dataset,
                                   data_args.max_eval_samples)
 
     if training_args.do_predict:
         predict_dataset = dataset["test"]
-        predict_dataset = preprocess(column_names, data_args, preprocess_function, predict_dataset,
+        predict_dataset = preprocess(data_args, preprocess_function, predict_dataset,
                                      data_args.max_predict_samples)
 
+    if training_args.do_unsupervised:
+        return train_dataset, eval_dataset, predict_dataset, unsupervised_dataset
     return train_dataset, eval_dataset, predict_dataset
 
 
-def preprocess(column_names, data_args, preprocess_function, dataset_split,
+def preprocess(data_args, preprocess_function, dataset_split,
                max_samples=None):
     if max_samples:
         dataset_split = dataset_split.select(range(skip_constant * max_samples))

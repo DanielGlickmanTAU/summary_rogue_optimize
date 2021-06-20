@@ -25,10 +25,9 @@ def do_eval(data_args, eval_dataset, trainer):
 
 
 @decorators.measure_time
-def my_eval(dataset, model, tokenizer):
+def my_eval(dataset, model, tokenizer, search_params):
     ds = generation.add_summary_and_rouge(model, tokenizer, dataset,
-                                          BeamSearchParams(num_return_sequences=1,
-                                                           num_beams=data_args.num_beams))
+                                          search_params)
     return evaluate.print_rouge_stuff(ds)
 
 
@@ -69,21 +68,46 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
 
 
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
-
 model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
 
 train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.get_dataset(data_args, training_args,
                                                                                            tokenizer,
                                                                                            do_unsupervised=True)
+search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num_beams)
 
-my_eval(eval_dataset, model, tokenizer)
 do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
+my_eval(eval_dataset, model, tokenizer, search_params)
 
-my_eval(eval_dataset, model, tokenizer)
+unsupervised_data = generation.add_summary(model, tokenizer, unsupervised_data, search_params,
+                                           batch_size=training_args.per_device_eval_batch_size)
+
 
 # add rouge on unsupervised_data <-- need this only for top scoring rouge baseline
 
-# rank(unsupervised_data)
+def rank(unsupervised_data):
+    unsupervised_data_with_rouge = generation.add_rouge(unsupervised_data)
+    return unsupervised_data_with_rouge.map(lambda example: {'rank': example['rouge-2-first']})
+
+
+def filter(ranked_dataset):
+    ranked_dataset = ranked_dataset.sort('rank', reverse=True)
+    return ranked_dataset.select(range(int(0.05 * len(ranked_dataset))))
+
+
+def convert_dataset_with_generated_highlights_to_training_dataset(dataset):
+    return dataset.map(
+        lambda example: {'highlights': example['generated_highlights'][0]}
+    )
+
+
+ranked_unsupervised_dataset = rank(unsupervised_data)
+filtered_unsupervised_dataset = filter(ranked_unsupervised_dataset)
+unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
+    filtered_unsupervised_dataset)
+
+do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args, last_checkpoint)
+my_eval(eval_dataset, model, tokenizer, search_params)
+
 # generator model , generator tokenizer =
 
 

@@ -27,10 +27,10 @@ def add_rouge(examples):
             'rouge-L-all': get_by_key(scores, 'rouge-L-all')}
 
 
-def add_summary(model, tokenizer, examples, search_params: SearchParams):
+def add_summary(model, tokenizer, examples, search_params: SearchParams, batch_size=4):
     if isinstance(examples, datasets.Dataset):
         return examples.map(lambda x: add_summary(model, tokenizer, x, search_params),
-                            batched=True, batch_size=4)
+                            batched=True, batch_size=batch_size)
     articles = examples['article']
     if search_params.do_sample:
         # can fit like 8 beams in a time

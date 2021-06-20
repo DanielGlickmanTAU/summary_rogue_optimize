@@ -34,11 +34,14 @@ def get_index_of_free_gpus(minimum_free_giga=minimum_free_giga):
             return {0: 10000, 1: 10000, 2: 0, 3: 10000, 4: 0, 5: 0, 6: 0, 7: 0}
 
         memory_available = [int(x.split()[2]) for x in lines]
-        return {index: mb for index, mb in enumerate(memory_available)}
+        gpus = {index: mb for index, mb in enumerate(memory_available)}
+        return gpus
 
     gpus = get_free_gpu()
     # write_gpus_to_file(gpus)
-    return {index: mega for index, mega in gpus.items() if mega >= minimum_free_giga * 1000}
+    gpus = {index: mega for index, mega in gpus.items() if mega >= minimum_free_giga * 1000}
+    gpus = {k: v for k, v in sorted(gpus.items(), key=lambda x: x[1], reverse=True)}
+    return gpus
     # return [str(index) for index, mega in gpus.items() if mega > minimum_free_giga * 1000]
 
 

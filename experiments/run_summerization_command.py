@@ -2,6 +2,8 @@ from experiments.gridsearch import gridsearch
 from experiments.slurm import run_on_slurm
 import random
 
+from models.checkpoints import get_checkpoint_output_dir
+
 model_name = 'facebook/bart-base'
 params = {
     'overwrite_output_dir': True,
@@ -33,11 +35,10 @@ params_for_grid_search = {
     'dataset_name': ['cnn_dailymail', 'xsum']
 }
 
-import time
-
 job_name = '''run_summerization'''
 for p in gridsearch(params, params_for_grid_search):
     dataset_name = p['dataset_name']
-    p['output_dir'] = f'./models/{dataset_name}/{p["max_train_samples"]}/{model_name}/{p["learning_rate"]}'
+    p['output_dir'] = get_checkpoint_output_dir(dataset_name, model_name, p["max_train_samples"], {p["learning_rate"]})
+    # p['output_dir'] = f'./models/{dataset_name}/{p["max_train_samples"]}/{model_name}/{p["learning_rate"]}'
     run_on_slurm(job_name, p, slurm=True)
     print(f'submited {len(p)} jobs')

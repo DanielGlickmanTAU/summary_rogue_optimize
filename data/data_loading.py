@@ -57,13 +57,15 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
-    if data_args.dataset_name is not None:
+    dataset_name = data_args.dataset_name
+    if dataset_name is not None:
         # Downloading and loading a dataset from the hub.
-        dataset = datasets.load_dataset(data_args.dataset_name,
-                                        summarization_config_mapping.get(data_args.dataset_name, None),
+        dataset = datasets.load_dataset(dataset_name,
+                                        summarization_config_mapping.get(dataset_name, None),
                                         cache_dir=compute.get_cache_dir())
     else:
         dataset = _load_dataset_from_file(data_args)
+    set_name(dataset, dataset_name)
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 

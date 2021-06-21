@@ -72,10 +72,12 @@ search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num
 
 if training_args.load_generated_model:
     model_checkpoint = \
-        checkpoints.get_checkpoint_output_dir(data_args.dataset_name, model_args.model_name,
+        checkpoints.get_checkpoint_output_dir(data_args.dataset_name, model_args.model_name_or_path,
                                               data_args.max_train_samples, training_args.learning_rate, extra=None)
-
-model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+    model_args.model_name_or_path = model_checkpoint
+    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+else:
+    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
 
 train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.get_dataset(data_args, training_args,
                                                                                            tokenizer,

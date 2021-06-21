@@ -30,13 +30,13 @@ def load_processed_generated_dataset(validation_mapped_saved_path, config: Ranki
         validation_generated_xsum, tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
         max_seq_len=config.max_seq_len, binary_classification=binary_classification, include_gold=include_gold)
 
-    validation_processed_generated_xsum = _limit_after_processing(config, validation_processed_generated_xsum,
+    validation_processed_generated_xsum = _limit_after_processing(validation_processed_generated_xsum,
                                                                   max_examples=max_examples)
 
     return validation_processed_generated_xsum
 
 
-def _limit_after_processing(config, validation_processed_generated_xsum, max_examples):
+def _limit_after_processing(validation_processed_generated_xsum, max_examples):
     if max_examples:
         if len(validation_processed_generated_xsum) < max_examples:
             print(f'WARNING not enough examples, only {len(validation_processed_generated_xsum)}')
@@ -67,8 +67,8 @@ def get_generated_dataset_save_path(dataset_split, model, search_params):
 
 
 def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
-    mapped_search_path = generated_data_loading.get_generated_dataset_save_path(dataset_split, model, search_params)
-    disk = generated_data_loading.load_generated_dataset(mapped_search_path, generation.add_rouge)
+    mapped_search_path = get_generated_dataset_save_path(dataset_split, model, search_params)
+    disk = load_generated_dataset(mapped_search_path, generation.add_rouge)
     if disk:
         return disk
 

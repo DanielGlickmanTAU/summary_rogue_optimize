@@ -82,3 +82,18 @@ def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_p
     print('saving full: saving dataset to', mapped_search_path)
     ds.save_to_disk(mapped_search_path)
     return ds
+
+
+def get_generated_summaries(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
+    mapped_search_path = get_generated_dataset_save_path(dataset_split, model, search_params)
+    disk = load_generated_dataset(mapped_search_path)
+    if disk:
+        return disk
+
+    print(mapped_search_path, 'not found')
+    ds = dataset_split.map(lambda x: generation.add_summary(model, tokenizer, x, search_params),
+                           batched=True,
+                           batch_size=batch_size)
+    print('saving only summaries: saving dataset to', mapped_search_path)
+    ds.save_to_disk(mapped_search_path)
+    return ds

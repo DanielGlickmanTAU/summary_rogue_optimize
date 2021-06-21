@@ -3,6 +3,7 @@ import time
 
 def measure_time(function):
     def wrapper(*args, **kwargs):
+        print('starting ', function.__name__)
         start = time.time()
         ret = function(*args, **kwargs)
         end = time.time()

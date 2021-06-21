@@ -1,5 +1,5 @@
 from config.argument_parsing import parse_generation_args
-from data import data_loading
+from data import data_loading, generated_data_loading
 from evaluation import evaluate
 from models import model_loading, generation, checkpoints
 from time import time
@@ -31,12 +31,7 @@ def my_eval(dataset, model, tokenizer, search_params):
     return evaluate.print_rouge_stuff(ds)
 
 
-# unsupervised_data = unsupervised_data.select(range(128))
-
-
-# eval_backup = eval_dataset.map()
-
-
+@decorators.measure_time
 def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint):
     # need this because the trainer remove features that are not neccessery for the model(like article and highlights), which messes things up later.
     train_dataset = train_dataset.map()
@@ -70,10 +65,12 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
 search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num_beams)
 
+model_checkpoint = \
+    checkpoints.get_checkpoint_output_dir(data_args.dataset_name, model_args.model_name_or_path,
+                                          data_args.max_train_samples, training_args.learning_rate, extra=None)
+training_args.output_dir = model_checkpoint
 if training_args.load_generated_model:
-    model_checkpoint = \
-        checkpoints.get_checkpoint_output_dir(data_args.dataset_name, model_args.model_name_or_path,
-                                              data_args.max_train_samples, training_args.learning_rate, extra=None)
+
     model_args.model_name_or_path = model_checkpoint
     model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
 else:
@@ -83,23 +80,31 @@ train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.g
                                                                                            tokenizer,
                                                                                            do_unsupervised=True)
 
-do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
-my_eval(eval_dataset, model, tokenizer, search_params)
+if training_args.load_generated_model:
+    print('loading generated summaries')
+    unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_data, model, tokenizer,
+                                                                       search_params,
+                                                                       batch_size=training_args.per_device_eval_batch_size)
+else:
+    do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
+    print('starting to generate summaries')
+    unsupervised_data = generation.add_summary(model, tokenizer, unsupervised_data, search_params,
+                                               batch_size=training_args.per_device_eval_batch_size)
 
-unsupervised_data = generation.add_summary(model, tokenizer, unsupervised_data, search_params,
-                                           batch_size=training_args.per_device_eval_batch_size)
+my_eval(eval_dataset, model, tokenizer, search_params)
 
 
 # add rouge on unsupervised_data <-- need this only for top scoring rouge baseline
 
 def rank(unsupervised_data):
+    print('generating rouge')
     unsupervised_data_with_rouge = generation.add_rouge(unsupervised_data)
     return unsupervised_data_with_rouge.map(lambda example: {'rank': example['rouge-2-first']})
 
 
 def filter(ranked_dataset):
     ranked_dataset = ranked_dataset.sort('rank', reverse=True)
-    return ranked_dataset.select(range(int(0.01 * len(ranked_dataset))))
+    return ranked_dataset.select(range(int(0.05 * len(ranked_dataset))))
 
 
 def convert_dataset_with_generated_highlights_to_training_dataset(dataset):

@@ -1,5 +1,5 @@
 from models.loss import loss_factory
-from utils import compute
+from utils import compute, decorators
 
 torch = compute.get_torch()
 from transformers import BartTokenizer, BartForConditionalGeneration, RobertaForSequenceClassification, \
@@ -49,7 +49,9 @@ def get_ranker_model_and_tokenizer(config):
     return RankerModel.RankerModel(model, config, loss_fn=loss), tokenizer
 
 
+@decorators.measure_time
 def get_model_and_tokenizer(model_args):
+    print('loading model', model_args.model_name_or_path)
     config = AutoConfig.from_pretrained(
         model_args.config_name if model_args.config_name else model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,

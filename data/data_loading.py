@@ -65,7 +65,6 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
                                         cache_dir=compute.get_cache_dir())
     else:
         dataset = _load_dataset_from_file(data_args)
-    set_name(dataset, dataset_name)
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
@@ -163,6 +162,7 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
                                      data_args.max_predict_samples)
 
     if do_unsupervised:
+        unsupervised_dataset.name = 'unsupervised'
         return train_dataset, eval_dataset, predict_dataset, unsupervised_dataset
     return train_dataset, eval_dataset, predict_dataset
 

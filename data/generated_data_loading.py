@@ -4,6 +4,8 @@ from datasets import load_from_disk
 
 from config.config import RankingDatasetConfig
 from data import processing
+from models import generation
+from models.generate import SearchParams
 
 
 def load_generated_dataset(mapped_search_path, process_function=None):
@@ -62,3 +64,21 @@ def get_generated_dataset_save_path(dataset_split, model, search_params):
     search_str = search_params.str_descriptor()
     mapped_search_path = '%s/processed_dataset_' % model_name + '_' + dataset_name + str(ds_len) + '_' + search_str
     return mapped_search_path
+
+
+def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
+    mapped_search_path = generated_data_loading.get_generated_dataset_save_path(dataset_split, model, search_params)
+    disk = generated_data_loading.load_generated_dataset(mapped_search_path, generation.add_rouge)
+    if disk:
+        return disk
+
+    print(mapped_search_path, 'not found')
+    ds = dataset_split.map(lambda x: generation.add_summary(model, tokenizer, x, search_params),
+                           batched=True,
+                           batch_size=batch_size)
+    print('saving only summaries: saving dataset to', mapped_search_path)
+    ds.save_to_disk(mapped_search_path)
+    ds = ds.map(generation.add_rouge, batched=True, batch_size=batch_size)
+    print('saving full: saving dataset to', mapped_search_path)
+    ds.save_to_disk(mapped_search_path)
+    return ds

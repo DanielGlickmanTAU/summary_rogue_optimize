@@ -25,6 +25,7 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     save_model_after_train: bool = field(
         default=False
     )
+    load_generated_model: bool = field(default=False)
 
 
 @dataclass

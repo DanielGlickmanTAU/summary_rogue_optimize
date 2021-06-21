@@ -21,10 +21,12 @@ except (LookupError, OSError):
 
 n_threads = 20
 
+import time
+
 
 def get_rouge(experiment_id=None):
     if experiment_id is None:
-        experiment_id = str(random.random())
+        experiment_id = str(random.random()) + str(time.time())
     return datasets.load_metric('rouge',
                                 experiment_id=experiment_id,
                                 cache_dir=compute.get_cache_dir())
@@ -42,20 +44,7 @@ def rouge_aggregate_score_to_rougel_mid(aggregate_score):
     return aggregate_score['rougeL'].mid.fmeasure
 
 
-rouge = get_rouge()
-
 rouges = ObjectPool(get_rouge, min_init=2, max_reusable=0, max_capacity=n_threads, expires=0)
-
-
-def calc_score(prediction, gold):
-    if not isinstance(prediction, list) and not isinstance(gold, list):
-        prediction, gold = [prediction], [gold]
-    score = rouge.compute(predictions=prediction, references=gold)
-    return {'rouge-1': rouge_aggregate_score_to_rouge1_mid(score),
-            'rouge-2': rouge_aggregate_score_to_rouge2_mid(score)}
-
-
-import time
 
 total = 0.
 
@@ -66,25 +55,6 @@ def calc_score_avg_and_best_and_first(predictions, gold):
         raise Exception
     if not isinstance(gold, list):
         gold = [gold]
-
-    # todo if this doesnt work, create a fixed list of 8 rouges, each with its own experiment_id.
-    # global total
-    # t = time.time()
-    # with rouges.get() as (rouge, _):
-    #     # rouge = get_rouge(str(threading.get_ident()))
-    #     total += time.time() - t
-    #     if total > 10:
-    #         total = 0
-    #         for i in range(1000):
-    #             print('creating rouge taking lots of time')
-    #
-    #     assert len(gold) == 1
-    #     # gold = gold * len(predictions)
-    #
-    #     predictions, gold = postprocess_text(predictions, gold)
-    #
-    #     scores = [rouge.compute(predictions=[pred], references=gold, use_stemmer=True) for pred in predictions]
-    #     scores = [100 * rouge_aggregate_score_to_rouge2_mid(score) for score in scores]
 
     their_scores = [compute_rouge_from_decoder_strings(gold, [pred]) for pred in predictions]
 

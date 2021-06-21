@@ -1,7 +1,7 @@
 from config.argument_parsing import parse_generation_args
 from data import data_loading
 from evaluation import evaluate
-from models import model_loading, generation
+from models import model_loading, generation, checkpoints
 from time import time
 
 # TODO this also exists in run_summarization, origanize and move this to one place
@@ -68,12 +68,18 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
 
 
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
+search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num_beams)
+
+if training_args.load_generated_model:
+    model_checkpoint = \
+        checkpoints.get_checkpoint_output_dir(data_args.dataset_name, model_args.model_name,
+                                              data_args.max_train_samples, training_args.learning_rate, extra=None)
+
 model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
 
 train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.get_dataset(data_args, training_args,
                                                                                            tokenizer,
                                                                                            do_unsupervised=True)
-search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num_beams)
 
 do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
 my_eval(eval_dataset, model, tokenizer, search_params)
@@ -91,7 +97,7 @@ def rank(unsupervised_data):
 
 def filter(ranked_dataset):
     ranked_dataset = ranked_dataset.sort('rank', reverse=True)
-    return ranked_dataset.select(range(int(0.05 * len(ranked_dataset))))
+    return ranked_dataset.select(range(int(0.01 * len(ranked_dataset))))
 
 
 def convert_dataset_with_generated_highlights_to_training_dataset(dataset):

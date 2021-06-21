@@ -10,7 +10,7 @@ def load_generated_dataset(mapped_search_path, process_function=None):
     if os.path.isdir(mapped_search_path):
         print('loading saved dataset', mapped_search_path)
         disk = load_from_disk(mapped_search_path)
-        if 'rouge-2-all' not in disk.features:
+        if process_function and 'rouge-2-all' not in disk.features:
             # for backwards compatibality
             print('adding rouge')
             disk = disk.map(process_function, batched=True, batch_size=20)

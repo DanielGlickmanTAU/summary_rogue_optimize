@@ -97,7 +97,7 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
             train_dataset = train_dataset.shuffle(seed=42)
         if do_unsupervised:
             max_sam = None
-            train_dataset = convert_to_generation_training(data_args, train_dataset, tokenizer, max_samples=max_sam)
+            train_dataset = convert_to_generation_training(train_dataset, tokenizer, data_args, max_samples=max_sam)
             splited = train_dataset.train_test_split(train_size=data_args.max_train_samples, shuffle=False)
 
             train_dataset, unsupervised_dataset = splited['train'], splited['test']
@@ -107,17 +107,16 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
                 f'len of train dataset is {len(train_dataset)} and len of unsupervised data set {len(unsupervised_dataset)}')
 
         else:
-            train_dataset = convert_to_generation_training(data_args, train_dataset, tokenizer,
+            train_dataset = convert_to_generation_training(train_dataset, tokenizer, data_args,
                                                            data_args.max_train_samples)
 
     if training_args.do_eval:
         eval_dataset = dataset["validation"]
-        eval_dataset = convert_to_generation_training(data_args, eval_dataset, tokenizer,
-                                                      data_args.max_eval_samples)
+        eval_dataset = convert_to_generation_training(eval_dataset, tokenizer, data_args, data_args.max_eval_samples)
 
     if training_args.do_predict:
         predict_dataset = dataset["test"]
-        predict_dataset = convert_to_generation_training(data_args, predict_dataset, tokenizer,
+        predict_dataset = convert_to_generation_training(predict_dataset, tokenizer, data_args,
                                                          data_args.max_predict_samples)
 
     if do_unsupervised:
@@ -126,7 +125,7 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
     return train_dataset, eval_dataset, predict_dataset
 
 
-def convert_to_generation_training(data_args, dataset_split, tokenizer, max_samples=None):
+def convert_to_generation_training(dataset_split, tokenizer, data_args, max_samples=None):
     def preprocess_function(examples):
         inputs = examples[text_column]
         targets = examples[summary_column]

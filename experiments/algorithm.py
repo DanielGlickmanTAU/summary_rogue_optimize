@@ -2,6 +2,7 @@ from config.argument_parsing import parse_generation_args
 from data import data_loading, generated_data_loading, processing
 from evaluation import evaluate
 from experiments import experiment
+from experiments.experiment import log_metrics
 from models import model_loading, generation, checkpoints
 from time import time
 import random
@@ -130,7 +131,8 @@ unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to
 do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args, last_checkpoint)
 my_eval(eval_dataset, model, tokenizer, search_params, description='on eval set after training unsupervised')
 
-my_eval(predict_dataset, model, tokenizer, search_params, description='on test set now')
+final_rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params, description='on test set now')
+log_metrics({'rouge2_on_test': final_rouge_on_test})
 # generator model , generator tokenizer =
 
 

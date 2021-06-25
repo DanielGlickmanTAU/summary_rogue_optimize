@@ -44,7 +44,7 @@ def rouge_aggregate_score_to_rougel_mid(aggregate_score):
     return aggregate_score['rougeL'].mid.fmeasure
 
 
-rouges = ObjectPool(get_rouge, min_init=2, max_reusable=0, max_capacity=n_threads, expires=0)
+rouges = ObjectPool(get_rouge, min_init=2, max_reusable=0, max_capacity=n_threads + 10, expires=0)
 
 total = 0.
 

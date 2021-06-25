@@ -103,8 +103,9 @@ unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_
 
 def rank(unsupervised_data, ranking):
     if ranking == 'oracle':
-        print('generating rouge')
-        unsupervised_data_with_rouge = generation.add_rouge(unsupervised_data)
+        unsupervised_data_with_rouge = generated_data_loading.get_generated_rouge(unsupervised_data, model,
+                                                                                  search_params,
+                                                                                  training_args.load_generated_model)
         return unsupervised_data_with_rouge.map(lambda example: {'rank': example['rouge-2-first']})
     if ranking == 'random':
         return unsupervised_data.map(lambda example: {'rank': random.random()})

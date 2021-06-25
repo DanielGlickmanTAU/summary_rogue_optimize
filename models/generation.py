@@ -14,6 +14,7 @@ def add_summary_and_rouge(model, tokenizer, examples, search_params: SearchParam
 
 def add_rouge(examples):
     if isinstance(examples, datasets.Dataset):
+        print(f'generating rouge on {len(examples)}')
         return examples.map(add_rouge, batched=True)
     generated_summaries = examples['generated_highlights']
     gold = examples['highlights']

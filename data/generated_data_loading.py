@@ -6,6 +6,7 @@ from config.config import RankingDatasetConfig
 from data import processing
 from models import generation
 from models.generate import SearchParams
+from utils import decorators
 
 
 def load_generated_dataset(mapped_search_path, process_function=None):
@@ -101,6 +102,7 @@ def get_generated_summaries(dataset_split, model, tokenizer, search_params: Sear
         mapped_search_path = get_generated_dataset_save_path(dataset_split, model, search_params)
         disk = load_generated_dataset(mapped_search_path)
         if disk:
+            disk.name = dataset_split.name
             return disk
         print(mapped_search_path, 'not found')
     print('generating summaries')
@@ -111,4 +113,20 @@ def get_generated_summaries(dataset_split, model, tokenizer, search_params: Sear
         print('saving only summaries: saving dataset to', mapped_search_path)
         ds.save_to_disk(mapped_search_path)
 
+    ds.name = dataset_split.name
     return ds
+
+
+@decorators.measure_time
+def get_generated_rouge(dataset_split, model, search_params: SearchParams, load_generated):
+    if load_generated:
+        mapped_search_path = get_generated_dataset_save_path(dataset_split, model, search_params)
+        disk = load_generated_dataset(mapped_search_path)
+        if disk:
+            return disk
+        print(mapped_search_path, 'not found')
+
+    ds = generation.add_rouge(dataset_split)
+    if load_generated:
+        print('saving dataset with rouge ', mapped_search_path)
+        ds.save_to_disk(mapped_search_path)

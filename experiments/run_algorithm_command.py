@@ -38,8 +38,8 @@ params_for_grid_search = {
     'learning_rate': [1e-5],
     # 'dataset_name': ['cnn_dailymail', 'xsum'],
     'dataset_name': ['xsum'],
-    'ranking': ['oracle', 'random', 'oracle', 'random'],
     'amount_to_pass_filter': [0.01, 0.02, 0.05],
+    'ranking': ['oracle', 'random', 'oracle', 'random'],
 }
 
 job_name = '''algorithm'''

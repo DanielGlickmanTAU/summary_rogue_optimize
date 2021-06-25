@@ -94,3 +94,11 @@ def convert_to_generation_training(dataset_split, tokenizer, data_args, max_samp
 
     print(f'taking split {len(dataset_split)} for split {dataset_split.split} limited for {bert_max_len} tokens')
     return dataset_split
+
+
+def convert_dataset_with_generated_highlights_to_training_dataset(dataset, tokenizer, data_args):
+    dataset = dataset.map(
+        lambda example: {'highlights': example['generated_highlights'][0]},
+        remove_columns=['labels']
+    )
+    return processing.convert_to_generation_training(dataset, tokenizer, data_args, max_samples=None)

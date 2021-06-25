@@ -1,5 +1,6 @@
 from config.argument_parsing import parse_generation_args
-from data import data_loading, generated_data_loading, processing
+from data import data_loading, generated_data_loading
+from data.processing import convert_dataset_with_generated_highlights_to_training_dataset
 from evaluation import evaluate
 from experiments import experiment
 from experiments.experiment import log_metrics
@@ -115,18 +116,10 @@ def filter(ranked_dataset, amount_to_pass_filter=0.01):
     return ranked_dataset.select(range(max(1, int(amount_to_pass_filter * len(ranked_dataset)))))
 
 
-def convert_dataset_with_generated_highlights_to_training_dataset(dataset):
-    dataset = dataset.map(
-        lambda example: {'highlights': example['generated_highlights'][0]},
-        remove_columns=['labels']
-    )
-    return processing.convert_to_generation_training(dataset, tokenizer, data_args, max_samples=None)
-
-
 ranked_unsupervised_dataset = rank(unsupervised_data, training_args.ranking)
 filtered_unsupervised_dataset = filter(ranked_unsupervised_dataset, training_args.amount_to_pass_filter)
 unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
-    filtered_unsupervised_dataset)
+    filtered_unsupervised_dataset, tokenizer, data_args)
 
 do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args, last_checkpoint)
 my_eval(eval_dataset, model, tokenizer, search_params, description='on eval set after training unsupervised')

@@ -122,9 +122,15 @@ def get_generated_rouge(dataset_split, model, search_params: SearchParams, load_
     if load_generated:
         mapped_search_path = get_generated_dataset_save_path(dataset_split, model, search_params)
         disk = load_generated_dataset(mapped_search_path)
-        if disk and 'rouge-2-all' in disk.features:
-            return disk
-        print(mapped_search_path, 'not found', disk)
+        if disk:
+            if 'rouge-2-all' in disk.features:
+                print(
+                    f'rouge-2-all in {mapped_search_path} . skipping generating new rouge. This may be a problem later when iterating')
+                print(
+                    f'rouge-2-all in {mapped_search_path} . skipping generating new rouge. This may be a problem later when iterating')
+                return disk
+
+        print(mapped_search_path, 'not found with rouge')
 
     ds = generation.add_rouge(dataset_split)
     if load_generated:

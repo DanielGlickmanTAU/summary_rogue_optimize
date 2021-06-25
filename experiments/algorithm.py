@@ -116,7 +116,8 @@ def filter(ranked_dataset, amount_to_pass_filter=0.01):
 
 def convert_dataset_with_generated_highlights_to_training_dataset(dataset):
     return dataset.map(
-        lambda example: {'highlights': example['generated_highlights'][0]}
+        lambda example: {'highlights': example['generated_highlights'][0]},
+        remove_columns=['labels']
     )
 
 

@@ -103,7 +103,7 @@ def get_generated_summaries(dataset_split, model, tokenizer, search_params: Sear
         if disk:
             return disk
         print(mapped_search_path, 'not found')
-
+    print('generating summaries')
     ds = dataset_split.map(lambda x: generation.add_summary(model, tokenizer, x, search_params),
                            batched=True,
                            batch_size=batch_size)

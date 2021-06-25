@@ -1,5 +1,5 @@
 from config.argument_parsing import parse_generation_args
-from data import data_loading, generated_data_loading
+from data import data_loading, generated_data_loading, processing
 from evaluation import evaluate
 from experiments import experiment
 from models import model_loading, generation, checkpoints
@@ -115,10 +115,11 @@ def filter(ranked_dataset, amount_to_pass_filter=0.01):
 
 
 def convert_dataset_with_generated_highlights_to_training_dataset(dataset):
-    return dataset.map(
+    dataset = dataset.map(
         lambda example: {'highlights': example['generated_highlights'][0]},
         remove_columns=['labels']
     )
+    return processing.convert_to_generation_training(dataset, tokenizer, data_args, max_samples=None)
 
 
 ranked_unsupervised_dataset = rank(unsupervised_data, training_args.ranking)

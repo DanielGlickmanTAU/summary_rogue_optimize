@@ -1,6 +1,8 @@
 from utils import compute, decorators
+from train.FixedCometCallback import FixedCometCallback
 import datasets
 import nltk
+import transformers
 
 from config.consts import bert_max_len
 from data.metrics import compute_rouge_from_token_ids
@@ -95,6 +97,12 @@ def create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
     )
     callback = EarlyStoppingCallback(early_stopping_patience=3)
     trainer.add_callback(callback)
+    try:
+        trainer.pop_callback(transformers.integrations.CometCallback)
+    except:
+        pass
+
+    trainer.callback_handler.add_callback(FixedCometCallback(training_args))
 
     return trainer
 

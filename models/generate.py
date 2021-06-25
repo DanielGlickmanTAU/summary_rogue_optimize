@@ -54,7 +54,7 @@ def summarize(model, tokenizer, texts, search_params: SearchParams):
     tokenized = tokenization_util.tokenize(tokenizer, texts)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     inputs = tokenized.to(device)
-    print('generating', len(inputs['input_ids']), 'summaries')
+    # print('generating', len(inputs['input_ids']), 'summaries')
     summary_ids = model.generate(**inputs,
                                  num_beams=search_params.num_beams,
                                  do_sample=search_params.do_sample,

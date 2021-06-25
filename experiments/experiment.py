@@ -19,7 +19,11 @@ def start_experiment(tags=None, hyperparams=None):
 
     if hyperparams is None:
         hyperparams = {}
-
+    if isinstance(hyperparams, list):
+        h = {}
+        for h2 in hyperparams:
+            h.update(dataclasses.asdict(h2))
+        hyperparams = h
     if isinstance(hyperparams, dataclasses.dataclass.__class__):
         hyperparams = dataclasses.asdict(hyperparams)
     if tags is None:

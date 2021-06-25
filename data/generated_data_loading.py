@@ -66,6 +66,7 @@ def get_generated_dataset_save_path(dataset_split, model, search_params):
     return mapped_search_path
 
 
+@DeprecationWarning
 def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
     mapped_search_path = get_generated_dataset_save_path(dataset_split, model, search_params)
     disk = load_generated_dataset(mapped_search_path, generation.add_rouge)
@@ -84,16 +85,30 @@ def get_generated_summaries_with_rouge(dataset_split, model, tokenizer, search_p
     return ds
 
 
-def get_generated_summaries(dataset_split, model, tokenizer, search_params: SearchParams, batch_size):
-    mapped_search_path = get_generated_dataset_save_path(dataset_split, model, search_params)
-    disk = load_generated_dataset(mapped_search_path)
-    if disk:
-        return disk
+def get_generated_summaries(dataset_split, model, tokenizer, search_params: SearchParams, batch_size,
+                            load_generated):
+    """
+    :param load_generated: if True, will try to load dataset of generated that is already saved if exists.
+    if does not exist, will generate one and save it.
 
-    print(mapped_search_path, 'not found')
+    Todo: need to take into account the random seed of the model, because models trained with different splits will
+    have different results.
+    However it already takes into account the models training size, learning rate etc, as it is part of the model_path_or_name.
+    Can probably be fixed by adding the random split to model_path_of_name
+    :return:
+    """
+    if load_generated:
+        mapped_search_path = get_generated_dataset_save_path(dataset_split, model, search_params)
+        disk = load_generated_dataset(mapped_search_path)
+        if disk:
+            return disk
+        print(mapped_search_path, 'not found')
+
     ds = dataset_split.map(lambda x: generation.add_summary(model, tokenizer, x, search_params),
                            batched=True,
                            batch_size=batch_size)
-    print('saving only summaries: saving dataset to', mapped_search_path)
-    ds.save_to_disk(mapped_search_path)
+    if load_generated:
+        print('saving only summaries: saving dataset to', mapped_search_path)
+        ds.save_to_disk(mapped_search_path)
+
     return ds

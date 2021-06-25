@@ -1,6 +1,6 @@
 from config.argument_parsing import UnsupervisedSeq2SeqTrainingArguments
 from config.consts import bert_max_len
-from utils import compute
+from utils import compute, decorators
 import datasets
 
 skip_constant = 6
@@ -47,6 +47,7 @@ def get_xsum_dataset(train_subset: int = None, valid_subset: int = None, test_su
     return dataset
 
 
+@decorators.measure_time
 def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, tokenizer, do_unsupervised=False):
     # Get the datasets: you can either provide your own CSV/JSON training and evaluation files (see below)
     # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
@@ -138,7 +139,8 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
         if training_args.shuffle_training_set:
             train_dataset = train_dataset.shuffle(seed=42)
         if do_unsupervised:
-            train_dataset = preprocess(data_args, preprocess_function, train_dataset, max_samples=None)
+            max_sam = None
+            train_dataset = preprocess(data_args, preprocess_function, train_dataset, max_samples=max_sam)
             splited = train_dataset.train_test_split(train_size=data_args.max_train_samples, shuffle=False)
 
             train_dataset, unsupervised_dataset = splited['train'], splited['test']

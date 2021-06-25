@@ -1,0 +1,11 @@
+XSUM:
+train examples    1
+untrained(eval) 3.1125
+trained(eval)   3.097,3.158,3.14
+random(0.01)    13.367,13.43,-
+random(0.02)    13.9,13.9,13.61
+random(0.05)    14.713,14.476,14.476
+
+oracle(0.01)    12.07,12.496,-
+oracle(0.02)    12.7256,12.796, -
+oracle(0.05)    -,-,-

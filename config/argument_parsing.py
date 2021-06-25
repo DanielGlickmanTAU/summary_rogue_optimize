@@ -26,6 +26,9 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
         default=False
     )
     load_generated_model: bool = field(default=False)
+    ranking: str = field(default="",
+                         metadata={"help": "how to rank examples. support oracle(rouge) and random currently"})
+    amount_to_pass_filter: float = field(default=0.01)
 
 
 @dataclass

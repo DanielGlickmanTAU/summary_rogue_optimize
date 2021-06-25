@@ -89,14 +89,44 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
 
     # Get the column names for input/target.
     # dataset_columns = summarization_name_mapping.get(data_args.dataset_name, None)
-    text_column, summary_column = ("article", "highlights")
 
-    # Temporarily set max_target_length for training.
-    max_target_length = data_args.max_target_length
-    padding = "max_length" if data_args.pad_to_max_length else False
+    train_dataset, eval_dataset, predict_dataset, unsupervised_dataset = None, None, None, None
+    if training_args.do_train:
+        train_dataset = dataset["train"]
+        if training_args.shuffle_training_set:
+            train_dataset = train_dataset.shuffle(seed=42)
+        if do_unsupervised:
+            max_sam = None
+            train_dataset = convert_to_generation_training(data_args, train_dataset, tokenizer, max_samples=max_sam)
+            splited = train_dataset.train_test_split(train_size=data_args.max_train_samples, shuffle=False)
 
-    prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
+            train_dataset, unsupervised_dataset = splited['train'], splited['test']
+            if data_args.max_unsupervised_samples:
+                unsupervised_dataset = unsupervised_dataset.select(range(data_args.max_unsupervised_samples))
+            print(
+                f'len of train dataset is {len(train_dataset)} and len of unsupervised data set {len(unsupervised_dataset)}')
 
+        else:
+            train_dataset = convert_to_generation_training(data_args, train_dataset, tokenizer,
+                                                           data_args.max_train_samples)
+
+    if training_args.do_eval:
+        eval_dataset = dataset["validation"]
+        eval_dataset = convert_to_generation_training(data_args, eval_dataset, tokenizer,
+                                                      data_args.max_eval_samples)
+
+    if training_args.do_predict:
+        predict_dataset = dataset["test"]
+        predict_dataset = convert_to_generation_training(data_args, predict_dataset, tokenizer,
+                                                         data_args.max_predict_samples)
+
+    if do_unsupervised:
+        unsupervised_dataset.name = 'unsupervised'
+        return train_dataset, eval_dataset, predict_dataset, unsupervised_dataset
+    return train_dataset, eval_dataset, predict_dataset
+
+
+def convert_to_generation_training(data_args, dataset_split, tokenizer, max_samples=None):
     def preprocess_function(examples):
         inputs = examples[text_column]
         targets = examples[summary_column]
@@ -117,44 +147,14 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
         model_inputs["labels"] = labels["input_ids"]
         return model_inputs
 
-    train_dataset, eval_dataset, predict_dataset, unsupervised_dataset = None, None, None, None
-    if training_args.do_train:
-        train_dataset = dataset["train"]
-        if training_args.shuffle_training_set:
-            train_dataset = train_dataset.shuffle(seed=42)
-        if do_unsupervised:
-            max_sam = None
-            train_dataset = preprocess(data_args, preprocess_function, train_dataset, max_samples=max_sam)
-            splited = train_dataset.train_test_split(train_size=data_args.max_train_samples, shuffle=False)
+    # Temporarily set max_target_length for training.
+    max_target_length = data_args.max_target_length
+    padding = "max_length" if data_args.pad_to_max_length else False
 
-            train_dataset, unsupervised_dataset = splited['train'], splited['test']
-            if data_args.max_unsupervised_samples:
-                unsupervised_dataset = unsupervised_dataset.select(range(data_args.max_unsupervised_samples))
-            print(
-                f'len of train dataset is {len(train_dataset)} and len of unsupervised data set {len(unsupervised_dataset)}')
+    prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
 
-        else:
-            train_dataset = preprocess(data_args, preprocess_function, train_dataset,
-                                       data_args.max_train_samples)
+    text_column, summary_column = ("article", "highlights")
 
-    if training_args.do_eval:
-        eval_dataset = dataset["validation"]
-        eval_dataset = preprocess(data_args, preprocess_function, eval_dataset,
-                                  data_args.max_eval_samples)
-
-    if training_args.do_predict:
-        predict_dataset = dataset["test"]
-        predict_dataset = preprocess(data_args, preprocess_function, predict_dataset,
-                                     data_args.max_predict_samples)
-
-    if do_unsupervised:
-        unsupervised_dataset.name = 'unsupervised'
-        return train_dataset, eval_dataset, predict_dataset, unsupervised_dataset
-    return train_dataset, eval_dataset, predict_dataset
-
-
-def preprocess(data_args, preprocess_function, dataset_split,
-               max_samples=None):
     if max_samples:
         dataset_split = dataset_split.select(range(skip_constant * max_samples))
     dataset_split = dataset_split.map(

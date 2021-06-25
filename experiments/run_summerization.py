@@ -6,6 +6,7 @@ from config.argument_parsing import parse_generation_args
 from data import data_loading, metrics
 from data.metrics import postprocess_text, compute_rouge_from_token_ids
 from evaluation import evaluate
+from experiments.experiment import log_metrics
 from models import model_loading, generation
 import logging
 import os
@@ -112,14 +113,6 @@ def do_predict(data_args, predict_dataset, tokenizer, trainer, training_args):
                 # output_prediction_file = os.path.join(training_args.output_dir, "generated_predictions.txt")
                 # with open(output_prediction_file, "w") as writer:
                 #     writer.write("\n".join(predictions))
-
-
-def log_metrics(metrics):
-    try:
-        experiment = comet_ml.config.get_global_experiment()
-        experiment.log_metrics(metrics)
-    except:
-        print('WARNING FAILED REPORTING METRICS', metrics)
 
 
 def do_eval(data_args, eval_dataset, trainer):

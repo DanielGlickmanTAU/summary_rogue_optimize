@@ -1,6 +1,7 @@
 import collections.abc as collections
 import dataclasses
 
+import comet_ml
 from comet_ml import Experiment
 
 
@@ -40,3 +41,11 @@ def start_experiment(tags=None, hyperparams=None):
         experiment.log_parameters(hyperparams)
 
     return experiment
+
+
+def log_metrics(metrics):
+    try:
+        experiment = comet_ml.config.get_global_experiment()
+        experiment.log_metrics(metrics)
+    except:
+        print('WARNING FAILED REPORTING METRICS', metrics)

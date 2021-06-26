@@ -118,6 +118,9 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
         predict_dataset = convert_to_generation_training(predict_dataset, tokenizer, data_args,
                                                          data_args.max_predict_samples)
 
+    train_dataset.name = 'train'
+    eval_dataset.name = 'validation'
+    predict_dataset.name = 'test'
     if do_unsupervised:
         unsupervised_dataset.name = 'unsupervised'
         return train_dataset, eval_dataset, predict_dataset, unsupervised_dataset

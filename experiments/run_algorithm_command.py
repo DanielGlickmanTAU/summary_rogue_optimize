@@ -17,7 +17,7 @@ params = {
     'do_train': True,
     'do_eval': True,
     'do_predict': True,
-    'num_beams': 2,
+    'num_beams': 1,
     'model_name_or_path': model_name,
 
     'gradient_accumulation_steps': 2,
@@ -28,8 +28,11 @@ params = {
     # 'metric_for_best_model': 'rouge2'
     'metric_for_best_model': 'loss',
     # train each time from scrach cause loading isnt good yet
-    'load_generated_model': False,
-    'shuffle_training_set': True
+    # 'load_generated_model': False,
+    # 'shuffle_training_set': True
+    # let it persist the generated datasets one time, for debugging later
+    'load_generated_model': True,
+    'shuffle_training_set': False
 }
 
 params_for_grid_search = {
@@ -38,8 +41,10 @@ params_for_grid_search = {
     'learning_rate': [1e-5],
     # 'dataset_name': ['cnn_dailymail', 'xsum'],
     'dataset_name': ['xsum'],
-    'amount_to_pass_filter': [0.01, 0.02, 0.05],
-    'ranking': ['oracle', 'random', 'oracle', 'random'],
+    # 'amount_to_pass_filter': [0.01, 0.02, 0.05],
+    # 'ranking': ['oracle', 'random'],
+    'amount_to_pass_filter': [0.01],
+    'ranking': ['oracle']
 }
 
 job_name = '''algorithm'''

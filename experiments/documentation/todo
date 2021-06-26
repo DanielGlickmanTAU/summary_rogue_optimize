@@ -1,16 +1,16 @@
+get baseline results for [1,--256]..
+continue further research only on values for which rouge2 increase with oracle selection(32,64,128)
+
+train filter:
+* when combing filter back, be mindful to seperate filter and generator learning rates
+* train filter with generated dataset loading, so cna test hyper params faster..
 
 
 
-todo:
-1)repeat experiment 3 times with different training sets:.. it needs to be without random seeds shit.. will make shit easier
-may be easy to do in data_loading.convert_to_generation_training:
-            dataset_split = dataset_split.select(range(2 * max_samples)) <-- change this to select 1k
-            ...
-            ...
-            if max_samples:
-                 ** here shuffle before select
-                dataset_split = dataset_split.select(range(max_samples))
 
+
+to run:
+more baselines on xsum and cnn...(see what baselines are missing)
 
 
 may be problems:

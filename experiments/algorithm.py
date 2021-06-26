@@ -14,20 +14,6 @@ from train import generation_training
 from utils import decorators
 
 
-def do_eval(data_args, eval_dataset, trainer):
-    t0 = time()
-    print('evaluating')
-    metrics = trainer.evaluate(
-        max_length=data_args.val_max_target_length, num_beams=data_args.num_beams, metric_key_prefix="eval"
-    )
-    max_eval_samples = data_args.max_eval_samples if data_args.max_eval_samples is not None else len(eval_dataset)
-    metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
-    print('eval metrics', metrics)
-    trainer.log_metrics("eval", metrics)
-    trainer.save_metrics("eval", metrics)
-    print(f'do_eval took {time() - t0}')
-
-
 @decorators.measure_time
 def my_eval(dataset, model, tokenizer, search_params, description=''):
     ds = generation.add_summary_and_rouge(model, tokenizer, dataset,
@@ -75,7 +61,8 @@ model_checkpoint = \
                                           data_args.max_train_samples, training_args.learning_rate, extra=None)
 training_args.output_dir = model_checkpoint + str(random.random())
 
-experiment.start_experiment(hyperparams=[data_args, training_args, model_args])
+if training_args.track_experiment:
+    experiment.start_experiment(hyperparams=[data_args, training_args, model_args])
 
 if training_args.load_generated_model:
     if training_args.shuffle_training_set:

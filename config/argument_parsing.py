@@ -30,6 +30,8 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
                          metadata={"help": "how to rank examples. support oracle(rouge) and random currently"})
     amount_to_pass_filter: float = field(default=0.01)
 
+    track_experiment: bool = field(default=True)
+
 
 @dataclass
 class DataTrainingArguments:

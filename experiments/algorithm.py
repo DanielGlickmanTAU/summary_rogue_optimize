@@ -61,8 +61,8 @@ model_checkpoint = \
                                           data_args.max_train_samples, training_args.learning_rate, extra=None)
 training_args.output_dir = model_checkpoint + str(random.random())
 
-if training_args.track_experiment:
-    experiment.start_experiment(hyperparams=[data_args, training_args, model_args])
+experiment.start_experiment(hyperparams=[data_args, training_args, model_args],
+                            tags=[] if training_args.track_experiment else ['debug'])
 
 if training_args.load_generated_model:
     if training_args.shuffle_training_set:

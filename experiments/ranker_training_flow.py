@@ -44,7 +44,7 @@ def run_exp(config: RankerConfig):
         per_device_train_batch_size=1,
         per_device_eval_batch_size=1,
         do_train=True,
-        overwrite_output_dir=False,
+        overwrite_output_dir=True,
         # warmup_steps=0,
         fp16=config.half_percision,
         learning_rate=config.learning_rate,

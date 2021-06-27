@@ -22,6 +22,8 @@ def get_args():
 class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     # todo when turning this on, see that the cache for tokenizing the training set still works
     shuffle_training_set: bool = field(default=False)
+    shuffle_seed: int = field(default=42)
+
     save_model_after_train: bool = field(
         default=False
     )

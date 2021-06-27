@@ -92,7 +92,7 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
     if training_args.do_train:
         train_dataset = dataset["train"]
         if training_args.shuffle_training_set:
-            train_dataset = train_dataset.shuffle(seed=42)
+            train_dataset = train_dataset.shuffle(seed=training_args.shuffle_seed)
         if do_unsupervised:
             assert data_args.max_train_samples
             max_sam = data_args.max_train_samples + data_args.max_unsupervised_samples if data_args.max_unsupervised_samples else None

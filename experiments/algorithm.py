@@ -79,6 +79,9 @@ train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.g
 if not training_args.load_generated_model:
     do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
 
+my_eval(train_dataset, model, tokenizer, search_params,
+        f'on TRAIN set after training on {len(train_dataset)} samples')
+
 my_eval(eval_dataset, model, tokenizer, search_params,
         f'on eval set after training on {len(train_dataset)} samples')
 

@@ -10,7 +10,6 @@ from models.loss.RankingLoss import RankingLoss
 def get_loss(config: RankerConfig):
     loss_fn = config['loss_fn'] if isinstance(config, dict) else config.loss_fn
 
-    # if config.mode:
     if loss_fn == 'bce':
         return BCEWithLogitsLoss()
     if loss_fn == 'centered-mse':

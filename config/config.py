@@ -5,8 +5,8 @@ from config.consts import bert_max_len
 
 @dataclass
 class RankingDatasetConfig:
-    validation_mapped_saved_path: str = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
-    train_mapped_saved_path: str = 'sshleifer_distilbart-xsum-12-3/processed_dataset__train_xsum50000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'
+    validation_mapped_saved_path: str = None
+    train_mapped_saved_path: str = None
     num_examples: int = 50_000
     num_skip: int = 0
     num_summaries_per_text: int = 4
@@ -17,7 +17,6 @@ class RankingDatasetConfig:
 
 @dataclass
 class RankerConfig(RankingDatasetConfig):
-    mode: str = 'ranker'
     loss_fn: str = 'mse'
     tolerance: float = None
     learning_rate: float = 5e-3
@@ -29,6 +28,8 @@ class RankerConfig(RankingDatasetConfig):
     use_dropout: bool = True  # use dropout in training
     print_logits: bool = False
     evaluate_every_steps: int = None
+    binary_classification: bool = False
+    include_gold: bool = False
 
     def get_evaluation_strategy(self):
         if self.evaluate_every_steps is None and self.do_evaluation is None:

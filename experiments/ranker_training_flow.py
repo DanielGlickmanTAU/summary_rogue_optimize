@@ -17,18 +17,20 @@ def run_exp(config: RankerConfig):
             config.validation_mapped_saved_path,
             config.loss_fn]
     exp = experiment.start_experiment(hyperparams=vars(config), tags=tags)
-    print(config)
     ranker_model, tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
-    binary_classification = False
-    include_gold = True
+
+    # may want to set this to binary_classfication = False on test set, so it prints rouges and not accuracy...
+
     validation_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-        config.validation_mapped_saved_path, config, tokenizer, max_examples=None,
-        binary_classification=binary_classification,
-        include_gold=include_gold)
+        config.validation_mapped_saved_path, config, tokenizer, max_examples=config.num_examples,
+        binary_classification=config.binary_classification,
+        include_gold=config.include_gold)
 
     if config.test_mapped_saved_path:
+        binary_classification = False
+        include_gold = True
         test_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-            config.test_mapped_saved_path, config, tokenizer, max_examples=None,
+            config.test_mapped_saved_path, config, tokenizer,
             binary_classification=binary_classification,
             include_gold=include_gold
         )
@@ -36,8 +38,8 @@ def run_exp(config: RankerConfig):
         test_processed_generated_xsum = None
 
     train_processed_generated_xsum = generated_data_loading.load_processed_generated_dataset(
-        config.train_mapped_saved_path, config, tokenizer, binary_classification=binary_classification,
-        include_gold=include_gold)
+        config.train_mapped_saved_path, config, tokenizer, binary_classification=config.binary_classification,
+        include_gold=config.include_gold, max_examples=config.num_examples)
     training_args = TrainingArguments(
         output_dir="./ranker_output_dir_" + str(time.time()).replace('.', '_'),
         num_train_epochs=config.num_train_epochs,

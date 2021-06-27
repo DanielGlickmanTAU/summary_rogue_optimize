@@ -4,7 +4,7 @@ import comet_ml
 import os
 import time
 
-minimum_free_giga = 9
+minimum_free_giga = 5
 max_num_gpus = 1
 
 last_write = 0

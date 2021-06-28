@@ -12,5 +12,5 @@ execution_path.set_working_dir()
 
 torch = compute.get_torch()
 
-config = argument_parsing.get_args()
+config = argument_parsing.get_ranker_config()
 run_exp(config)

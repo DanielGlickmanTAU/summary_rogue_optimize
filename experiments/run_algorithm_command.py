@@ -28,23 +28,27 @@ params = {
     # 'metric_for_best_model': 'rouge2'
     'metric_for_best_model': 'loss',
     # train each time from scrach cause loading isnt good yet
-    # 'load_generated_model': False,
-    # 'shuffle_training_set': True
+    'load_generated_model': False,
+    'shuffle_training_set': True
+
     # let it persist the generated datasets one time, for debugging later
-    'load_generated_model': True,
-    'shuffle_training_set': False
+    # 'load_generated_model': True,
+    # 'shuffle_training_set': False
 }
 
 params_for_grid_search = {
-    'max_train_samples': [1, 8, 16, 32, 64, 128, 256],
+    'max_train_samples': [8, 16, 32, 64, 128],
     # 'learning_rate': [3e-5, 1e-5],
-    'learning_rate': [1e-5],
+    'learning_rate': [3e-5],
     # 'dataset_name': ['cnn_dailymail', 'xsum'],
-    'dataset_name': ['xsum'],
+    'dataset_name': ['cnn_dailymail'],
+    # 'dataset_name': ['xsum'],
     # 'amount_to_pass_filter': [0.01, 0.02, 0.05],
-    # 'ranking': ['oracle', 'random'],
-    'amount_to_pass_filter': [0.01],
-    'ranking': ['oracle']
+    'ranking': ['oracle', 'random'],
+    'amount_to_pass_filter': [0.01, 0.05],
+    'shuffle_seed': [42, 100, 1337]
+    # 'shuffle_seed': [100, ]
+    # 'ranking': ['oracle']
 }
 
 job_name = '''algorithm'''

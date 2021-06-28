@@ -31,6 +31,8 @@ config = RankerConfig(
     tolerance=0.05,
     # evaluate_every_steps=10,
     # metric_for_best_model='selected_at_4'
+    binary_classification=True,
+    include_gold=True
 
     # 100k
     # validation_mapped_saved_path = 'sshleifer_distilbart-xsum-12-3/processed_dataset__validation_xsum10000_do_sampleFalse_top_pNone_top_kNone_num_beams8_num_return_sequences8_no_repeat_ngram_size0'

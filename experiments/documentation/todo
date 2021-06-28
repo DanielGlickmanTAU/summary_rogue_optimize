@@ -1,6 +1,9 @@
 get baseline results for [1,--256]..
 continue further research only on values for which rouge2 increase with oracle selection(32,64,128)
 
+
+notice train rouge is much higher than validaiton.. switch validation and train set? or give each one 128, from validation
+
 train filter:
 * when combing filter back, be mindful to seperate filter and generator learning rates
 * train filter with generated dataset loading, so cna test hyper params faster..

@@ -94,7 +94,7 @@ unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_
                                                                    load_generated=training_args.load_generated_model)
 
 
-def rank(unsupervised_data, ranking, train_dataset, validation_dataset):
+def rank(unsupervised_data, ranking, train_dataset=None, validation_dataset=None):
     if ranking == 'oracle':
         unsupervised_data_with_rouge = generated_data_loading.get_generated_rouge(unsupervised_data, model,
                                                                                   search_params,

@@ -19,8 +19,8 @@ class RankingDatasetConfig:
 class RankerConfig(RankingDatasetConfig):
     loss_fn: str = 'mse'
     tolerance: float = None
-    learning_rate: float = 5e-3
-    gradient_accumulation_steps: int = 4
+    ranker_learning_rate: float = 5e-3
+    ranker_gradient_accumulation_steps: int = 4
     num_train_epochs: int = 10
     # half_percision = compute.get_torch().cuda.is_available()
     half_percision: bool = False

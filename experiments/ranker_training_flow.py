@@ -49,8 +49,8 @@ def run_exp(config: RankerConfig):
         overwrite_output_dir=True,
         # warmup_steps=0,
         fp16=config.half_percision,
-        learning_rate=config.learning_rate,
-        gradient_accumulation_steps=config.gradient_accumulation_steps,
+        learning_rate=config.ranker_learning_rate,
+        gradient_accumulation_steps=config.ranker_gradient_accumulation_steps,
         remove_unused_columns=False,
         evaluation_strategy='steps' if config.evaluate_every_steps else 'epoch' if config.do_evaluation else 'no',
         # load_best_model_at_end=True

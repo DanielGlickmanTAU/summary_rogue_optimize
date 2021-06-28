@@ -83,8 +83,10 @@ if training_args.eval_also_on_train_first_time:
     my_eval(train_dataset, model, tokenizer, search_params,
             f'on TRAIN set after training on {len(train_dataset)} samples')
 
-my_eval(eval_dataset, model, tokenizer, search_params,
-        f'on eval set after training on {len(train_dataset)} samples')
+rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params,
+                        f'on TEST set after training on {len(train_dataset)} samples')
+
+log_metrics({'rouge2_on_test': rouge_on_test})
 
 unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_data, model, tokenizer,
                                                                    search_params,
@@ -92,7 +94,7 @@ unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_
                                                                    load_generated=training_args.load_generated_model)
 
 
-def rank(unsupervised_data, ranking):
+def rank(unsupervised_data, ranking, train_dataset, validation_dataset):
     if ranking == 'oracle':
         unsupervised_data_with_rouge = generated_data_loading.get_generated_rouge(unsupervised_data, model,
                                                                                   search_params,
@@ -100,6 +102,17 @@ def rank(unsupervised_data, ranking):
         return unsupervised_data_with_rouge.map(lambda example: {'rank': example['rouge-2-first']})
     if ranking == 'random':
         return unsupervised_data.map(lambda example: {'rank': random.random()})
+
+    if ranking == 'filter':
+        # write it all inline here, then extract components and unit test
+
+        assert train_dataset and validation_dataset
+        # get filter and tokenizer by settings
+        # pass it train dataset(validation switch trick?) and validation dataset
+        # train filter
+        # rank unsupervised
+        pass
+
     raise Exception('unknown ranking', ranking)
 
 

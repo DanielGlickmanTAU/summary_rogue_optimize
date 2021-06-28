@@ -221,25 +221,6 @@ class GeneratorModelArguments:
     )
 
 
-@dataclass
-class RankerArguments:
-    binary_classification: bool = False
-    include_gold: bool = False
-
-    ranker_num_summaries_per_text: int = 4
-    # max_seq_len: int = bert_max_len
-    ranker_metric_for_best_model: str = None
-    loss_fn: str = 'mse'
-    tolerance: float = None
-    ranker_learning_rate: float = 5e-3
-    ranker_gradient_accumulation_steps: int = 4
-    num_train_epochs: int = 10
-    # half_percision = compute.get_torch().cuda.is_available()
-    half_percision: bool = False
-    do_evaluation: bool = True
-    evaluate_every_steps: int = None
-
-
 def parse_generation_args():
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.

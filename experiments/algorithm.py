@@ -164,7 +164,7 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
                 train_dataset = train_dataset2
 
         # pass it train dataset(validation switch trick?) and validation dataset
-        training_args = TrainingArguments(
+        ranker_training_args = TrainingArguments(
             output_dir="./ranker_output_dir_" + str(time()).replace('.', '_'),
             num_train_epochs=config.num_train_epochs,
             per_device_train_batch_size=1,
@@ -188,7 +188,7 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
         compute.clean_memory()
 
         training.train_ranker(ranker_model, config,
-                              training_args, train_dataset,
+                              ranker_training_args, train_dataset,
                               eval_dataset=validation_dataset,
                               test_dataset=None)
         print('')

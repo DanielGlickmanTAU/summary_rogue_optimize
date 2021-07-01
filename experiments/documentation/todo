@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 get baseline results for [1,--256]..
 continue further research only on values for which rouge2 increase with oracle selection(32,64,128)
 

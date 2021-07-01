@@ -134,7 +134,7 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
             max_seq_len=0,
 
             loss_fn='ranking',
-            tolerance=0.05,
+            tolerance=0.2,  # notice it is ok, after I multiple by 100
 
             binary_classification=True,
             include_gold=True
@@ -143,20 +143,25 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
         assert train_dataset and validation_dataset
         # get filter and tokenizer by settings
         ranker_model, ranker_tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
+
         validation_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
             validation_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
             max_seq_len=config.max_seq_len, binary_classification=True, include_gold=True)
 
-        train_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            train_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
-            max_seq_len=config.max_seq_len, binary_classification=True, include_gold=True)
+        if training_args.train_filter_on == 'train' or training_args.train_filter_on == 'both':
+            train_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+                train_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
+                max_seq_len=config.max_seq_len, binary_classification=True, include_gold=True)
 
-        splited = validation_dataset.train_test_split(train_size=len(train_dataset), shuffle=False)
-        train_dataset2, validation_dataset = splited['train'], splited['test']
-        assert len(validation_dataset) >= 32
-
-        concat_train_dataset = datasets.concatenate_datasets([train_dataset, train_dataset2.map()])
-        concat_train_dataset.set_format('torch')
+        if training_args.train_filter_on == 'validation' or training_args.train_filter_on == 'both':
+            splited = validation_dataset.train_test_split(train_size=len(train_dataset), shuffle=False)
+            train_dataset2, validation_dataset = splited['train'], splited['test']
+            assert len(validation_dataset) >= 32
+            if training_args.train_filter_on == 'both':
+                train_dataset = datasets.concatenate_datasets([train_dataset, train_dataset2.map()])
+                train_dataset.set_format('torch')
+            else:
+                train_dataset = train_dataset2
 
         # pass it train dataset(validation switch trick?) and validation dataset
         training_args = TrainingArguments(
@@ -183,7 +188,7 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
         compute.clean_memory()
 
         training.train_ranker(ranker_model, config,
-                              training_args, concat_train_dataset,
+                              training_args, train_dataset,
                               eval_dataset=validation_dataset,
                               test_dataset=None)
         print('')

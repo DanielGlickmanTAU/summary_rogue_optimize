@@ -53,6 +53,8 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     # for faster debuging. skip eval flow
     skip_first_test_eval: bool = field(default=False)
 
+    train_filter_on: str = field(default='validation')  # options: train,validation, both
+
 
 @dataclass
 class DataTrainingArguments:

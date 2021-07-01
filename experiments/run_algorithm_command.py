@@ -37,16 +37,19 @@ params = {
 }
 
 params_for_grid_search = {
-    'max_train_samples': [8, 16, 32, 64, 128],
-    # 'learning_rate': [3e-5, 1e-5],
-    'learning_rate': [3e-5],
-    # 'dataset_name': ['cnn_dailymail', 'xsum'],
-    'dataset_name': ['cnn_dailymail'],
+    # 'max_train_samples': [8, 16, 32, 64, 128],
+    'max_train_samples': [8],
+    # 'max_train_samples': [1, 8, 16, 32, 64, 128, 256],
+    'learning_rate': [1e-5],
+    # 'learning_rate': [3e-5],
     # 'dataset_name': ['xsum'],
-    # 'amount_to_pass_filter': [0.01, 0.02, 0.05],
+    # 'dataset_name': ['cnn_dailymail'],
+    'dataset_name': ['xsum'],
     'ranking': ['oracle', 'random'],
-    'amount_to_pass_filter': [0.01, 0.05],
-    'shuffle_seed': [42, 100, 1337]
+    # 'ranking': ['random'],
+    'amount_to_pass_filter': [0.01, 0.02, 0.05],
+    # 'amount_to_pass_filter': [0.05],
+    'shuffle_seed': [32, 10, 12]
     # 'shuffle_seed': [100, ]
     # 'ranking': ['oracle']
 }
@@ -54,6 +57,8 @@ params_for_grid_search = {
 job_name = '''algorithm'''
 for p in gridsearch(params, params_for_grid_search):
     dataset_name = p['dataset_name']
+
+    # training_args.shuffle_seed if training_args.shuffle_training_set else None
     p['output_dir'] = get_checkpoint_output_dir(dataset_name, model_name, p["max_train_samples"], p["learning_rate"])
     run_on_slurm(job_name, p, slurm=True)
-print(f'submited {len(p)} jobs')
+print(f'submited {len(gridsearch(params, params_for_grid_search))} jobs')

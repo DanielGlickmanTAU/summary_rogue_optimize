@@ -58,7 +58,8 @@ search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num
 
 model_checkpoint = \
     checkpoints.get_checkpoint_output_dir(data_args.dataset_name, model_args.model_name_or_path,
-                                          data_args.max_train_samples, training_args.learning_rate, extra=None)
+                                          data_args.max_train_samples, training_args.learning_rate,
+                                          extra=training_args.shuffle_seed if training_args.shuffle_training_set else None)
 training_args.output_dir = model_checkpoint + str(random.random())
 
 experiment.start_experiment(hyperparams=[data_args, training_args, model_args],

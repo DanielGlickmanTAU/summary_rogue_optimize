@@ -80,14 +80,16 @@ train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.g
 if not training_args.load_generated_model:
     do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
 
+# eval on train set(to see overfit)
 if training_args.eval_also_on_train_first_time:
     my_eval(train_dataset, model, tokenizer, search_params,
             f'on TRAIN set after training on {len(train_dataset)} samples')
 
-rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params,
-                        f'on TEST set after training on {len(train_dataset)} samples')
-
-log_metrics({'rouge2_on_test': rouge_on_test})
+# eval on test test
+if not training_args.skip_first_test_eval:
+    rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params,
+                            f'on TEST set after training on {len(train_dataset)} samples')
+    log_metrics({'rouge2_on_test': rouge_on_test})
 
 unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_data, model, tokenizer,
                                                                    search_params,

@@ -50,6 +50,9 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
                                                             "we training the ranker on generated train set, so we the data it gets to be"
                                                             "similar to that of the test set, but if the generator is overfitted on the train set, that is a problem"})
 
+    # for faster debuging. skip eval flow
+    skip_first_test_eval: bool = field(default=False)
+
 
 @dataclass
 class DataTrainingArguments:

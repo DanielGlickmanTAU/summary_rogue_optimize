@@ -47,7 +47,7 @@ class RankingLoss(nn.Module):
             return torch.tensor(0., requires_grad=True, device=logits.device)
 
         differences = torch.stack(differences)
-        print('warning. adding minus to ranking loss')
+        # print('warning. adding minus to ranking loss')
         sigmoid_log_diffs = -differences.sigmoid().log()
         if self.reduction == 'sum':
             return sigmoid_log_diffs.sum()

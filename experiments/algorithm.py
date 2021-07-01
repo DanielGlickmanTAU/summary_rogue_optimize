@@ -1,5 +1,10 @@
+from utils import decorators, compute
+from transformers import TrainingArguments
+import datasets
+
 from config.argument_parsing import parse_generation_args
-from data import data_loading, generated_data_loading
+from config.config import RankerConfig
+from data import data_loading, generated_data_loading, processing
 from data.processing import convert_dataset_with_generated_highlights_to_training_dataset
 from evaluation import evaluate
 from experiments import experiment
@@ -10,8 +15,7 @@ import random
 
 # TODO this also exists in run_summarization, origanize and move this to one place
 from models.generate import BeamSearchParams
-from train import generation_training
-from utils import decorators
+from train import generation_training, training
 
 
 @decorators.measure_time
@@ -96,6 +100,16 @@ unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_
                                                                    batch_size=training_args.per_device_eval_batch_size,
                                                                    load_generated=training_args.load_generated_model)
 
+train_dataset = generated_data_loading.get_generated_summaries(train_dataset, model, tokenizer,
+                                                               search_params,
+                                                               batch_size=training_args.per_device_eval_batch_size,
+                                                               load_generated=training_args.load_generated_model)
+
+eval_dataset = generated_data_loading.get_generated_summaries(eval_dataset, model, tokenizer,
+                                                              search_params,
+                                                              batch_size=training_args.per_device_eval_batch_size,
+                                                              load_generated=training_args.load_generated_model)
+
 
 def rank(unsupervised_data, train_dataset, validation_dataset, ranking):
     if ranking == 'oracle':
@@ -108,13 +122,72 @@ def rank(unsupervised_data, train_dataset, validation_dataset, ranking):
 
     if ranking == 'filter':
         # write it all inline here, then extract components and unit test
+        config = RankerConfig(
+            num_summaries_per_text=1,
+
+            ranker_learning_rate=1e-5,
+            ranker_gradient_accumulation_steps=2,
+            num_train_epochs=10,
+            half_percision=False,
+            do_evaluation=True,
+            max_seq_len=0,
+
+            loss_fn='ranking',
+            tolerance=0.05,
+
+            binary_classification=True,
+            include_gold=True
+        )
 
         assert train_dataset and validation_dataset
         # get filter and tokenizer by settings
+        ranker_model, ranker_tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
+        validation_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+            validation_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
+            max_seq_len=config.max_seq_len, binary_classification=True, include_gold=True)
+
+        train_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+            train_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
+            max_seq_len=config.max_seq_len, binary_classification=True, include_gold=True)
+
+        splited = validation_dataset.train_test_split(train_size=len(train_dataset), shuffle=False)
+        train_dataset2, validation_dataset = splited['train'], splited['test']
+        assert len(validation_dataset) >= 32
+
+        concat_train_dataset = datasets.concatenate_datasets([train_dataset, train_dataset2.map()])
+        concat_train_dataset.set_format('torch')
+
         # pass it train dataset(validation switch trick?) and validation dataset
+        training_args = TrainingArguments(
+            output_dir="./ranker_output_dir_" + str(time()).replace('.', '_'),
+            num_train_epochs=config.num_train_epochs,
+            per_device_train_batch_size=1,
+            per_device_eval_batch_size=1,
+            do_train=True,
+            overwrite_output_dir=True,
+            # warmup_steps=0,
+            fp16=config.half_percision,
+            learning_rate=config.ranker_learning_rate,
+            gradient_accumulation_steps=config.ranker_gradient_accumulation_steps,
+            remove_unused_columns=False,
+            evaluation_strategy='steps' if config.evaluate_every_steps else 'epoch' if config.do_evaluation else 'no',
+            # load_best_model_at_end=True
+            dataloader_num_workers=2,
+            eval_steps=config.evaluate_every_steps,
+            report_to=["comet_ml"],
+            load_best_model_at_end=True,
+            metric_for_best_model=config.metric_for_best_model,
+            save_total_limit=1,
+        )
+        compute.clean_memory()
+
+        training.train_ranker(ranker_model, config,
+                              training_args, concat_train_dataset,
+                              eval_dataset=validation_dataset,
+                              test_dataset=None)
+        print('')
         # train filter
         # rank unsupervised
-        pass
 
     raise Exception('unknown ranking', ranking)
 

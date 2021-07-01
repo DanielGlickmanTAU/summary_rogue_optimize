@@ -1,3 +1,7 @@
+huggingface concat datasets:
+dataset returned is with lists and not tensors. .map does not fix cause: .format is None fix:
+concat_dataset.set_format('torch')
+
 EarlyStoppingCallback:
 it stops when metric is worse for x *consecutive* steps training steps:
 if grad_acc_steps = 2, batch_size = 4 then each step is 8 examples. so if train set size is 80, it would be 10 steps

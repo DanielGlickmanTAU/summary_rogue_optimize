@@ -30,3 +30,8 @@ extra:
 BCELoss weights(higher for positives)(can do it by adding positve at start of labels and giving it higher weight)
 
 in repeat, can either train the whole model(filter) from scratch, or continue. use --overwrite output dir for that
+
+considertion:
+max seq len(bert), text+summary
+
+training on validation

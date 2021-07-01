@@ -19,17 +19,17 @@ def get_ranker_config():
     return args
 
 
-@dataclass
-class AlgorithmFlowControl:
-    eval_also_on_train_first_time: bool = field(default=True,
-                                                metadata={
-                                                    "help": "should run evaluation of rouge on train set. it is useful since we"
-                                                            "we training the ranker on generated train set, so we the data it gets to be"
-                                                            "similar to that of the test set, but if the generator is overfitted on the train set, that is a problem"})
+# @dataclass
+# class AlgorithmFlowControl:
+#     eval_also_on_train_first_time: bool = field(default=True,
+#                                                 metadata={
+#                                                     "help": "should run evaluation of rouge on train set. it is useful since we"
+#                                                             "we training the ranker on generated train set, so we the data it gets to be"
+#                                                             "similar to that of the test set, but if the generator is overfitted on the train set, that is a problem"})
 
 
 @dataclass
-class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments, AlgorithmFlowControl):
+class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     # todo when turning this on, see that the cache for tokenizing the training set still works
     shuffle_training_set: bool = field(default=False)
     shuffle_seed: int = field(default=42)
@@ -43,6 +43,12 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments, AlgorithmFl
     amount_to_pass_filter: float = field(default=0.01)
 
     track_experiment: bool = field(default=True)
+
+    eval_also_on_train_first_time: bool = field(default=True,
+                                                metadata={
+                                                    "help": "should run evaluation of rouge on train set. it is useful since we"
+                                                            "we training the ranker on generated train set, so we the data it gets to be"
+                                                            "similar to that of the test set, but if the generator is overfitted on the train set, that is a problem"})
 
 
 @dataclass

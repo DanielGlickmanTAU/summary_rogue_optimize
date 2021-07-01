@@ -78,9 +78,10 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
 
     trainer.train()
 
-    print('STARTING PREDICT')
-    predict_results = trainer.predict(
-        test_dataset,
-        metric_key_prefix="predict",
-    )
-    print(predict_results.metrics)
+    if test_dataset:
+        print('STARTING PREDICT')
+        predict_results = trainer.predict(
+            test_dataset,
+            metric_key_prefix="predict",
+        )
+        print(predict_results.metrics)

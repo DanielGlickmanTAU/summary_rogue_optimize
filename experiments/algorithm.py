@@ -97,7 +97,7 @@ unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_
                                                                    load_generated=training_args.load_generated_model)
 
 
-def rank(unsupervised_data, ranking, train_dataset, validation_dataset):
+def rank(unsupervised_data, train_dataset, validation_dataset, ranking):
     if ranking == 'oracle':
         unsupervised_data_with_rouge = generated_data_loading.get_generated_rouge(unsupervised_data, model,
                                                                                   search_params,
@@ -124,7 +124,7 @@ def filter(ranked_dataset, amount_to_pass_filter=0.01):
     return ranked_dataset.select(range(max(1, int(amount_to_pass_filter * len(ranked_dataset)))))
 
 
-ranked_unsupervised_dataset = rank(unsupervised_data, training_args.ranking, train_dataset, eval_dataset)
+ranked_unsupervised_dataset = rank(unsupervised_data, train_dataset, eval_dataset, training_args.ranking)
 filtered_unsupervised_dataset = filter(ranked_unsupervised_dataset, training_args.amount_to_pass_filter)
 unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
     filtered_unsupervised_dataset, tokenizer, data_args)

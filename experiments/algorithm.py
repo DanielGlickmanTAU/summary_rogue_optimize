@@ -121,7 +121,7 @@ def filter(ranked_dataset, amount_to_pass_filter=0.01):
     return ranked_dataset.select(range(max(1, int(amount_to_pass_filter * len(ranked_dataset)))))
 
 
-ranked_unsupervised_dataset = rank(unsupervised_data, training_args.ranking)
+ranked_unsupervised_dataset = rank(unsupervised_data, training_args.ranking, train_dataset, eval_dataset)
 filtered_unsupervised_dataset = filter(ranked_unsupervised_dataset, training_args.amount_to_pass_filter)
 unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
     filtered_unsupervised_dataset, tokenizer, data_args)

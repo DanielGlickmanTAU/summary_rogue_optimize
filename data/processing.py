@@ -7,6 +7,8 @@ def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, to
                                                                      max_num_summaries_per_text=None, max_seq_len=None,
                                                                      binary_classification=False,
                                                                      include_gold=False):
+    assert 'bert' in tokenizer.name_or_path, f'passed wrong tokenizer {tokenizer.name_or_path}'
+
     def convert_to_input_ids(example):
         generated_highlights = example['generated_highlights'][:max_num_summaries_per_text]
         if binary_classification:

@@ -146,12 +146,14 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
 
         validation_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
             validation_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
-            max_seq_len=config.max_seq_len, binary_classification=True, include_gold=True)
+            max_seq_len=config.max_seq_len,
+            binary_classification=config.binary_classification, include_gold=config.include_gold)
 
         if training_args.train_filter_on == 'train' or training_args.train_filter_on == 'both':
             train_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
                 train_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
-                max_seq_len=config.max_seq_len, binary_classification=True, include_gold=True)
+                max_seq_len=config.max_seq_len, binary_classification=config.binary_classification,
+                include_gold=config.include_gold)
 
         if training_args.train_filter_on == 'validation' or training_args.train_filter_on == 'both':
             splited = validation_dataset.train_test_split(train_size=len(train_dataset), shuffle=False)
@@ -187,10 +189,14 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
         )
         compute.clean_memory()
 
+        ranker_model.eval()
+        x = validation_dataset.select(range(50, 60)).map(lambda example: ranker_model(**example))
+
         training.train_ranker(ranker_model, config,
                               ranker_training_args, train_dataset,
                               eval_dataset=validation_dataset,
                               test_dataset=None)
+
         print('')
         # train filter
         # rank unsupervised

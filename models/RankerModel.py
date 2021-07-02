@@ -17,7 +17,8 @@ class RankerModel(nn.Module):
             input_ids_s,
             attention_mask_s,
             labels=None,
-
+            *args,
+            **kwargs
     ):
         if isinstance(input_ids_s, list):
             assert not self.training, 'added this since I had problem with inference, since there is no data collator to transfer lists into tensors. should effect inference mode'

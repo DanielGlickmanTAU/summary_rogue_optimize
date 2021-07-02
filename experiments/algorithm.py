@@ -165,6 +165,11 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
             else:
                 train_dataset = train_dataset2
 
+        unsupervised_data = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+            unsupervised_data, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
+            max_seq_len=config.max_seq_len, binary_classification=True,
+            include_gold=False, keep_texts=True)
+
         # pass it train dataset(validation switch trick?) and validation dataset
         ranker_training_args = TrainingArguments(
             output_dir="./ranker_output_dir_" + str(time()).replace('.', '_'),
@@ -189,17 +194,16 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
         )
         compute.clean_memory()
 
-        ranker_model.eval()
-        x = validation_dataset.select(range(50, 60)).map(lambda example: ranker_model(**example))
-
         training.train_ranker(ranker_model, config,
                               ranker_training_args, train_dataset,
                               eval_dataset=validation_dataset,
                               test_dataset=None)
 
+        ranker_model.eval()
+        unsupervised_data = unsupervised_data.map(lambda example: {'rank': ranker_model(**example)['logits'][0].item()})
+
         print('')
-        # train filter
-        # rank unsupervised
+        return unsupervised_data
 
     raise Exception('unknown ranking', ranking)
 

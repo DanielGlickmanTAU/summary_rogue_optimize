@@ -6,7 +6,21 @@ import nltk
 def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, tokenizer,
                                                                      max_num_summaries_per_text=None, max_seq_len=None,
                                                                      binary_classification=False,
-                                                                     include_gold=False):
+                                                                     include_gold=False, keep_texts=False):
+    """
+
+    :param dataset:
+    :param tokenizer:
+    :param max_num_summaries_per_text: allows limit the number of generate summaries used per text
+    :param max_seq_len:
+    :param binary_classification: if True, will give label 0 to generated_highlight and 1 to gold 'highights'
+                                  if False, will use the rouge score for generated
+    :param include_gold:  should include gold summary
+    :param keep_texts: should keep the texts(article, highlights).. for training it should be false since otherwise it messed
+    up the training.
+    for ranking the unsupervised set, it can be true, which helps with extra tokenizations.
+    :return:
+    """
     assert 'bert' in tokenizer.name_or_path, f'passed wrong tokenizer {tokenizer.name_or_path}'
 
     def convert_to_input_ids(example):
@@ -28,7 +42,7 @@ def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, to
                 'labels': labels}
 
     dataset_map = dataset.map(convert_to_input_ids,
-                              remove_columns=list(dataset.features))
+                              remove_columns=[] if keep_texts else list(dataset.features))
     if max_seq_len:
         len_before = len(dataset_map)
         print('WARNING! filtering sequences for only max len', max_seq_len)
@@ -38,7 +52,7 @@ def convert_generated_summaries_dataset_to_regression_dataset_format(dataset, to
             print(f'len before filtering {len_before} , len after filtering {len(dataset_map)}')
 
     dataset_map.set_format(
-        type="torch", columns=["input_ids_s", "attention_mask_s", "labels"])
+        type="torch", columns=["input_ids_s", "attention_mask_s", "labels"], output_all_columns=keep_texts)
 
     return dataset_map
 

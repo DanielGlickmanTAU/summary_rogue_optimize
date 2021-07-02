@@ -1,3 +1,6 @@
+from utils import compute
+
+torch = compute.get_torch()
 import torch.nn as nn
 
 
@@ -16,6 +19,11 @@ class RankerModel(nn.Module):
             labels=None,
 
     ):
+        if isinstance(input_ids_s, list):
+            assert not self.training, 'added this since I had problem with inference, since there is no data collator to transfer lists into tensors. should effect inference mode'
+            input_ids_s = torch.stack(input_ids_s)
+            attention_mask_s = torch.stack(attention_mask_s)
+
         res = self.roberta(input_ids_s, attention_mask_s)
 
         if labels is not None:

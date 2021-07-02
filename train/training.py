@@ -17,7 +17,7 @@ def ranker_data_collator(features) -> Dict[str, torch.Tensor]:
     # print(features)
     # lets assume batch_size is 1 for now
     batch_size = len(features)
-    assert batch_size == 1
+    assert batch_size == 1, f'{features} not with size 1'
     features_0 = features[0]
     input_ids_s = torch.stack(features_0['input_ids_s'])
     attention_mask_s = torch.stack(features_0['attention_mask_s'])

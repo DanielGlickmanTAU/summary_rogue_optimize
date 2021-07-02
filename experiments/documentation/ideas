@@ -1,0 +1,4 @@
+RUN FILTER BEFORE GENERATION
+- most expensive phase by far, is generating summaries on unsupervised set.
+- can try to have the filter conditioned only on text and not (text+summary)
+- filter texts before generating, and then select

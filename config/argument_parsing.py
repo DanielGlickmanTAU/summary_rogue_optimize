@@ -55,6 +55,9 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
 
     train_filter_on: str = field(default='validation')  # options: train,validation, both
 
+    # not working yet
+    early_stopping_patience: int = field(default=3)
+
 
 @dataclass
 class DataTrainingArguments:
@@ -262,4 +265,6 @@ def parse_generation_args():
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
                 "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
             )
+    assert training_args.train_filter_on == 'validation' or training_args.train_filter_on == 'train' \
+           or training_args.train_filter_on == 'both', training_args.train_filter_on
     return data_args, model_args, training_args, last_checkpoint

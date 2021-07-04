@@ -49,6 +49,10 @@ def get_ranker_model_and_tokenizer(config):
     return RankerModel.RankerModel(model, config, loss_fn=loss), tokenizer
 
 
+def get_ranker_tokenizer():
+    return RobertaTokenizer.from_pretrained(ranker_model_name, use_fast=True)
+
+
 @decorators.measure_time
 def get_model_and_tokenizer(model_args):
     print('loading model', model_args.model_name_or_path)

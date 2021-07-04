@@ -122,7 +122,33 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
         return unsupervised_data.map(lambda example: {'rank': random.random()})
 
     if ranking == 'filter':
-        config, ranker_model, ranker_tokenizer = train_ranker(train_dataset, validation_dataset, training_args)
+        # write it all inline here, then extract components and unit test
+        config = RankerConfig(
+            num_summaries_per_text=1,
+
+            ranker_learning_rate=1e-5,
+            ranker_gradient_accumulation_steps=3,
+            num_train_epochs=training_args.num_train_epochs,
+            half_percision=False,
+            do_evaluation=True,
+            max_seq_len=0,
+
+            loss_fn=training_args.ranker_loss_fn,
+            tolerance=0.2,  # check it is ok, after I multiple by 100
+            metric_for_best_model='accuracy_at_1',
+            binary_classification=True,
+            include_gold=True
+        )
+
+        assert train_dataset and validation_dataset
+        # get filter and tokenizer by settings
+        ranker_tokenizer = model_loading.get_ranker_tokenizer()
+
+        train_dataset, validation_dataset = convert_to_regression_format(config, ranker_tokenizer, train_dataset,
+                                                                         training_args,
+                                                                         validation_dataset)
+
+        ranker_model, ranker_tokenizer = train_ranker(config, train_dataset, validation_dataset)
 
         unsupervised_data_for_ranking = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
             unsupervised_data, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
@@ -140,45 +166,8 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
     raise Exception('unknown ranking', ranking)
 
 
-def train_ranker(train_dataset, validation_dataset, training_args):
-    # write it all inline here, then extract components and unit test
-    config = RankerConfig(
-        num_summaries_per_text=1,
-
-        ranker_learning_rate=1e-5,
-        ranker_gradient_accumulation_steps=3,
-        num_train_epochs=training_args.num_train_epochs,
-        half_percision=False,
-        do_evaluation=True,
-        max_seq_len=0,
-
-        loss_fn=training_args.ranker_loss_fn,
-        tolerance=0.2,  # check it is ok, after I multiple by 100
-        metric_for_best_model='accuracy_at_1',
-        binary_classification=True,
-        include_gold=True
-    )
-    assert train_dataset and validation_dataset
-    # get filter and tokenizer by settings
+def train_ranker(config, train_dataset, validation_dataset):
     ranker_model, ranker_tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
-    validation_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-        validation_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
-        max_seq_len=config.max_seq_len,
-        binary_classification=config.binary_classification, include_gold=config.include_gold)
-    if training_args.train_filter_on == 'train' or training_args.train_filter_on == 'both':
-        train_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            train_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
-            max_seq_len=config.max_seq_len, binary_classification=config.binary_classification,
-            include_gold=config.include_gold)
-    if training_args.train_filter_on == 'validation' or training_args.train_filter_on == 'both':
-        splited = validation_dataset.train_test_split(train_size=len(train_dataset), shuffle=False)
-        train_dataset2, validation_dataset = splited['train'], splited['test']
-        # assert len(validation_dataset) >= 32
-        if training_args.train_filter_on == 'both':
-            train_dataset = datasets.concatenate_datasets([train_dataset, train_dataset2.map()])
-            train_dataset.set_format('torch')
-        else:
-            train_dataset = train_dataset2
     # pass it train dataset(validation switch trick?) and validation dataset
     ranker_training_args = TrainingArguments(
         output_dir="./ranker_output_dir_" + str(time()).replace('.', '_'),
@@ -206,7 +195,29 @@ def train_ranker(train_dataset, validation_dataset, training_args):
                                     ranker_training_args, train_dataset,
                                     eval_dataset=validation_dataset,
                                     test_dataset=None)
-    return config, ranker_model, ranker_tokenizer
+    return ranker_model, ranker_tokenizer
+
+
+def convert_to_regression_format(config, ranker_tokenizer, train_dataset, training_args, validation_dataset):
+    validation_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+        validation_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
+        max_seq_len=config.max_seq_len,
+        binary_classification=config.binary_classification, include_gold=config.include_gold)
+    if training_args.train_filter_on == 'train' or training_args.train_filter_on == 'both':
+        train_dataset = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+            train_dataset, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
+            max_seq_len=config.max_seq_len, binary_classification=config.binary_classification,
+            include_gold=config.include_gold)
+    if training_args.train_filter_on == 'validation' or training_args.train_filter_on == 'both':
+        splited = validation_dataset.train_test_split(train_size=len(train_dataset), shuffle=False)
+        train_dataset2, validation_dataset = splited['train'], splited['test']
+        # assert len(validation_dataset) >= 32
+        if training_args.train_filter_on == 'both':
+            train_dataset = datasets.concatenate_datasets([train_dataset, train_dataset2.map()])
+            train_dataset.set_format('torch')
+        else:
+            train_dataset = train_dataset2
+    return train_dataset, validation_dataset
 
 
 def filter(ranked_dataset, amount_to_pass_filter=0.01):

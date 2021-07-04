@@ -30,7 +30,7 @@ class RankerModel(nn.Module):
         if labels is not None:
             logits = res.logits.view(-1)
             assert labels.shape == logits.shape
-
+            labels = labels.to(logits.device).float()
             loss = self.loss(logits, labels)
             res['loss'] = loss
 

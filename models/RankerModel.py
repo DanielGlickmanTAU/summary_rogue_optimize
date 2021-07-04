@@ -27,7 +27,7 @@ class RankerModel(nn.Module):
 
         res = self.roberta(input_ids_s, attention_mask_s)
 
-        if labels is not None:
+        if labels is not None and self.roberta.training:
             logits = res.logits.view(-1)
             assert labels.shape == logits.shape
 

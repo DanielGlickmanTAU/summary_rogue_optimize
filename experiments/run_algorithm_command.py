@@ -19,6 +19,7 @@ params = {
     'do_predict': True,
     'num_beams': 1,
     'model_name_or_path': model_name,
+    'ranker_loss_fn': 'ranking',
 
     'gradient_accumulation_steps': 2,
     'load_best_model_at_end': True,
@@ -39,17 +40,18 @@ params = {
 params_for_grid_search = {
     # 'max_train_samples': [8, 16, 32, 64, 128],
     # 'max_train_samples': [8],
-    'max_train_samples': [1, 8, 16, 32, 64, 128, 256],
-    # 'learning_rate': [1e-5],
-    'learning_rate': [3e-5],
+    'max_train_samples': [16, 64, 128],
+    'learning_rate': [1e-5],
+    # 'learning_rate': [3e-5],
     # 'dataset_name': ['xsum'],
-    'dataset_name': ['cnn_dailymail'],
-    # 'dataset_name': ['xsum'],
-    'ranking': ['oracle', 'random'],
-    # 'ranking': ['random'],
-    'amount_to_pass_filter': [0.01, 0.02, 0.05],
+    # 'dataset_name': ['cnn_dailymail'],
+    'dataset_name': ['xsum'],
+    # 'ranking': ['oracle', 'random'],
+    'ranking': ['filter'],
+    'train_filter_on': ['validation', 'train', 'both'],
+    'amount_to_pass_filter': [0.01, 0.05],
     # 'amount_to_pass_filter': [0.05],
-    'shuffle_seed': [32, 10, 12]
+    'shuffle_seed': [32, 10, 12, 64, 69]
     # 'shuffle_seed': [100, ]
     # 'ranking': ['oracle']
 }

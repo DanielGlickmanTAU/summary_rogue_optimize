@@ -58,6 +58,8 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     # not working yet
     early_stopping_patience: int = field(default=3)
 
+    ranker_loss_fn: str = field(default='bce')
+
 
 @dataclass
 class DataTrainingArguments:

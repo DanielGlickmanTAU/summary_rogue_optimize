@@ -127,15 +127,15 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
             num_summaries_per_text=1,
 
             ranker_learning_rate=1e-5,
-            ranker_gradient_accumulation_steps=2,
-            num_train_epochs=10,
+            ranker_gradient_accumulation_steps=3,
+            num_train_epochs=training_args.num_train_epochs,
             half_percision=False,
             do_evaluation=True,
             max_seq_len=0,
 
-            loss_fn='ranking',
-            tolerance=0.2,  # notice it is ok, after I multiple by 100
-
+            loss_fn=training_args.ranker_loss_fn,
+            tolerance=0.2,  # check it is ok, after I multiple by 100
+            metric_for_best_model='accuracy_at_1',
             binary_classification=True,
             include_gold=True
         )
@@ -165,11 +165,6 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
             else:
                 train_dataset = train_dataset2
 
-        unsupervised_data = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            unsupervised_data, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
-            max_seq_len=config.max_seq_len, binary_classification=True,
-            include_gold=False, keep_texts=True)
-
         # pass it train dataset(validation switch trick?) and validation dataset
         ranker_training_args = TrainingArguments(
             output_dir="./ranker_output_dir_" + str(time()).replace('.', '_'),
@@ -194,16 +189,23 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
         )
         compute.clean_memory()
 
-        training.train_ranker(ranker_model, config,
-                              ranker_training_args, train_dataset,
-                              eval_dataset=validation_dataset,
-                              test_dataset=None)
+        trainer = training.train_ranker(ranker_model, config,
+                                        ranker_training_args, train_dataset,
+                                        eval_dataset=validation_dataset,
+                                        test_dataset=None)
+
+        unsupervised_data_for_ranking = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+            unsupervised_data, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
+            max_seq_len=config.max_seq_len, binary_classification=True,
+            include_gold=False, remove_text=False)
+
+        # results = trainer.predict(unsupervised_data_for_ranking)
 
         ranker_model.eval()
-        unsupervised_data = unsupervised_data.map(lambda example: {'rank': ranker_model(**example)['logits'][0].item()})
+        unsupervised_data_special = unsupervised_data_for_ranking.map(
+            lambda example: {'rank': ranker_model(**example)['logits'][0].item()})
 
-        print('')
-        return unsupervised_data
+        return unsupervised_data_special
 
     raise Exception('unknown ranking', ranking)
 
@@ -218,6 +220,8 @@ filtered_unsupervised_dataset = filter(ranked_unsupervised_dataset, training_arg
 unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
     filtered_unsupervised_dataset, tokenizer, data_args)
 
+# huggginface magic...
+unsupervised_dataset_for_training.set_format(None)
 do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args, last_checkpoint)
 my_eval(eval_dataset, model, tokenizer, search_params, description='on eval set after training unsupervised')
 

@@ -121,7 +121,7 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
     if ranking == 'random':
         return unsupervised_data.map(lambda example: {'rank': random.random()})
 
-    if ranking == 'filter':
+    if ranking == 'filter' or ranking == 'ensemble':
         # write it all inline here, then extract components and unit test
         config = RankerConfig(
             num_summaries_per_text=1,
@@ -148,20 +148,39 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
                                                                          training_args,
                                                                          validation_dataset)
 
-        ranker_model, ranker_tokenizer = train_ranker(config, train_dataset, validation_dataset)
-
         unsupervised_data_for_ranking = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
             unsupervised_data, ranker_tokenizer, max_num_summaries_per_text=config.num_summaries_per_text,
             max_seq_len=config.max_seq_len, binary_classification=True,
             include_gold=False, remove_text=False)
 
-        # results = trainer.predict(unsupervised_data_for_ranking)
+        if ranking == 'filter':
+            ranker_model, ranker_tokenizer, trainer = train_ranker(config, train_dataset, validation_dataset)
+            # results = trainer.predict(unsupervised_data_for_ranking)
 
-        ranker_model.eval()
-        unsupervised_data_special = unsupervised_data_for_ranking.map(
-            lambda example: {'rank': ranker_model(**example)['logits'][0].item()})
+            ranker_model.eval()
+            unsupervised_data_special = unsupervised_data_for_ranking.map(
+                lambda example: {'rank': ranker_model(**example)['logits'][0].item()})
 
-        return unsupervised_data_special
+            return unsupervised_data_special
+
+        if ranking == 'ensemble':
+            unsupervised_data_for_ranking = unsupervised_data_for_ranking.map(lambda example: {'rank': 0.})
+            k = 5
+            for i in range(k):
+                train_dataset = train_dataset.shuffle()
+                validation_dataset = validation_dataset.shuffle()
+
+                ranker_model, ranker_tokenizer, trainer = train_ranker(config, train_dataset.select(
+                    range(int(max(1, 0.75 * len(train_dataset))))), validation_dataset.select(
+                    range(int(max(1, 0.75 * len(validation_dataset))))))
+                # results = trainer.predict(unsupervised_data_for_ranking)
+
+                ranker_model.eval()
+                unsupervised_data_for_ranking = unsupervised_data_for_ranking.map(
+                    lambda example: {f'rank': example['rank'] + ranker_model(**example)['logits'][0].item()})
+                compute.clean_memory()
+
+            return unsupervised_data_for_ranking
 
     raise Exception('unknown ranking', ranking)
 
@@ -195,7 +214,7 @@ def train_ranker(config, train_dataset, validation_dataset):
                                     ranker_training_args, train_dataset,
                                     eval_dataset=validation_dataset,
                                     test_dataset=None)
-    return ranker_model, ranker_tokenizer
+    return ranker_model, ranker_tokenizer, trainer
 
 
 def convert_to_regression_format(config, ranker_tokenizer, train_dataset, training_args, validation_dataset):

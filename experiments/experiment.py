@@ -1,11 +1,13 @@
 import collections.abc as collections
 import dataclasses
-
+import os
 import comet_ml
 from comet_ml import Experiment
 
 
 def start_experiment(tags=None, hyperparams=None):
+    print(os.popen(f'squeue  | grep glickman').read())
+
     def flatten(d):
         items = []
         for k, v in d.items():

@@ -8,7 +8,7 @@ model_name = 'facebook/bart-base'
 params = {
     'overwrite_output_dir': True,
 
-    'num_train_epochs': '10',
+    'num_train_epochs': '15',
     'evaluation_strategy': 'epoch',
     # 'max_predict_samples': '1000',
     'max_eval_samples': 256,
@@ -40,14 +40,16 @@ params = {
 params_for_grid_search = {
     # 'max_train_samples': [8, 16, 32, 64, 128],
     # 'max_train_samples': [8],
-    'max_train_samples': [16, 64, 128],
+    'max_train_samples': [16, 64],
     'learning_rate': [1e-5],
     # 'learning_rate': [3e-5],
     # 'dataset_name': ['xsum'],
     # 'dataset_name': ['cnn_dailymail'],
     'dataset_name': ['xsum'],
     # 'ranking': ['oracle', 'random'],
-    'ranking': ['filter'],
+    # 'ranking': ['filter'],
+    'ranking': ['ensemble'],
+    'ranker_loss_fn': ['bce', 'ranking'],
     'train_filter_on': ['validation', 'train', 'both'],
     'amount_to_pass_filter': [0.01, 0.05],
     # 'amount_to_pass_filter': [0.05],

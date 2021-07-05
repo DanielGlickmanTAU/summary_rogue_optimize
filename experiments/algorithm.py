@@ -90,6 +90,7 @@ if training_args.eval_also_on_train_first_time:
             f'on TRAIN set after training on {len(train_dataset)} samples')
 
 # eval on test test
+rouge_on_test = None
 if not training_args.skip_first_test_eval:
     rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params,
                             f'on TEST set after training on {len(train_dataset)} samples')
@@ -256,6 +257,9 @@ my_eval(eval_dataset, model, tokenizer, search_params, description='on eval set 
 
 final_rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params, description='on test set now')
 log_metrics({'rouge2_on_test': final_rouge_on_test})
+if rouge_on_test:
+    log_metrics({'rouge-2-diff': final_rouge_on_test - rouge_on_test})
+
 # generator model , generator tokenizer =
 
 

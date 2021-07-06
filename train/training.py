@@ -44,7 +44,6 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
         if is_gold_in_labels:
             for k in range(1, labels.shape[-1]):
                 accuracy_k = (predictions[:, 0:k + 1].argmax(dim=1) == 0).float().mean().item()
-                # todo why is accuracy_at_1 and accuracy_at_2 the same?
                 d[f'accuracy_at_{k}'] = accuracy_k
             labels = labels[:, 1:]
             predictions = predictions[:, 1:]

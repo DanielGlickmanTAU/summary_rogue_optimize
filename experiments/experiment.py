@@ -6,8 +6,6 @@ from comet_ml import Experiment
 
 
 def start_experiment(tags=None, hyperparams=None):
-    print(os.popen(f'squeue  | grep glickman').read())
-
     def flatten(d):
         items = []
         for k, v in d.items():
@@ -32,9 +30,6 @@ def start_experiment(tags=None, hyperparams=None):
     if tags is None:
         tags = []
 
-    if len(hyperparams):
-        print('hyperparams:', flatten(hyperparams))
-
     experiment = Experiment(project_name='summary-sampling', workspace="danielglickmantau")
     if len(tags):
         experiment.add_tags(tags)
@@ -42,6 +37,9 @@ def start_experiment(tags=None, hyperparams=None):
         hyperparams = flatten(hyperparams)
         experiment.log_parameters(hyperparams)
 
+    print(os.popen(f'squeue  | grep glickman').read())
+    if len(hyperparams):
+        print('hyperparams:', flatten(hyperparams))
     return experiment
 
 

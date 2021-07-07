@@ -39,21 +39,30 @@ params = {
 
 params_for_grid_search = {
     # 'max_train_samples': [8, 16, 32, 64, 128],
-    # 'max_train_samples': [8],
-    'max_train_samples': [16, 64],
+    'shuffle_seed': [32, 10, 12],
+    # 'max_train_samples': [4, 8, 16, 32],
+    # 'max_train_samples': [12, 24],
+    'max_train_samples': [256],
     'learning_rate': [1e-5],
     # 'learning_rate': [3e-5],
-    # 'dataset_name': ['xsum'],
-    # 'dataset_name': ['cnn_dailymail'],
     'dataset_name': ['xsum'],
+    # 'dataset_name': ['cnn_dailymail'],
+    # 'dataset_name': ['xsum', 'cnn_dailymail'],
+
     # 'ranking': ['oracle', 'random'],
-    # 'ranking': ['filter'],
-    'ranking': ['ensemble'],
-    'ranker_loss_fn': ['bce', 'ranking'],
-    'train_filter_on': ['validation', 'train', 'both'],
-    'amount_to_pass_filter': [0.01, 0.05],
+    # 'ranking': ['random'],
+    # 'ranking': ['oracle'],
+    'ranking': ['filter'],
+    # 'ranking': ['ensemble'],
+
+    # 'ranker_loss_fn': ['bce', 'ranking'],
+    # 'ranker_loss_fn': ['bce'],
+    'ranker_loss_fn': ['bce'],
+
+    # 'train_filter_on': ['validation', 'train'],
+    'train_filter_on': ['train'],
+    'amount_to_pass_filter': [0.01],
     # 'amount_to_pass_filter': [0.05],
-    'shuffle_seed': [32, 10, 12, 64, 69]
     # 'shuffle_seed': [100, ]
     # 'ranking': ['oracle']
 }

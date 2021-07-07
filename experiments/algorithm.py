@@ -112,7 +112,7 @@ eval_dataset = generated_data_loading.get_generated_summaries(eval_dataset, mode
                                                               load_generated=training_args.load_generated_model)
 
 
-def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
+def rank(unsupervised_data, train_dataset, validation_dataset, training_args, prediction_dataset=None):
     ranking = training_args.ranking
     if ranking == 'oracle':
         unsupervised_data_with_rouge = generated_data_loading.get_generated_rouge(unsupervised_data, model,
@@ -161,6 +161,18 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
             ranker_model.eval()
             unsupervised_data_special = unsupervised_data_for_ranking.map(
                 lambda example: {'rank': ranker_model(**example)['logits'][0].item()})
+
+            # if prediction_dataset:
+            #     prediction_data_with_rouge = generated_data_loading.get_generated_rouge(predict_dataset, model,
+            #                                                                             BeamSearchParams(num_beams=2,
+            #                                                                                              num_return_sequences=2),
+            #                                                                             training_args.load_generated_model)
+            #
+            #     prediction_data_with_rouge_as_labels = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
+            #         unsupervised_data, ranker_tokenizer,
+            #         max_seq_len=config.max_seq_len, binary_classification=False,
+            #         include_gold=False)
+            #     trainer.evaluate(prediction_data_with_rouge_as_labels)
 
             return unsupervised_data_special
 
@@ -245,7 +257,7 @@ def filter(ranked_dataset, amount_to_pass_filter=0.01):
     return ranked_dataset.select(range(max(1, int(amount_to_pass_filter * len(ranked_dataset)))))
 
 
-ranked_unsupervised_dataset = rank(unsupervised_data, train_dataset, eval_dataset, training_args)
+ranked_unsupervised_dataset = rank(unsupervised_data, train_dataset, eval_dataset, training_args, predict_dataset)
 filtered_unsupervised_dataset = filter(ranked_unsupervised_dataset, training_args.amount_to_pass_filter)
 unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
     filtered_unsupervised_dataset, tokenizer, data_args)
@@ -253,7 +265,6 @@ unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to
 # huggginface magic...
 unsupervised_dataset_for_training.set_format(None)
 do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args, last_checkpoint)
-my_eval(eval_dataset, model, tokenizer, search_params, description='on eval set after training unsupervised')
 
 final_rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params, description='on test set now')
 log_metrics({'rouge2_on_test': final_rouge_on_test})

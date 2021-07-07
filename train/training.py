@@ -73,7 +73,7 @@ def train_ranker(ranker_model, config, training_arguments: TrainingArguments, da
         config=config
     )
 
-    callback = EarlyStoppingCallback(early_stopping_patience=3)
+    callback = EarlyStoppingCallback(early_stopping_patience=5)
     trainer.add_callback(callback)
 
     trainer.train()

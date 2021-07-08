@@ -97,20 +97,21 @@ if not training_args.skip_first_test_eval:
     log_metrics({'rouge2_on_test': rouge_on_test})
 
 # here do if training_args.use_gpt_dataset load from my new python file... else below
-unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_data, model, tokenizer,
+if training_args.use_gpt_dataset:
+    unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_data, model, tokenizer,
+                                                                       search_params,
+                                                                       batch_size=training_args.per_device_eval_batch_size,
+                                                                       load_generated=training_args.load_generated_model)
+
+    train_dataset = generated_data_loading.get_generated_summaries(train_dataset, model, tokenizer,
                                                                    search_params,
                                                                    batch_size=training_args.per_device_eval_batch_size,
                                                                    load_generated=training_args.load_generated_model)
 
-train_dataset = generated_data_loading.get_generated_summaries(train_dataset, model, tokenizer,
-                                                               search_params,
-                                                               batch_size=training_args.per_device_eval_batch_size,
-                                                               load_generated=training_args.load_generated_model)
-
-eval_dataset = generated_data_loading.get_generated_summaries(eval_dataset, model, tokenizer,
-                                                              search_params,
-                                                              batch_size=training_args.per_device_eval_batch_size,
-                                                              load_generated=training_args.load_generated_model)
+    eval_dataset = generated_data_loading.get_generated_summaries(eval_dataset, model, tokenizer,
+                                                                  search_params,
+                                                                  batch_size=training_args.per_device_eval_batch_size,
+                                                                  load_generated=training_args.load_generated_model)
 
 
 def rank(unsupervised_data, train_dataset, validation_dataset, training_args, prediction_dataset=None):

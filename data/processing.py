@@ -107,7 +107,7 @@ def convert_to_generation_training(dataset_split, tokenizer, data_args, max_samp
         lambda example: len(example['input_ids']) + len(example['labels']) < bert_max_len)
     if max_samples:
         # assert we have enough examples after filter.
-        # this must be after select, because of .select but that does not update dataset len..
+        # this must be after select, because of .select bug that does not update dataset len..
         assert len(
             dataset_split) >= max_samples, f'taking split {len(dataset_split)} for split {dataset_split.split} limited for {bert_max_len} tokens'
         dataset_split = dataset_split.select(range(max_samples))

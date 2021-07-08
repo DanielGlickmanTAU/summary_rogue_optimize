@@ -3,3 +3,5 @@ conclution:
 * something aboth the relationi between good examples, and ability to distigish(explanition why it works for the middle sizes)
 * technique can be used with ranker as judge to get annotaions
 * cheaper to annotate
+
+* we ran on validation instead of train, results were slightly better

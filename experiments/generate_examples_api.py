@@ -2,10 +2,10 @@ from config.argument_parsing import parse_generation_args
 from data import data_loading
 import openai
 import json
+import tqdm
 
+from experiments.openai_dataset_reading import get_generated_gpt_dataset
 from models import model_loading
-
-split = 'train'
 
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
 
@@ -15,8 +15,17 @@ train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.g
                                                                                            tokenizer,
                                                                                            do_unsupervised=True)
 
-# dataset = dataset['train']
-dataset = unsupervised_data
+existing_data = get_generated_gpt_dataset()
+assert len(existing_data) > 1
+# skip existing generated summaries
+generated_on = set(existing_data['article'])
+# unsupervised_data = unsupervised_data.select(range(len(existing_data), 9999999999))
+unsupervised_data_filtered = unsupervised_data.filter(lambda example: example['article'] not in generated_on)
+eval_dataset = eval_dataset.filter(lambda example: example['article'] not in generated_on)
+train_dataset = train_dataset.filter(lambda example: example['article'] not in generated_on)
+
+# dataset = unsupervised_data_filtered
+dataset = eval_dataset
 
 
 def do_filter():
@@ -64,7 +73,8 @@ def summarize(text, prompt):
 
 prompt = "\n\nSummarize:"
 generated = []
-for i in range(len(dataset)):
+print(f'going to generate summaries for {len(dataset)}')
+for i in tqdm.tqdm(range(len(dataset))):
     text = dataset[i]['article']
     try:
         summary = summarize(text, prompt)
@@ -76,7 +86,7 @@ for i in range(len(dataset)):
 print('generated', len(generated))
 import time
 
-file_name = f'results_open_json.json{time.time()}'
+file_name = f'results_open_json{time.time()}.json'
 with open(file_name, 'w') as f:
     json.dump(generated, f)
     print(f'wrote to {file_name}')

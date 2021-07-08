@@ -1,5 +1,6 @@
 from config.argument_parsing import UnsupervisedSeq2SeqTrainingArguments
 from data.processing import convert_to_generation_training
+from experiments.openai_dataset_reading import get_generated_gpt_dataset
 from utils import compute, decorators
 import datasets
 
@@ -74,16 +75,19 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
         if s in dataset['train'].column_names:
             dataset.rename_column_(s, "highlights")
 
-    # Preprocessing the datasets.
-    # We need to tokenize inputs and targets.
-    if training_args.do_train:
-        column_names = dataset["train"].column_names
-    elif training_args.do_eval:
-        column_names = dataset["validation"].column_names
-    elif training_args.do_predict:
-        column_names = dataset["test"].column_names
-    else:
-        raise Exception
+    if training_args.use_gpt_dataset:
+        old_sizes = (len(dataset['train']), len(dataset['validation']))
+        gpt_dataset = get_generated_gpt_dataset()
+        text_to_gpt_summary = {t: s for (t, s) in zip(gpt_dataset['article'], gpt_dataset['generated_highlights'])}
+        generated_on = set(gpt_dataset['article'])
+        dataset['train'] = dataset['train'].filter(lambda example: example['article'] in generated_on)
+        dataset['validation'] = dataset['validation'].filter(lambda example: example['article'] in generated_on)
+
+        print(f'old train,validation sizes:{old_sizes}, new sizes {len(dataset["train"]), len(dataset["validation"])}')
+        dataset['train'] = dataset['train'].map(
+            lambda example: {'generated_highlights': text_to_gpt_summary[example['article']]})
+        dataset['validation'] = dataset['validation'].map(
+            lambda example: {'generated_highlights': text_to_gpt_summary[example['article']]})
 
     # Get the column names for input/target.
     # dataset_columns = summarization_name_mapping.get(data_args.dataset_name, None)
@@ -117,10 +121,13 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
         predict_dataset = dataset["test"]
         predict_dataset = convert_to_generation_training(predict_dataset, tokenizer, data_args,
                                                          data_args.max_predict_samples)
+    if train_dataset:
+        train_dataset.name = 'train'
+    if eval_dataset:
+        eval_dataset.name = 'validation'
+    if predict_dataset:
+        predict_dataset.name = 'test'
 
-    train_dataset.name = 'train'
-    eval_dataset.name = 'validation'
-    predict_dataset.name = 'test'
     if do_unsupervised:
         unsupervised_dataset.name = 'unsupervised'
         return train_dataset, eval_dataset, predict_dataset, unsupervised_dataset

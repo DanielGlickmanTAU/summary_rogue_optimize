@@ -60,6 +60,8 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
 
     ranker_loss_fn: str = field(default='bce')
 
+    use_gpt_dataset: bool = field(default=False)
+
 
 @dataclass
 class DataTrainingArguments:
@@ -156,10 +158,6 @@ class DataTrainingArguments:
             "help": "For debugging purposes or quicker training, truncate the number of prediction examples to this "
                     "value if set."
         },
-    )
-
-    max_unsupervised_samples: Optional[int] = field(
-        default=None
     )
 
     max_unsupervised_samples: Optional[int] = field(

@@ -39,11 +39,12 @@ params = {
 
 params_for_grid_search = {
     # 'max_train_samples': [8, 16, 32, 64, 128],
-    'shuffle_seed': [32, 10, 12],
+    # 'shuffle_seed': [32, 10, 12],
+    'shuffle_seed': [42, 69, 1337],
     # 'max_train_samples': [4, 8, 16, 32],
     # 'max_train_samples': [12, 24],
-    'max_train_samples': [256],
-    'learning_rate': [1e-5],
+    'max_train_samples': [64],
+    'learning_rate': [1e-5, 3e-5],
     # 'learning_rate': [3e-5],
     'dataset_name': ['xsum'],
     # 'dataset_name': ['cnn_dailymail'],
@@ -55,9 +56,9 @@ params_for_grid_search = {
     'ranking': ['filter'],
     # 'ranking': ['ensemble'],
 
-    # 'ranker_loss_fn': ['bce', 'ranking'],
+    'ranker_loss_fn': ['bce', 'ranking'],
     # 'ranker_loss_fn': ['bce'],
-    'ranker_loss_fn': ['bce'],
+    # 'ranker_loss_fn': ['bce'],
 
     # 'train_filter_on': ['validation', 'train'],
     'train_filter_on': ['train'],

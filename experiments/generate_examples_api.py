@@ -7,8 +7,6 @@ from models import model_loading
 
 split = 'train'
 
-train_examples = 200
-
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
 
 model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
@@ -16,9 +14,6 @@ model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
 train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.get_dataset(data_args, training_args,
                                                                                            tokenizer,
                                                                                            do_unsupervised=True)
-
-# dataset = data_loading.get_xsum_dataset(train_subset=train_examples, valid_subset=1,
-#                                         test_subset=1)
 
 # dataset = dataset['train']
 dataset = unsupervised_data
@@ -79,12 +74,9 @@ for i in range(len(dataset)):
         print(f'failed parsing {text} with expect {e}')
 
 print('generated', len(generated))
+import time
 
-try:
-    with open('openapi-results', 'w') as f:
-        f.write(str(generated))
-except Exception:
-    pass
-
-with open('results_open_json.json', 'w') as f:
+file_name = f'results_open_json.json{time.time()}'
+with open(file_name, 'w') as f:
     json.dump(generated, f)
+    print(f'wrote to {file_name}')

@@ -96,6 +96,7 @@ if not training_args.skip_first_test_eval:
                             f'on TEST set after training on {len(train_dataset)} samples')
     log_metrics({'rouge2_on_test': rouge_on_test})
 
+# here do if training_args.use_gpt_dataset load from my new python file... else below
 unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_data, model, tokenizer,
                                                                    search_params,
                                                                    batch_size=training_args.per_device_eval_batch_size,

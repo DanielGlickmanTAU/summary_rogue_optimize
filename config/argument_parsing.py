@@ -62,6 +62,8 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
 
     use_gpt_dataset: bool = field(default=False)
 
+    train_from_scratch_on_unsupervised: bool = field(default=False)
+
 
 @dataclass
 class DataTrainingArguments:

@@ -69,6 +69,8 @@ training_args.output_dir = model_checkpoint + str(random.random())
 experiment.start_experiment(hyperparams=[data_args, training_args, model_args],
                             tags=[] if training_args.track_experiment else ['debug'])
 
+original_model_name_or_path = model_args.model_name_or_path
+
 if training_args.load_generated_model:
     if training_args.shuffle_training_set:
         raise NotImplementedError('it is not supported right now with get_generated_summaries')
@@ -97,7 +99,7 @@ if not training_args.skip_first_test_eval:
     log_metrics({'rouge2_on_test': rouge_on_test})
 
 # here do if training_args.use_gpt_dataset load from my new python file... else below
-if training_args.use_gpt_dataset:
+if not training_args.use_gpt_dataset:
     unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_data, model, tokenizer,
                                                                        search_params,
                                                                        batch_size=training_args.per_device_eval_batch_size,
@@ -163,18 +165,6 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args, pr
             ranker_model.eval()
             unsupervised_data_special = unsupervised_data_for_ranking.map(
                 lambda example: {'rank': ranker_model(**example)['logits'][0].item()})
-
-            # if prediction_dataset:
-            #     prediction_data_with_rouge = generated_data_loading.get_generated_rouge(predict_dataset, model,
-            #                                                                             BeamSearchParams(num_beams=2,
-            #                                                                                              num_return_sequences=2),
-            #                                                                             training_args.load_generated_model)
-            #
-            #     prediction_data_with_rouge_as_labels = processing.convert_generated_summaries_dataset_to_regression_dataset_format(
-            #         unsupervised_data, ranker_tokenizer,
-            #         max_seq_len=config.max_seq_len, binary_classification=False,
-            #         include_gold=False)
-            #     trainer.evaluate(prediction_data_with_rouge_as_labels)
 
             return unsupervised_data_special
 
@@ -266,7 +256,18 @@ unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to
 
 # huggginface magic...
 unsupervised_dataset_for_training.set_format(None)
-do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args, last_checkpoint)
+if training_args.train_from_scratch_on_unsupervised:
+    del (model)
+    compute.clean_memory()
+
+    model_args.model_name_or_path = original_model_name_or_path
+    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+    do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args,
+             last_checkpoint)
+    do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
+else:
+    do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args,
+             last_checkpoint)
 
 final_rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params, description='on test set now')
 log_metrics({'rouge2_on_test': final_rouge_on_test})

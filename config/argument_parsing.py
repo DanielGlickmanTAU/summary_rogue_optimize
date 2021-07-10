@@ -30,7 +30,9 @@ def get_ranker_config():
 
 @dataclass
 class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
-    # todo when turning this on, see that the cache for tokenizing the training set still works
+    version_major: int = field(default=1)
+    version_minor: int = field(default=1)
+
     shuffle_training_set: bool = field(default=False)
     shuffle_seed: int = field(default=42)
 

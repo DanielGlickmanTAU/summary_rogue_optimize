@@ -29,7 +29,7 @@ params = {
     # 'metric_for_best_model': 'rouge2'
     'metric_for_best_model': 'loss',
     # train each time from scrach cause loading isnt good yet
-    'load_generated_model': False,
+    'load_generated_model': True,
     'shuffle_training_set': True
 
     # let it persist the generated datasets one time, for debugging later
@@ -40,7 +40,8 @@ params = {
 params_for_grid_search = {
     # 'max_train_samples': [8, 16, 32, 64, 128],
     # 'max_train_samples': [16, 24, 32],
-    'max_train_samples': [8, 16, 32],
+    # 'max_train_samples': [8, 16, 32],
+    'max_train_samples': [64],
     'shuffle_seed': [32, 10, 12],
     # 'shuffle_seed': [42, 69, 1337],
     # 'max_train_samples': [4, 8, 16, 32],
@@ -62,7 +63,7 @@ params_for_grid_search = {
     # 'ranker_loss_fn': ['ranking'],
     # 'ranker_loss_fn': ['bce'],
 
-    'train_filter_on': ['validation', 'train'],
+    'train_filter_on': ['train'],
     # 'train_filter_on': ['train'],
     # 'amount_to_pass_filter': [0.01, 0.05],
     'amount_to_pass_filter': [0.1],

@@ -60,6 +60,7 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
 
 
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
+training_args.load_generated_model = True
 search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num_beams)
 
 model_checkpoint = \
@@ -136,8 +137,8 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
         config = RankerConfig(
             num_summaries_per_text=1,
 
-            ranker_learning_rate=1e-5,
-            ranker_gradient_accumulation_steps=3,
+            ranker_learning_rate=training_args.ranker_learning_rate,
+            ranker_gradient_accumulation_steps=training_args.ranker_gradient_accumulation_steps,
             num_train_epochs=training_args.num_train_epochs,
             half_percision=False,
             do_evaluation=True,

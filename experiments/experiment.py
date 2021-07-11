@@ -30,7 +30,7 @@ def start_experiment(tags=None, hyperparams=None):
     if tags is None:
         tags = []
 
-    experiment = Experiment(project_name='summary-sampling', workspace="danielglickmantau")
+    experiment = Experiment(project_name='feedback-filter', workspace="danielglickmantau")
     if len(tags):
         experiment.add_tags(tags)
     if len(hyperparams):

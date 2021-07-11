@@ -40,7 +40,7 @@ params = {
 params_for_grid_search = {
     # 'max_train_samples': [8, 16, 32, 64, 128],
     # 'max_train_samples': [16, 24, 32],
-    'max_train_samples': [16],
+    'max_train_samples': [8, 16, 32],
     'shuffle_seed': [32, 10, 12],
     # 'shuffle_seed': [42, 69, 1337],
     # 'max_train_samples': [4, 8, 16, 32],
@@ -58,19 +58,19 @@ params_for_grid_search = {
     'ranking': ['filter'],
     # 'ranking': ['ensemble'],
 
-    # 'ranker_loss_fn': ['bce', 'ranking'],
+    'ranker_loss_fn': ['bce', 'ranking'],
     # 'ranker_loss_fn': ['ranking'],
     # 'ranker_loss_fn': ['bce'],
 
-    # 'train_filter_on': ['validation', 'train'],
-    'train_filter_on': ['train'],
-    'amount_to_pass_filter': [0.02, 0.05],
-    # 'amount_to_pass_filter': [0.05],
+    'train_filter_on': ['validation', 'train'],
+    # 'train_filter_on': ['train'],
+    # 'amount_to_pass_filter': [0.01, 0.05],
+    'amount_to_pass_filter': [0.1],
     # 'shuffle_seed': [100, ]
     # 'ranking': ['oracle']
     # 'train_from_scratch_on_unsupervised',
     # 'use_gpt_dataset': [True],
-    # 'train_from_scratch_on_unsupervised': [True, False]
+    'train_from_scratch_on_unsupervised': [True]
 }
 
 job_name = '''fewshots'''

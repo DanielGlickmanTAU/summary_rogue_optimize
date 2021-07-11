@@ -80,8 +80,9 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
         gpt_dataset = get_generated_gpt_dataset()
         text_to_gpt_summary = {t: s for (t, s) in zip(gpt_dataset['article'], gpt_dataset['generated_highlights'])}
         generated_on = set(gpt_dataset['article'])
-        dataset['train'] = dataset['train'].filter(lambda example: example['article'] in generated_on)
-        dataset['validation'] = dataset['validation'].filter(lambda example: example['article'] in generated_on)
+        dataset['train'] = dataset['train'].filter(lambda example: example['article'] in generated_on).map()
+
+        dataset['validation'] = dataset['validation'].filter(lambda example: example['article'] in generated_on).map()
 
         print(f'old train,validation sizes:{old_sizes}, new sizes {len(dataset["train"]), len(dataset["validation"])}')
         dataset['train'] = dataset['train'].map(

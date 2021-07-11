@@ -94,7 +94,12 @@ def convert_to_generation_training(dataset_split, tokenizer, data_args, max_samp
     text_column, summary_column = ("article", "highlights")
 
     if max_samples:
-        dataset_split = dataset_split.select(range(skip_constant * max_samples))
+        extra_to_take = skip_constant * max_samples
+        # this comes to fix a bug where there is not enough examples to take. it happens in gpt-3 examples,
+        # where filtering should have been done before
+        # if this is not the case, it should fail in the next assert
+        if len(dataset_split) > extra_to_take:
+            dataset_split = dataset_split.select(range(extra_to_take))
     dataset_split = dataset_split.map(
         preprocess_function,
         batched=True,

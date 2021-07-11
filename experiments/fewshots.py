@@ -80,8 +80,8 @@ train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.g
                                                                                            do_unsupervised=True)
 
 if training_args.load_generated_model and os.path.isdir(model_checkpoint):
-    if training_args.shuffle_training_set:
-        raise NotImplementedError('it is not supported right now with get_generated_summaries')
+    # if training_args.shuffle_training_set:
+    #     raise NotImplementedError('it is not supported right now with get_generated_summaries')
 
     model_args.model_name_or_path = model_checkpoint
     model, tokenizer = model_loading.get_model_and_tokenizer(model_args)

@@ -36,9 +36,6 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     shuffle_training_set: bool = field(default=False)
     shuffle_seed: int = field(default=42)
 
-    save_model_after_train: bool = field(
-        default=False
-    )
     load_generated_model: bool = field(default=False)
     ranking: str = field(default="",
                          metadata={"help": "how to rank examples. support oracle(rouge) and random currently"})
@@ -46,7 +43,7 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
 
     track_experiment: bool = field(default=True)
 
-    eval_also_on_train_first_time: bool = field(default=True,
+    eval_also_on_train_first_time: bool = field(default=False,
                                                 metadata={
                                                     "help": "should run evaluation of rouge on train set. it is useful since we"
                                                             "we training the ranker on generated train set, so we the data it gets to be"

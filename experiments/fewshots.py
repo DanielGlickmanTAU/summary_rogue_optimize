@@ -12,6 +12,7 @@ from experiments.experiment import log_metrics
 from models import model_loading, generation, checkpoints
 from time import time
 import random
+import os
 
 # TODO this also exists in run_summarization, origanize and move this to one place
 from models.generate import BeamSearchParams
@@ -27,7 +28,8 @@ def my_eval(dataset, model, tokenizer, search_params, description=''):
 
 
 @decorators.measure_time
-def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint):
+def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint,
+             model_name_or_path_for_saving=None):
     # need this because the trainer remove features that are not neccessery for the model(like article and highlights), which messes things up later.
     train_dataset = train_dataset.map()
     eval_dataset = eval_dataset.map()
@@ -44,9 +46,9 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
     else:
         train_result = trainer.train()
 
-    if training_args.save_model_after_train:
+    if training_args.load_generated_model and model_name_or_path_for_saving:
         t = time()
-        trainer.save_model()  # Saves the tokenizer too for easy upload
+        trainer.save_model(model_name_or_path_for_saving)  # Saves the tokenizer too for easy upload
         trainer.save_state()
         print(f'saving took {time() - t} seconds')
     else:
@@ -71,20 +73,23 @@ experiment.start_experiment(hyperparams=[data_args, training_args, model_args],
 
 original_model_name_or_path = model_args.model_name_or_path
 
-if training_args.load_generated_model:
-    if training_args.shuffle_training_set:
-        raise NotImplementedError('it is not supported right now with get_generated_summaries')
-    model_args.model_name_or_path = model_checkpoint
-    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
-else:
-    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+tokenizer = model_loading.get_generator_tokenizer(model_args)
 
 train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.get_dataset(data_args, training_args,
                                                                                            tokenizer,
                                                                                            do_unsupervised=True)
 
-if not training_args.load_generated_model:
-    do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
+if training_args.load_generated_model and os.path.isdir(model_checkpoint):
+    if training_args.shuffle_training_set:
+        raise NotImplementedError('it is not supported right now with get_generated_summaries')
+
+    model_args.model_name_or_path = model_checkpoint
+    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+else:
+    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+    model_save_path = model_checkpoint if training_args.load_generated_model else None
+    do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint,
+             model_name_or_path_for_saving=model_save_path)
 
 # eval on train set(to see overfit)
 if training_args.eval_also_on_train_first_time:
@@ -116,7 +121,7 @@ if not training_args.use_gpt_dataset:
                                                                   load_generated=training_args.load_generated_model)
 
 
-def rank(unsupervised_data, train_dataset, validation_dataset, training_args, prediction_dataset=None):
+def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
     ranking = training_args.ranking
     if ranking == 'oracle':
         unsupervised_data_with_rouge = generated_data_loading.get_generated_rouge(unsupervised_data, model,
@@ -249,7 +254,7 @@ def filter(ranked_dataset, amount_to_pass_filter=0.01):
     return ranked_dataset.select(range(max(1, int(amount_to_pass_filter * len(ranked_dataset)))))
 
 
-ranked_unsupervised_dataset = rank(unsupervised_data, train_dataset, eval_dataset, training_args, predict_dataset)
+ranked_unsupervised_dataset = rank(unsupervised_data, train_dataset, eval_dataset, training_args)
 filtered_unsupervised_dataset = filter(ranked_unsupervised_dataset, training_args.amount_to_pass_filter)
 unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
     filtered_unsupervised_dataset, tokenizer, data_args)
@@ -263,11 +268,12 @@ if training_args.train_from_scratch_on_unsupervised:
     model_args.model_name_or_path = original_model_name_or_path
     model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
     do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args,
-             last_checkpoint)
-    do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint)
+             last_checkpoint, model_name_or_path_for_saving=None)
+    do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint,
+             model_name_or_path_for_saving=None)
 else:
     do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args,
-             last_checkpoint)
+             last_checkpoint, model_name_or_path_for_saving=None)
 
 final_rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params, description='on test set now')
 log_metrics({'rouge2_on_test': final_rouge_on_test})

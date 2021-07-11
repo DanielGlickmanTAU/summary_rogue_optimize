@@ -54,19 +54,16 @@ def get_ranker_tokenizer():
 
 
 @decorators.measure_time
-def get_model_and_tokenizer(model_args):
+def get_model_and_tokenizer(model_args, tokenizer=None):
     print('loading model', model_args.model_name_or_path)
     config = AutoConfig.from_pretrained(
         model_args.config_name if model_args.config_name else model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,
         revision=model_args.model_revision,
     )
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
-        use_fast=model_args.use_fast_tokenizer,
-        revision=model_args.model_revision,
-    )
+    if not tokenizer:
+        tokenizer = get_generator_tokenizer(model_args)
+
     model = AutoModelForSeq2SeqLM.from_pretrained(
         model_args.model_name_or_path,
         from_tf=bool(".ckpt" in model_args.model_name_or_path),
@@ -81,6 +78,16 @@ def get_model_and_tokenizer(model_args):
         raise ValueError("Make sure that `config.decoder_start_token_id` is correctly defined")
 
     return model, tokenizer
+
+
+def get_generator_tokenizer(model_args):
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
+        cache_dir=model_args.cache_dir,
+        use_fast=model_args.use_fast_tokenizer,
+        revision=model_args.model_revision,
+    )
+    return tokenizer
 
 
 def adjust_model(model, tokenizer):

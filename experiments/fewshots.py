@@ -60,7 +60,7 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
 
 
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
-training_args.load_generated_model = True
+
 search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num_beams)
 
 model_checkpoint = \
@@ -70,7 +70,8 @@ model_checkpoint = \
 training_args.output_dir = model_checkpoint + str(random.random())
 
 experiment.start_experiment(hyperparams=[data_args, training_args, model_args],
-                            tags=[] if training_args.track_experiment else ['debug'])
+                            tags=[] if training_args.track_experiment or training_args.quit_after_generating_summaries else [
+                                'debug'])
 
 original_model_name_or_path = model_args.model_name_or_path
 
@@ -120,6 +121,10 @@ if not training_args.use_gpt_dataset:
                                                                   search_params,
                                                                   batch_size=training_args.per_device_eval_batch_size,
                                                                   load_generated=training_args.load_generated_model)
+if training_args.quit_after_generating_summaries:
+    print('exiting because it was just to generate stuff')
+    exit()
+    quit()
 
 
 def rank(unsupervised_data, train_dataset, validation_dataset, training_args):

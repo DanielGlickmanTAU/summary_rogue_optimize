@@ -64,7 +64,7 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     train_from_scratch_on_unsupervised: bool = field(default=False)
 
     ranker_learning_rate: float = field(default=1e-5)
-    ranker_gradient_accumulation_steps: int = field(default=3)
+    ranker_gradient_accumulation_steps: int = field(default=2)
 
     quit_after_generating_summaries: bool = field(default=False)
 

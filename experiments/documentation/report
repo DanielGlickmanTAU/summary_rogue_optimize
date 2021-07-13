@@ -5,3 +5,7 @@ conclution:
 * cheaper to annotate
 
 * we ran on validation instead of train, results were slightly better
+
+
+datasets sizes(after filter)
+xsum unsupervised 126833

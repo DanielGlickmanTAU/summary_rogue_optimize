@@ -204,8 +204,9 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
 def train_ranker(config, train_dataset, validation_dataset):
     ranker_model, ranker_tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
     # pass it train dataset(validation switch trick?) and validation dataset
+    output_dir = "./ranker_output_dir_" + str(time()).replace('.', '_')
     ranker_training_args = TrainingArguments(
-        output_dir="./ranker_output_dir_" + str(time()).replace('.', '_'),
+        output_dir=output_dir,
         num_train_epochs=config.num_train_epochs,
         per_device_train_batch_size=1,
         per_device_eval_batch_size=1,
@@ -224,12 +225,16 @@ def train_ranker(config, train_dataset, validation_dataset):
         load_best_model_at_end=True,
         metric_for_best_model=config.metric_for_best_model,
         save_total_limit=1,
+        save_strategy='no'
     )
     compute.clean_memory()
     trainer = training.train_ranker(ranker_model, config,
                                     ranker_training_args, train_dataset,
                                     eval_dataset=validation_dataset,
                                     test_dataset=None)
+
+    os.system(f'rm -rf {output_dir}')
+
     return ranker_model, ranker_tokenizer, trainer
 
 

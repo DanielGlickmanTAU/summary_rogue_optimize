@@ -39,7 +39,7 @@ def run_on_slurm(job_name, params, slurm=True, gpu=True, sleep=True):
         os.system(f"nohup sh -c ' {f} > res.txt '&")
     os.system('chmod 700 slurm.py')
     if sleep:
-        time.sleep(random.randint(0, 20))
+        time.sleep(random.randint(0, 15))
 
 
 # job_name = 'cnn_generation_with_xsum_pretrained'

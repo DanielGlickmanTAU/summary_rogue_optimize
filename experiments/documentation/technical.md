@@ -1,3 +1,6 @@
+deleting files in linux with name over 10 lines:
+ls 8/facebook/bart-base/ | grep '.\{10,\}' | xargs rm -rf
+
 huggingface concat datasets:
 dataset returned is with lists and not tensors. .map does not fix cause: .format is None fix:
 concat_dataset.set_format('torch')

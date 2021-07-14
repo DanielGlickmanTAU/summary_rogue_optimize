@@ -7,12 +7,18 @@ from models.checkpoints import get_checkpoint_output_dir
 params_for_grid_search = {
     'skip_first_test_eval': [True],
     'train_filter_on': ['train'],
+    'dataset_name': ['xsum', 'cnn_dailymail', 'xsum', 'cnn_dailymail'],
     'ranking': ['filter'],
+    'ranking': ['oracle'],
     'ranker_loss_fn': ['ranking'],
 
     # GPT
     # 'use_gpt_dataset': [True],
-    'dataset_name': ['xsum'],
+
+    'max_train_samples': [1, 8, 16, 32, 64, 128, 256],
+    # 'shuffle_seed': [32, 10, 12],
+    'shuffle_seed': [32, 10, 12],
+    'amount_to_pass_filter': [0.1, 0.2],
     # 'ranker_loss_fn': ['ranking', 'bce'],
     # 'ranker_loss_fn': ['ranking', 'bce'],
     # 'ranker_learning_rate': [1e-5, 5e-5],
@@ -30,22 +36,17 @@ params_for_grid_search = {
     # 'max_train_samples': [16, 24, 32],
     # 'max_train_samples': [8, 16, 32],
     # 'max_train_samples': [16, 32, 64],
-    'train_from_scratch_on_unsupervised': [True, False],
-    'amount_to_pass_filter': [0.01, 0.05],
-    'ranker_loss_fn': ['ranking', 'bce'],
-    'max_train_samples': [16, 32, 64],
-    'shuffle_seed': [32, 10, 12],
+    'train_from_scratch_on_unsupervised': [False],
     # 'amount_to_pass_filter': [0.01, 0.05],
-    'use_gpt_dataset': [True],
+    # 'ranker_loss_fn': ['ranking', 'bce'],
+    # 'max_train_samples': [16, 32, 64],
 
-    # 'shuffle_seed': [12],
-    # 'shuffle_seed': [42, 69, 1337],
-    # 'max_train_samples': [4, 8, 16, 32],
-    # 'max_train_samples': [12, 24],
-    # 'max_train_samples': [64],
+    # 'amount_to_pass_filter': [0.01, 0.05],
+    'use_gpt_dataset': [False],
+
+    # 'ranker_learning_rate': [5e-5],
 
     # # 'dataset_name': ['xsum'],
-    # 'dataset_name': ['xsum', 'cnn_dailymail'],
     # 'ranker_loss_fn': ['ranking'],
 
     # 'ranking': ['oracle', 'random'],
@@ -95,7 +96,7 @@ params = {
     'gradient_accumulation_steps': 2,
     'load_best_model_at_end': True,
     'predict_with_generate': True,
-    'save_total_limit': 2,
+    'save_total_limit': 1,
     # 'greater_is_better': True,
     # 'metric_for_best_model': 'rouge2'
     'metric_for_best_model': 'loss',

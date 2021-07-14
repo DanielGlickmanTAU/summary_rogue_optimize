@@ -46,6 +46,8 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
     else:
         train_result = trainer.train()
 
+    os.system(f'rm -rf {training_args.output_dir}')
+
     if training_args.load_generated_model and model_name_or_path_for_saving:
         t = time()
         trainer.save_model(model_name_or_path_for_saving)  # Saves the tokenizer too for easy upload
@@ -82,8 +84,6 @@ train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.g
                                                                                            do_unsupervised=True)
 
 if training_args.load_generated_model and os.path.isdir(model_checkpoint):
-    # if training_args.shuffle_training_set:
-    #     raise NotImplementedError('it is not supported right now with get_generated_summaries')
 
     model_args.model_name_or_path = model_checkpoint
     model, tokenizer = model_loading.get_model_and_tokenizer(model_args)

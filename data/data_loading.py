@@ -62,7 +62,7 @@ def get_dataset(data_args, training_args: UnsupervisedSeq2SeqTrainingArguments, 
         # Downloading and loading a dataset from the hub.
         dataset = datasets.load_dataset(dataset_name,
                                         summarization_config_mapping.get(dataset_name, None),
-                                        cache_dir=compute.get_cache_dir())
+                                        cache_dir=compute.get_cache_dir(), ignore_verifications=True)
     else:
         dataset = _load_dataset_from_file(data_args)
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at

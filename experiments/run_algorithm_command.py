@@ -5,36 +5,23 @@ import random
 from models.checkpoints import get_checkpoint_output_dir
 
 params_for_grid_search = {
-    'skip_first_test_eval': [True],
+    'skip_first_test_eval': [False],
     'train_filter_on': ['train'],
-    'dataset_name': ['xsum', 'cnn_dailymail', 'xsum', 'cnn_dailymail'],
-    'ranking': ['filter'],
+    'dataset_name': ['xsum', 'cnn_dailymail'],
+    # 'ranking': ['filter'],
     'ranking': ['oracle'],
     'ranker_loss_fn': ['ranking'],
 
     # GPT
     # 'use_gpt_dataset': [True],
 
-    'max_train_samples': [1, 8, 16, 32, 64, 128, 256],
+    'max_train_samples': [8, 16, 32, 64, 128, 256, 1],
     # 'shuffle_seed': [32, 10, 12],
-    'shuffle_seed': [32, 10, 12],
     'amount_to_pass_filter': [0.1, 0.2],
+    'shuffle_seed': [32, 10, 12],
     # 'ranker_loss_fn': ['ranking', 'bce'],
     # 'ranker_loss_fn': ['ranking', 'bce'],
-    # 'ranker_learning_rate': [1e-5, 5e-5],
-    # 'train_from_scratch_on_unsupervised': [True, False],
 
-    # self supervisionion, new flow
-    #     'use_gpt_dataset': [False],
-    #     'use_gpt_dataset': [False],
-    #     'dataset_name': ['xsum','cnn_dailymail'],
-    #     'ranker_loss_fn': ['ranking', 'bce'],
-    #     'ranker_learning_rate': [1e-5, 5e-5],
-    #     'amount_to_pass_filter': [0.01, 0.05],
-
-    # 'max_train_samples': [8, 16, 32, 64, 128],
-    # 'max_train_samples': [16, 24, 32],
-    # 'max_train_samples': [8, 16, 32],
     # 'max_train_samples': [16, 32, 64],
     'train_from_scratch_on_unsupervised': [False],
     # 'amount_to_pass_filter': [0.01, 0.05],
@@ -43,37 +30,6 @@ params_for_grid_search = {
 
     # 'amount_to_pass_filter': [0.01, 0.05],
     'use_gpt_dataset': [False],
-
-    # 'ranker_learning_rate': [5e-5],
-
-    # # 'dataset_name': ['xsum'],
-    # 'ranker_loss_fn': ['ranking'],
-
-    # 'ranking': ['oracle', 'random'],
-    # 'ranking': ['oracle'],
-    # 'ranking': ['ensemble'],
-
-    # 'ranking': ['random'],
-    # 'amount_to_pass_filter': [1.],
-    # 'ranker_loss_fn': ['bce'],
-
-    # 'train_filter_on': ['train'],
-    # 'amount_to_pass_filter': [0.01, 0.05],
-
-    # 'amount_to_pass_filter': [0.01],
-    # 'shuffle_seed': [100, ]
-    # 'ranking': ['oracle']
-    # 'train_from_scratch_on_unsupervised',
-    # 'use_gpt_dataset': [True],
-
-    # ORACLE
-    # 'train_from_scratch_on_unsupervised': [True],
-    # 'shuffle_seed': [32, 10, 12],
-    # # 'max_train_samples': [16],
-    # # 'dataset_name': ['xsum'],
-    # 'amount_to_pass_filter': [0.01,0.05],
-    # 'ranking': ['oracle'],
-    # 'use_gpt_dataset': [False],
 
 }
 model_name = 'facebook/bart-base'

@@ -61,6 +61,7 @@ def get_generated_dataset_save_path(dataset_split, model, search_params):
     else:
         model_name = model.config.name_or_path.replace('/', '_')
     dataset_name = dataset_split.name
+    assert (len(dataset_name))
     ds_len = len(dataset_split)
     search_str = search_params.str_descriptor()
     mapped_search_path = '%s/processed_dataset_' % model_name + '_' + dataset_name + str(ds_len) + '_' + search_str

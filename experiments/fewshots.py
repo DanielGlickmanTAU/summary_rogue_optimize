@@ -104,6 +104,7 @@ if not training_args.skip_first_test_eval:
     rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params,
                             f'on TEST set after training on {len(train_dataset)} samples')
     log_metrics({'rouge2_on_test': rouge_on_test})
+    log_metrics({'rouge2_on_test_first': rouge_on_test})
 
 # here do if training_args.use_gpt_dataset load from my new python file... else below
 if not training_args.use_gpt_dataset:
@@ -288,21 +289,6 @@ else:
 
 final_rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params, description='on test set now')
 log_metrics({'rouge2_on_test': final_rouge_on_test})
+log_metrics({'rouge2_on_test_last': final_rouge_on_test})
 if rouge_on_test:
     log_metrics({'rouge-2-diff': final_rouge_on_test - rouge_on_test})
-
-# generator model , generator tokenizer =
-
-
-# train generator(train,validation)
-
-# create summries and add rouge for train,validation, test
-
-# train filter(train, validation)
-
-
-# rank  unsupervised generated
-
-# select top ranked
-
-# insert into train set(can use some dataset feature to replace 'generated_highlight' for creating labels for generation trainig)

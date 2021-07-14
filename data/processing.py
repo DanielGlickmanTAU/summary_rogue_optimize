@@ -94,6 +94,7 @@ def convert_to_generation_training(dataset_split, tokenizer, data_args, max_samp
     text_column, summary_column = ("article", "highlights")
 
     if max_samples:
+        skip_constant = 8 if 'cnn' in dataset_split.builder_name else 3
         extra_to_take = skip_constant * max_samples
         # this comes to fix a bug where there is not enough examples to take. it happens in gpt-3 examples,
         # where filtering should have been done before

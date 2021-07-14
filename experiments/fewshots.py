@@ -14,7 +14,6 @@ from time import time
 import random
 import os
 
-# TODO this also exists in run_summarization, origanize and move this to one place
 from models.generate import BeamSearchParams
 from train import generation_training, training
 

@@ -1,6 +1,6 @@
-from experiments.fewshots.learning import do_evaluate, do_train
+# from experiments.fewshots.learning import do_evaluate, do_train, train_ranker
+from experiments.fewshots.learning import train_ranker, do_evaluate, do_train
 from utils import compute
-from transformers import TrainingArguments
 import datasets
 
 from config.argument_parsing import parse_generation_args
@@ -10,12 +10,10 @@ from data.processing import convert_dataset_with_generated_highlights_to_trainin
 from experiments import experiment
 from experiments.experiment import log_metrics
 from models import model_loading, checkpoints
-from time import time
 import random
 import os
 
 from models.generate import BeamSearchParams
-from train import training
 
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
 
@@ -28,7 +26,7 @@ model_checkpoint = \
 training_args.output_dir = model_checkpoint + str(random.random())
 
 experiment.start_experiment(hyperparams=[data_args, training_args, model_args],
-                            tags=[] if training_args.track_experiment or training_args.quit_after_generating_summaries else [
+                            tags=[] if training_args.track_experiment else [
                                 'debug'])
 
 original_model_name_or_path = model_args.model_name_or_path
@@ -147,43 +145,6 @@ def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
             return unsupervised_data_for_ranking
 
     raise Exception('unknown ranking', ranking)
-
-
-def train_ranker(config, train_dataset, validation_dataset):
-    ranker_model, ranker_tokenizer = model_loading.get_ranker_model_and_tokenizer(config)
-    # pass it train dataset(validation switch trick?) and validation dataset
-    output_dir = "./ranker_output_dir_" + str(time()).replace('.', '_')
-    ranker_training_args = TrainingArguments(
-        output_dir=output_dir,
-        num_train_epochs=config.num_train_epochs,
-        per_device_train_batch_size=1,
-        per_device_eval_batch_size=1,
-        do_train=True,
-        overwrite_output_dir=True,
-        # warmup_steps=0,
-        fp16=config.half_percision,
-        learning_rate=config.ranker_learning_rate,
-        gradient_accumulation_steps=config.ranker_gradient_accumulation_steps,
-        remove_unused_columns=False,
-        evaluation_strategy='steps' if config.evaluate_every_steps else 'epoch' if config.do_evaluation else 'no',
-        # load_best_model_at_end=True
-        dataloader_num_workers=2,
-        eval_steps=config.evaluate_every_steps,
-        report_to=["comet_ml"],
-        load_best_model_at_end=True,
-        metric_for_best_model=config.metric_for_best_model,
-        save_total_limit=1,
-        save_strategy='no'
-    )
-    compute.clean_memory()
-    trainer = training.train_ranker(ranker_model, config,
-                                    ranker_training_args, train_dataset,
-                                    eval_dataset=validation_dataset,
-                                    test_dataset=None)
-
-    os.system(f'rm -rf {output_dir}')
-
-    return ranker_model, ranker_tokenizer, trainer
 
 
 def convert_to_regression_format(config, ranker_tokenizer, train_dataset, training_args, validation_dataset):

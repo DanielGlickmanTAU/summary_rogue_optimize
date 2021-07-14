@@ -78,10 +78,6 @@ if not training_args.use_gpt_dataset:
                                                                   search_params,
                                                                   batch_size=training_args.per_device_eval_batch_size,
                                                                   load_generated=training_args.load_generated_model)
-if training_args.quit_after_generating_summaries:
-    print('exiting because it was just to generate stuff')
-    exit()
-    quit()
 
 
 def rank(unsupervised_data, train_dataset, validation_dataset, training_args):

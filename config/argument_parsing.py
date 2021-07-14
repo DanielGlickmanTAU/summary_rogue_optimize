@@ -20,15 +20,6 @@ def get_ranker_config():
     return args
 
 
-# @dataclass
-# class AlgorithmFlowControl:
-#     eval_also_on_train_first_time: bool = field(default=True,
-#                                                 metadata={
-#                                                     "help": "should run evaluation of rouge on train set. it is useful since we"
-#                                                             "we training the ranker on generated train set, so we the data it gets to be"
-#                                                             "similar to that of the test set, but if the generator is overfitted on the train set, that is a problem"})
-
-
 @dataclass
 class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     version_major: int = field(default=1)
@@ -43,12 +34,6 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     amount_to_pass_filter: float = field(default=0.01)
 
     track_experiment: bool = field(default=True)
-
-    eval_also_on_train_first_time: bool = field(default=False,
-                                                metadata={
-                                                    "help": "should run evaluation of rouge on train set. it is useful since we"
-                                                            "we training the ranker on generated train set, so we the data it gets to be"
-                                                            "similar to that of the test set, but if the generator is overfitted on the train set, that is a problem"})
 
     # for faster debuging. skip eval flow
     skip_first_test_eval: bool = field(default=False)

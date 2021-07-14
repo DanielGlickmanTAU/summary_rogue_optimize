@@ -49,11 +49,6 @@ else:
     do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint,
              model_name_or_path_for_saving=model_save_path)
 
-# eval on train set(to see overfit)
-if training_args.eval_also_on_train_first_time:
-    do_evaluate(train_dataset, model, tokenizer, search_params,
-                f'on TRAIN set after training on {len(train_dataset)} samples')
-
 # eval on test test
 rouge_on_test = None
 if not training_args.skip_first_test_eval:

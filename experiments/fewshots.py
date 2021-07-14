@@ -19,7 +19,7 @@ from train import generation_training, training
 
 
 @decorators.measure_time
-def my_eval(dataset, model, tokenizer, search_params, description=''):
+def do_evaluate(dataset, model, tokenizer, search_params, description=''):
     ds = generation.add_summary_and_rouge(model, tokenizer, dataset,
                                           search_params)
     print(f'evaluate {description}')
@@ -94,14 +94,14 @@ else:
 
 # eval on train set(to see overfit)
 if training_args.eval_also_on_train_first_time:
-    my_eval(train_dataset, model, tokenizer, search_params,
-            f'on TRAIN set after training on {len(train_dataset)} samples')
+    do_evaluate(train_dataset, model, tokenizer, search_params,
+                f'on TRAIN set after training on {len(train_dataset)} samples')
 
 # eval on test test
 rouge_on_test = None
 if not training_args.skip_first_test_eval:
-    rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params,
-                            f'on TEST set after training on {len(train_dataset)} samples')
+    rouge_on_test = do_evaluate(predict_dataset, model, tokenizer, search_params,
+                                f'on TEST set after training on {len(train_dataset)} samples')
     log_metrics({'rouge2_on_test': rouge_on_test})
     log_metrics({'rouge2_on_test_first': rouge_on_test})
 
@@ -286,7 +286,7 @@ else:
     do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args,
              last_checkpoint, model_name_or_path_for_saving=None)
 
-final_rouge_on_test = my_eval(predict_dataset, model, tokenizer, search_params, description='on test set now')
+final_rouge_on_test = do_evaluate(predict_dataset, model, tokenizer, search_params, description='on test set now')
 log_metrics({'rouge2_on_test': final_rouge_on_test})
 log_metrics({'rouge2_on_test_last': final_rouge_on_test})
 if rouge_on_test:

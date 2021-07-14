@@ -1,7 +1,6 @@
 from data import data_loading
 from experiments import search_param_setups
 from flows.flows import search_validation_loss
-from flows import loading
 from models import model_loading
 
 dataset_name, split, train_examples, validation_examples, search_params, batch_size = \

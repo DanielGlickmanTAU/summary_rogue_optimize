@@ -1,3 +1,4 @@
+import experiments.fewshots.learning
 from utils import compute, decorators
 from train.FixedCometCallback import FixedCometCallback
 import datasets
@@ -88,7 +89,7 @@ def create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
     trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,
-        train_dataset=train_dataset if training_args.do_train else None,
+        train_dataset=train_dataset if experiments.fewshots.learning.do_train else None,
         eval_dataset=eval_dataset if training_args.do_eval else None,
         tokenizer=tokenizer,
         data_collator=data_collator,

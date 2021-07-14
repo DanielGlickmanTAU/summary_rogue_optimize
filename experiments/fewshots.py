@@ -1,4 +1,5 @@
-from utils import decorators, compute
+from experiments.fewshots.learning import do_evaluate, do_train
+from utils import compute
 from transformers import TrainingArguments
 import datasets
 
@@ -6,59 +7,15 @@ from config.argument_parsing import parse_generation_args
 from config.config import RankerConfig
 from data import data_loading, generated_data_loading, processing
 from data.processing import convert_dataset_with_generated_highlights_to_training_dataset
-from evaluation import evaluate
 from experiments import experiment
 from experiments.experiment import log_metrics
-from models import model_loading, generation, checkpoints
+from models import model_loading, checkpoints
 from time import time
 import random
 import os
 
 from models.generate import BeamSearchParams
-from train import generation_training, training
-
-
-@decorators.measure_time
-def do_evaluate(dataset, model, tokenizer, search_params, description=''):
-    ds = generation.add_summary_and_rouge(model, tokenizer, dataset,
-                                          search_params)
-    print(f'evaluate {description}')
-    return evaluate.print_rouge_stuff(ds)
-
-
-@decorators.measure_time
-def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint,
-             model_name_or_path_for_saving=None):
-    # need this because the trainer remove features that are not neccessery for the model(like article and highlights), which messes things up later.
-    train_dataset = train_dataset.map()
-    eval_dataset = eval_dataset.map()
-    trainer = generation_training.create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
-                                                 tokenizer)
-
-    checkpoint = last_checkpoint
-    if training_args.resume_from_checkpoint is not None:
-        checkpoint = training_args.resume_from_checkpoint
-    # elif last_checkpoint is not None:
-    #     checkpoint = last_checkpoint
-    if checkpoint:
-        train_result = trainer.train(resume_from_checkpoint=checkpoint)
-    else:
-        train_result = trainer.train()
-
-    os.system(f'rm -rf {training_args.output_dir}')
-
-    if training_args.load_generated_model and model_name_or_path_for_saving:
-        t = time()
-        trainer.save_model(model_name_or_path_for_saving)  # Saves the tokenizer too for easy upload
-        trainer.save_state()
-        print(f'saving took {time() - t} seconds')
-    else:
-        print('skiping saving generation model')
-    metrics = train_result.metrics
-    trainer.log_metrics("train", metrics)
-    trainer.save_metrics("train", metrics)
-    return metrics
-
+from train import training
 
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
 

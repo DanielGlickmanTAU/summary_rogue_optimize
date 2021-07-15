@@ -52,6 +52,8 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     ranker_learning_rate: float = field(default=1e-5)
     ranker_gradient_accumulation_steps: int = field(default=2)
 
+    algorithm_cycles: int = field(default=1)
+
 
 @dataclass
 class DataTrainingArguments:

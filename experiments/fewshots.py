@@ -12,6 +12,22 @@ from experiments.experiment import log_metrics
 from models import model_loading, checkpoints
 from models.generate import BeamSearchParams
 
+
+def load_model_from_checkpoint(model_args, model_checkpoint):
+    model_args.model_name_or_path = model_checkpoint
+    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+    return model, tokenizer
+
+
+def create_and_train_model_on_fewshots(model_args, train_dataset, eval_dataset, training_args, data_args,
+                                       last_checkpoint, model_checkpoint):
+    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+    model_save_path = model_checkpoint if training_args.load_generated_model else None
+    do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint,
+             model_name_or_path_for_saving=model_save_path)
+    return model, tokenizer
+
+
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
 
 search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num_beams)
@@ -35,14 +51,11 @@ train_dataset, eval_dataset, predict_dataset, unsupervised_data = data_loading.g
                                                                                            do_unsupervised=True)
 
 if training_args.load_generated_model and os.path.isdir(model_checkpoint):
-
-    model_args.model_name_or_path = model_checkpoint
-    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+    model, tokenizer = load_model_from_checkpoint(model_args, model_checkpoint)
 else:
-    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
-    model_save_path = model_checkpoint if training_args.load_generated_model else None
-    do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint,
-             model_name_or_path_for_saving=model_save_path)
+    model, tokenizer = create_and_train_model_on_fewshots(model_args, train_dataset, eval_dataset, training_args,
+                                                          data_args,
+                                                          last_checkpoint, model_checkpoint)
 
 # eval on test test
 rouge_on_test = None

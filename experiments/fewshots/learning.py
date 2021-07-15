@@ -83,5 +83,7 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
     metrics = train_result.metrics
     trainer.log_metrics("train", metrics)
     # trainer.save_metrics("train", metrics)
+
+    # delete checkpoints or else it willl fill up the disk
     os.system(f'rm -rf {training_args.output_dir}')
     return metrics

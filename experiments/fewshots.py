@@ -28,6 +28,25 @@ def create_and_train_model_on_fewshots(model_args, train_dataset, eval_dataset, 
     return model, tokenizer
 
 
+def train_model_on_unsupervised(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args,
+                                data_args,
+                                model_args, last_checkpoint):
+    if training_args.train_from_scratch_on_unsupervised:
+        del (model)
+        compute.clean_memory()
+
+        model_args.model_name_or_path = original_model_name_or_path
+        model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
+        do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args,
+                 last_checkpoint, model_name_or_path_for_saving=None)
+        do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint,
+                 model_name_or_path_for_saving=None)
+    else:
+        do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args,
+                 last_checkpoint, model_name_or_path_for_saving=None)
+    return model
+
+
 data_args, model_args, training_args, last_checkpoint = parse_generation_args()
 
 search_params = BeamSearchParams(num_return_sequences=1, num_beams=data_args.num_beams)
@@ -87,19 +106,9 @@ filtered_unsupervised_dataset = filter_dataset(ranked_unsupervised_dataset, trai
 unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
     filtered_unsupervised_dataset, tokenizer, data_args)
 
-if training_args.train_from_scratch_on_unsupervised:
-    del (model)
-    compute.clean_memory()
-
-    model_args.model_name_or_path = original_model_name_or_path
-    model, tokenizer = model_loading.get_model_and_tokenizer(model_args)
-    do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args,
-             last_checkpoint, model_name_or_path_for_saving=None)
-    do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_args, last_checkpoint,
-             model_name_or_path_for_saving=None)
-else:
-    do_train(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args, data_args,
-             last_checkpoint, model_name_or_path_for_saving=None)
+model = train_model_on_unsupervised(model, tokenizer, unsupervised_dataset_for_training, eval_dataset, training_args,
+                                    data_args,
+                                    model_args, last_checkpoint)
 
 final_rouge_on_test = do_evaluate(predict_dataset, model, tokenizer, search_params, description='on test set now')
 log_metrics({'rouge2_on_test': final_rouge_on_test})

@@ -102,7 +102,8 @@ for i in range(training_args.algorithm_cycles):
                                                                       batch_size=training_args.per_device_eval_batch_size,
                                                                       load_generated=get_cached_generated_summaries)
 
-    ranked_unsupervised_dataset = rank(unsupervised_data, train_dataset, eval_dataset, training_args)
+    ranked_unsupervised_dataset = rank(model, unsupervised_data, train_dataset, eval_dataset, training_args,
+                                       search_params)
     filtered_unsupervised_dataset = filter_dataset(ranked_unsupervised_dataset, training_args.amount_to_pass_filter)
     unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
         filtered_unsupervised_dataset, tokenizer, data_args)

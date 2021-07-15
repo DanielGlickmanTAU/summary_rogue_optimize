@@ -8,7 +8,7 @@ from data import generated_data_loading, processing
 from models import model_loading
 
 
-def rank(unsupervised_data, train_dataset, validation_dataset, training_args):
+def rank(model, unsupervised_data, train_dataset, validation_dataset, training_args, search_params):
     ranking = training_args.ranking
     if ranking == 'oracle':
         unsupervised_data_with_rouge = generated_data_loading.get_generated_rouge(unsupervised_data, model,

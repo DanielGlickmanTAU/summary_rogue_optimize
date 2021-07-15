@@ -80,8 +80,8 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
         print(f'saving took {time() - t} seconds')
     else:
         print('skiping saving generation model')
-    os.system(f'rm -rf {training_args.output_dir}')
     metrics = train_result.metrics
     trainer.log_metrics("train", metrics)
     # trainer.save_metrics("train", metrics)
+    os.system(f'rm -rf {training_args.output_dir}')
     return metrics

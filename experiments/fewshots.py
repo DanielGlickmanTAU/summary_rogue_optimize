@@ -115,3 +115,4 @@ log_metrics({'rouge2_on_test': final_rouge_on_test})
 log_metrics({'rouge2_on_test_last': final_rouge_on_test})
 if rouge_on_test:
     log_metrics({'rouge-2-diff': final_rouge_on_test - rouge_on_test})
+    rouge_on_test = final_rouge_on_test

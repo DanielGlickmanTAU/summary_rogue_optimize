@@ -127,4 +127,7 @@ def convert_dataset_with_generated_highlights_to_training_dataset(dataset, token
         lambda example: {'highlights': example['generated_highlights'][0]},
         remove_columns=['labels']
     )
-    return convert_to_generation_training(dataset, tokenizer, data_args, max_samples=None)
+    dataset = convert_to_generation_training(dataset, tokenizer, data_args, max_samples=None)
+    # huggginface magic...
+    dataset.set_format(None)
+    return dataset

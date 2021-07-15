@@ -74,8 +74,6 @@ filtered_unsupervised_dataset = filter_dataset(ranked_unsupervised_dataset, trai
 unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
     filtered_unsupervised_dataset, tokenizer, data_args)
 
-# huggginface magic...
-unsupervised_dataset_for_training.set_format(None)
 if training_args.train_from_scratch_on_unsupervised:
     del (model)
     compute.clean_memory()

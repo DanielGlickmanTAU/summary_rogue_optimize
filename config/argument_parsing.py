@@ -55,6 +55,8 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     algorithm_cycles: int = field(default=1)
     printing_unsupervised_selected: bool = field(default=True)
 
+    ranker_metric_for_best_model: str = field(default='accuracy_at_1')
+
 
 @dataclass
 class DataTrainingArguments:

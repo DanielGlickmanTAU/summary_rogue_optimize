@@ -32,7 +32,7 @@ def rank(model, unsupervised_data, train_dataset, validation_dataset, training_a
 
             loss_fn=training_args.ranker_loss_fn,
             tolerance=0.2,  # check it is ok, after I multiple by 100
-            metric_for_best_model='accuracy_at_1',
+            metric_for_best_model=training_args.ranker_metric_for_best_model,
             binary_classification=True,
             include_gold=True
         )

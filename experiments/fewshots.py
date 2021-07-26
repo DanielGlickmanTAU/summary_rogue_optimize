@@ -87,6 +87,7 @@ if not training_args.skip_first_test_eval:
 for i in range(training_args.algorithm_cycles):
     # gpt only makes sense on the first iteration
     if not training_args.use_gpt_dataset or i > 0:
+        training_args.train_from_scratch_on_unsupervised = False
         # dont load from cache if not first iteration, because we want to generate again, on new model
         get_cached_generated_summaries = training_args.load_generated_model and i == 0
         unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_data, model, tokenizer,
@@ -103,12 +104,20 @@ for i in range(training_args.algorithm_cycles):
                                                                       search_params,
                                                                       batch_size=training_args.per_device_eval_batch_size,
                                                                       load_generated=get_cached_generated_summaries)
+    else:
+        training_args.train_from_scratch_on_unsupervised = True
 
     ranked_unsupervised_dataset = rank(model, unsupervised_data, train_dataset, eval_dataset, training_args,
                                        search_params)
     filtered_unsupervised_dataset = filter_dataset(ranked_unsupervised_dataset, training_args.amount_to_pass_filter)
     unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
         filtered_unsupervised_dataset, tokenizer, data_args)
+
+    try:
+        for i in range(len(unsupervised_dataset_for_training)):
+            print(unsupervised_dataset_for_training[i])
+    except:
+        pass
 
     model = train_model_on_unsupervised(model, tokenizer, unsupervised_dataset_for_training, eval_dataset,
                                         training_args,

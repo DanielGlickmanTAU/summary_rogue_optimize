@@ -43,7 +43,7 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     # not working yet
     early_stopping_patience: int = field(default=3)
 
-    ranker_loss_fn: str = field(default='bce')
+    ranker_loss_fn: str = field(default='ranking')
 
     use_gpt_dataset: bool = field(default=False)
 

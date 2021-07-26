@@ -156,7 +156,7 @@ def predict(tokenizer, trainer, test_dataset, search_params):
 
     metrics["predict_samples"] = len(test_dataset)
     trainer.log_metrics("predict", metrics)
-    trainer.save_metrics("predict", metrics)
+    # trainer.save_metrics("predict", metrics)
 
     assert trainer.args.predict_with_generate
     if trainer.is_world_process_zero():

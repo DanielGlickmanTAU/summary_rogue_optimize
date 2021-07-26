@@ -24,7 +24,7 @@ training on the self generated examples. You can use this flag to turn off the i
 
 You can pass any other huggingface TrainerArguments here and they would be used for training the generator, some useful
 ones are:  
-`--metric_for_best_model`. used for early stopping the generator training . Accepts `loss`(default) and `rouge2`
+`--metric_for_best_model`. used for early stopping the generator training . Accepts `loss`(default) and `rouge2`  
 `--ranker_metric_for_best_model`. used for early stopping the ranker training. Accepts `loss`(default)
 and `'accuracy_at_1'`  
 `--learning_rate`

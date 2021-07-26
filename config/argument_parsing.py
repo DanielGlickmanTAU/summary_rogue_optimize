@@ -22,7 +22,7 @@ def get_ranker_config():
 
 @dataclass
 class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
-    version_major: int = field(default=1)
+    version_major: int = field(default=2)
     version_minor: int = field(default=1)
 
     shuffle_training_set: bool = field(default=False)
@@ -53,6 +53,7 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
     ranker_gradient_accumulation_steps: int = field(default=2)
 
     algorithm_cycles: int = field(default=1)
+    printing_unsupervised_selected: bool = field(default=True)
 
 
 @dataclass
@@ -246,7 +247,7 @@ def parse_generation_args():
     # Detecting last checkpoint.
     last_checkpoint = None
     if os.path.isdir(
-            training_args.output_dir) and experiments.fewshots.learning.do_train and not training_args.overwrite_output_dir:
+            training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
         last_checkpoint = get_last_checkpoint(training_args.output_dir)
         if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
             raise ValueError(

@@ -27,14 +27,14 @@ ones are:
 `--metric_for_best_model`. used for early stopping the generator training . Accepts `loss`(default) and `rouge2`  
 `--ranker_metric_for_best_model`. used for early stopping the ranker training. Accepts `loss`(default)
 and `'accuracy_at_1'`  
-`--learning_rate`
-`--ranker_learning_rate`
-`--gradient_accumulation_steps`
-`ranker_gradient_accumulation_steps` default:2
-`--num_train_epochs`. used for both generator and ranker training default: 15
-`--evaluation_strategy` default: epoch
-`--max_eval_samples` default: 256
-`--per_device_train_batch_size` default: 4
+`--learning_rate`  
+`--ranker_learning_rate`  
+`--gradient_accumulation_steps`  
+`ranker_gradient_accumulation_steps` default:2  
+`--num_train_epochs`. used for both generator and ranker training default: 15  
+`--evaluation_strategy` default: epoch  
+`--max_eval_samples` default: 256  
+`--per_device_train_batch_size` default: 4  
 `--per_device_eval_batch_size` default: 8
 
 Some other options that we played with, but are not fully supported  
@@ -43,5 +43,3 @@ generator, for the amount of iterations specified. If used with `--use_gpt_datas
 first iteration and then train using self generated examples.   
 `--train_filter_on`. Accepts `['train','validation','both']`. Experiments with switching the generated split which is
 used for training the filter.
-
-Feel free to message me for questions.

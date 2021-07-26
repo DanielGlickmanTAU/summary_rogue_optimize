@@ -162,7 +162,7 @@ class DataTrainingArguments:
     )
 
     num_beams: Optional[int] = field(
-        default=None,
+        default=1,
         metadata={
             "help": "Number of beams to use for evaluation. This argument will be passed to ``model.generate``, "
                     "which is used during ``evaluate`` and ``predict``."

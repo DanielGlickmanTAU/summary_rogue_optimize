@@ -14,7 +14,7 @@ Required flags:
 `--amount_to_pass_filter`. A number between 0 and 1 indicating the portion of the generated data that is to be used for
 training.  
 Add the following flags as
-it: `--predict_with_generate True --overwrite_output_dir True --do_train True --do_eval True --do_predict True`
+is: `--predict_with_generate True --overwrite_output_dir True --do_train True --do_eval True --do_predict True`
 
 Optinal flags:
 `--shuffle_training_set`,`--shuffle_seed`. If you want to use a different random training set, set to True and pass some

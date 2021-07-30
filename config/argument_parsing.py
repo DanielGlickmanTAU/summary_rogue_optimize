@@ -57,6 +57,8 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
 
     ranker_metric_for_best_model: str = field(default='accuracy_at_1')
 
+    description: str = field(default='')
+
 
 @dataclass
 class DataTrainingArguments:
@@ -97,6 +99,9 @@ class DataTrainingArguments:
     overwrite_cache: bool = field(
         default=False, metadata={"help": "Overwrite the cached training and evaluation sets"}
     )
+
+    filter_examples_longer_than_max_bert_len: bool = field(default=True)
+
     preprocessing_num_workers: Optional[int] = field(
         default=None,
         metadata={"help": "The number of processes to use for the preprocessing."},

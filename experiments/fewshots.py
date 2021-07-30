@@ -87,7 +87,9 @@ if not training_args.skip_first_test_eval:
 for i in range(training_args.algorithm_cycles):
     # gpt only makes sense on the first iteration
     if not training_args.use_gpt_dataset or i > 0:
-        training_args.train_from_scratch_on_unsupervised = False
+        if i > 0:
+            raise Exception('think about this')
+            training_args.train_from_scratch_on_unsupervised = False
         # dont load from cache if not first iteration, because we want to generate again, on new model
         get_cached_generated_summaries = training_args.load_generated_model and i == 0
         unsupervised_data = generated_data_loading.get_generated_summaries(unsupervised_data, model, tokenizer,

@@ -115,11 +115,11 @@ for i in range(training_args.algorithm_cycles):
     unsupervised_dataset_for_training = convert_dataset_with_generated_highlights_to_training_dataset(
         filtered_unsupervised_dataset, tokenizer, data_args)
 
-    try:
-        for i in range(len(unsupervised_dataset_for_training)):
-            print(unsupervised_dataset_for_training[i])
-    except:
-        pass
+    # try:
+    #     for i in range(len(unsupervised_dataset_for_training)):
+    #         print(unsupervised_dataset_for_training[i])
+    # except:
+    #     pass
 
     model = train_model_on_unsupervised(model, tokenizer, unsupervised_dataset_for_training, eval_dataset,
                                         training_args,

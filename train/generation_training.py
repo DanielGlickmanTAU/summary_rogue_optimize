@@ -96,7 +96,7 @@ def create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
 
         compute_metrics=compute_metrics if training_args.predict_with_generate else None,
     )
-    callback = EarlyStoppingCallback(early_stopping_patience=3)
+    callback = EarlyStoppingCallback(early_stopping_patience=data_args.early_stopping_patience)
     trainer.add_callback(callback)
     try:
         trainer.pop_callback(transformers.integrations.CometCallback)

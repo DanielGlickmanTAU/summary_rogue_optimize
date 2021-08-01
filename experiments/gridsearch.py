@@ -8,6 +8,8 @@ def gridsearch(default_params: Dict, params_to_grid_search: Dict[object, List]) 
         for v in params_to_grid_search.values():
             if isinstance(v, list):
                 values.append(v)
+            elif isinstance(v, str):
+                values.append([f'"{v}"'])
             else:
                 values.append([v])
         return product(*values)

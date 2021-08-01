@@ -59,6 +59,8 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
 
     description: str = field(default='')
 
+    ranker_num_epochs: int = field(default=0)
+
 
 @dataclass
 class DataTrainingArguments:

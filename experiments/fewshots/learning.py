@@ -15,7 +15,7 @@ def train_ranker(config, train_dataset, validation_dataset):
     output_dir = "./ranker_output_dir_" + str(time()).replace('.', '_')
     ranker_training_args = TrainingArguments(
         output_dir=output_dir,
-        num_train_epochs=config.num_train_epochs,
+        num_train_epochs=config.ranker_num_epochs if config.ranker_num_epochs else config.num_train_epochs,
         per_device_train_batch_size=1,
         per_device_eval_batch_size=1,
         do_train=True,
@@ -59,7 +59,8 @@ def do_train(model, tokenizer, train_dataset, eval_dataset, training_args, data_
              model_name_or_path_for_saving=None):
     # need this because the trainer remove features that are not neccessery for the model(like article and highlights), which messes things up later.
     train_dataset = train_dataset.map()
-    eval_dataset = eval_dataset.map()
+    if eval_dataset:
+        eval_dataset = eval_dataset.map()
     trainer = generation_training.create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
                                                  tokenizer)
 

@@ -15,7 +15,7 @@ def train_ranker(config, train_dataset, validation_dataset):
     output_dir = "./ranker_output_dir_" + str(time()).replace('.', '_')
     ranker_training_args = TrainingArguments(
         output_dir=output_dir,
-        num_train_epochs=config.ranker_num_epochs if config.ranker_num_epochs else config.num_train_epochs,
+        num_train_epochs=config.num_train_epochs,
         per_device_train_batch_size=1,
         per_device_eval_batch_size=1,
         do_train=True,

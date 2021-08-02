@@ -5,8 +5,8 @@ import random
 
 print(os.path)
 python = os.sys.executable
-partition, time_limit = 'studentkillable', 'infinite'
-
+# partition, time_limit = 'studentkillable', 'infinite'
+partition, time_limit = 'studentbatch', '3-00:00:00'
 slurm_file = 'my_slurm.slurm'
 
 

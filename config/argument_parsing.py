@@ -61,6 +61,10 @@ class UnsupervisedSeq2SeqTrainingArguments(Seq2SeqTrainingArguments):
 
     ranker_num_epochs: int = field(default=0)
 
+    evolution_batch_size: int = field(default=8)
+
+    training_set_shuffle_seed: int = field(default=0)
+
 
 @dataclass
 class DataTrainingArguments:

@@ -25,7 +25,7 @@ def rank(model, unsupervised_data, train_dataset, validation_dataset, training_a
 
             ranker_learning_rate=training_args.ranker_learning_rate,
             ranker_gradient_accumulation_steps=training_args.ranker_gradient_accumulation_steps,
-            num_train_epochs=training_args.num_train_epochs,
+            num_train_epochs=training_args.ranker_num_epochs if training_args.ranker_num_epochs else training_args.num_train_epochs,
             half_percision=False,
             do_evaluation=True,
             max_seq_len=0,
@@ -84,4 +84,10 @@ def rank(model, unsupervised_data, train_dataset, validation_dataset, training_a
 
 def filter_dataset(ranked_dataset, amount_to_pass_filter=0.01):
     ranked_dataset = ranked_dataset.sort('rank', reverse=True)
-    return ranked_dataset.select(range(max(1, int(amount_to_pass_filter * len(ranked_dataset)))))
+    filtered_dataset = ranked_dataset.select(range(max(1, int(amount_to_pass_filter * len(ranked_dataset)))))
+    # here
+    # 1) assert id, shuffle
+    # by
+    # some
+    # random
+    return filtered_dataset

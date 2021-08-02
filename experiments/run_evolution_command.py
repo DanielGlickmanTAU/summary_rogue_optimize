@@ -6,7 +6,6 @@ from models.checkpoints import get_checkpoint_output_dir
 
 params_for_grid_search = {
     'skip_first_test_eval': [False],
-    # 'skip_first_test_eval': [True],
     'train_filter_on': ['train'],
     # 'dataset_name': ['xsum', 'cnn_dailymail'],
     'dataset_name': ['xsum'],
@@ -20,14 +19,14 @@ params_for_grid_search = {
     'max_train_samples': [16],
     # 'shuffle_seed': [32, 10, 12],
     'amount_to_pass_filter': [0.01],
-    'shuffle_seed': [10, 12],
+    'shuffle_seed': [10],
     # 'ranker_loss_fn': ['ranking', 'bce'],
     # 'ranker_loss_fn': ['ranking', 'bce'],
-    'filter_examples_longer_than_max_bert_len': [False],
-    'description': 'do not filter longer sequences and see if that shit work',
+    'description': 'evolution try',
     'early_stopping_patience': [3],
     'ranker_learning_rate': [3e-5],
     'ranker_gradient_accumulation_steps': [2],
+    'ranker_num_epochs': [20],
 
     # 'max_train_samples': [16, 32, 64],
     'train_from_scratch_on_unsupervised': [False],
@@ -37,16 +36,17 @@ params_for_grid_search = {
 
     # 'amount_to_pass_filter': [0.01, 0.05],
     'use_gpt_dataset': [False],
+    'evolution_batch_size': [8, 16]
 
 }
 model_name = 'facebook/bart-base'
 params = {
     'overwrite_output_dir': True,
 
-    'num_train_epochs': '30',
+    'num_train_epochs': '3',
     'evaluation_strategy': 'epoch',
     # 'max_predict_samples': '1000',
-    'max_eval_samples': 256,
+    'max_eval_samples': 32,
     'per_device_train_batch_size': '4',
     'per_device_eval_batch_size': '8',
     'do_train': True,
@@ -75,7 +75,7 @@ params = {
     # 'shuffle_training_set': False
 }
 
-job_name = '''fewshots'''
+job_name = '''evolution'''
 for p in gridsearch(params, params_for_grid_search):
     dataset_name = p['dataset_name']
 

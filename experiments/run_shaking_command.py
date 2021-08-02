@@ -6,7 +6,6 @@ from models.checkpoints import get_checkpoint_output_dir
 
 params_for_grid_search = {
     'skip_first_test_eval': [False],
-    # 'skip_first_test_eval': [True],
     'train_filter_on': ['train'],
     # 'dataset_name': ['xsum', 'cnn_dailymail'],
     'dataset_name': ['xsum'],
@@ -17,14 +16,14 @@ params_for_grid_search = {
     # GPT
     # 'use_gpt_dataset': [True],
 
-    'max_train_samples': [16],
+    'max_train_samples': [32],
     # 'shuffle_seed': [32, 10, 12],
     'amount_to_pass_filter': [0.01],
-    'shuffle_seed': [10, 12],
+    'shuffle_seed': [10],
     # 'ranker_loss_fn': ['ranking', 'bce'],
     # 'ranker_loss_fn': ['ranking', 'bce'],
     'filter_examples_longer_than_max_bert_len': [False],
-    'description': 'do not filter longer sequences and see if that shit work',
+    'description': 'see if shuffling the division of examples to batches effects performance',
     'early_stopping_patience': [3],
     'ranker_learning_rate': [3e-5],
     'ranker_gradient_accumulation_steps': [2],
@@ -37,6 +36,8 @@ params_for_grid_search = {
 
     # 'amount_to_pass_filter': [0.01, 0.05],
     'use_gpt_dataset': [False],
+    'training_set_shuffle_seed': list(range(100, 115)),
+    'max_predict_samples': '10000',
 
 }
 model_name = 'facebook/bart-base'
@@ -45,7 +46,7 @@ params = {
 
     'num_train_epochs': '30',
     'evaluation_strategy': 'epoch',
-    # 'max_predict_samples': '1000',
+
     'max_eval_samples': 256,
     'per_device_train_batch_size': '4',
     'per_device_eval_batch_size': '8',
@@ -66,7 +67,7 @@ params = {
     # 'metric_for_best_model': 'rouge2'
     'metric_for_best_model': 'loss',
     # train each time from scrach cause loading isnt good yet
-    'load_generated_model': True,
+    'load_generated_model': False,
     'shuffle_training_set': True,
     'learning_rate': 1e-5,  # todo try 5e-5
 
@@ -75,7 +76,7 @@ params = {
     # 'shuffle_training_set': False
 }
 
-job_name = '''fewshots'''
+job_name = '''batch_shaking'''
 for p in gridsearch(params, params_for_grid_search):
     dataset_name = p['dataset_name']
 

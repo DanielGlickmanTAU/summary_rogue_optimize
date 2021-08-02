@@ -67,7 +67,7 @@ def create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
 
     # Initialize our Trainer
     assert training_args.predict_with_generate
-    assert training_args.do_eval and eval_dataset is not None
+    if training_args.do_eval: assert eval_dataset is not None
     label_smoothing_check(model, training_args)
 
     # Data collator
@@ -89,7 +89,7 @@ def create_trainer(train_dataset, eval_dataset, training_args, data_args, model,
     trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,
-        train_dataset=train_dataset if experiments.fewshots.learning.do_train else None,
+        train_dataset=train_dataset,
         eval_dataset=eval_dataset if training_args.do_eval else None,
         tokenizer=tokenizer,
         data_collator=data_collator,
